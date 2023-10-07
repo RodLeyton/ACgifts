@@ -20,6 +20,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="install\**" />
+    <EmbeddedResource Remove="install\**" />
+		<None Include="install\*.*" />
+  </ItemGroup>
+
+
+	
+  <ItemGroup>
     <Content Include="Plane.ico" />
   </ItemGroup>
 
