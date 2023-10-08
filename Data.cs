@@ -134,6 +134,8 @@ internal class Data
 		};
 		if(sfd.ShowDialog() != DialogResult.OK) return;
 
+		if(File.Exists(sfd.FileName)) File.Delete(sfd.FileName);
+
 		Save();
 		File.Copy(FILENAME + FILEEXT, sfd.FileName);
 
@@ -214,6 +216,8 @@ internal class Data
 	}
 	public void Import(string file)
 	{
+		Program.Log($"Data.Import()", $"Importing data from '{file}'");
+
 		if(neighbors.Count == 0)
 		{
 			Program.Log($"Data.Import()", "Skiped clear data prompt since neighbors.Count == 0");
@@ -221,10 +225,11 @@ internal class Data
 		else
 		{
 			DialogResult res = MessageBox.Show("Do you want to clear existing data?", "Delete data?", MessageBoxButtons.YesNoCancel);
-			if(res == DialogResult.Cancel) return;
-
-			Program.Log($"Data.Import()", $"Importing data from '{file}'");
-
+			if(res == DialogResult.Cancel)
+			{
+				Program.Log($"Data.Import()", "Import cancelled by user.");
+				return;
+			}
 
 			if(res == DialogResult.Yes)
 			{
@@ -243,15 +248,12 @@ internal class Data
 			}
 		}
 
-
 		using TextFieldParser parser = new(file);
 		parser.TextFieldType = FieldType.Delimited;
 		parser.HasFieldsEnclosedInQuotes = true;
 		parser.SetDelimiters(",");
 		parser.ReadLine();
 		int cnt = 0, fail = 0, parseError = 0;
-		//int impDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
-
 
 		while(!parser.EndOfData)
 		{

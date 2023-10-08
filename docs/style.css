@@ -42,20 +42,20 @@ body {
 .sel { color: #FFFF99 !important; }
 
 h1,h2 {
-	margin: 30px 10px 5px 50px;
+	margin: 30px 60px 5px 50px;
 	font-family: sans-serif;
 	color: #905f1d;
 }
 h4,h5 {
-	margin: 15px 10px 0 60px;
+	margin: 15px 60px 0 60px;
 	font-family: sans-serif;
 	color: #8f5404;
 }
 
 
 
-p,ul {
-	margin: 0 30px 10px 60px;
+p,ul,.stdMargin {
+	margin: 0 60px 10px 60px;
 }
 
 .bad { color: #CC0000 !important; }
@@ -64,6 +64,7 @@ p,ul {
 .imgLeft, .imgRight  { 
 	display: flex;
 	align-items: center;
+	margin: 0 60px 0 0;
  }
  
 .imgLeft img, .imgRight  img { 
