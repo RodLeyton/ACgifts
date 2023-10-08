@@ -40,6 +40,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="data\nieghbors.dat">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -60,6 +63,7 @@
 
   <ItemGroup>
     <Folder Include="docs\install\" />
+    <Folder Include="data\" />
   </ItemGroup>
 
 </Project>

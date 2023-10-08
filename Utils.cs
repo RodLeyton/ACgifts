@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace ACgifts;
 internal class Utils
@@ -21,8 +22,6 @@ internal class Utils
 		ctxMenu.Show(ptScrn);
 	}
 
-
-
 	public static void SetDoubleBuffered(DataGridView dgv, bool setting)
 	{
 		try
@@ -31,15 +30,28 @@ internal class Utils
 			PropertyInfo? pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
 			if(pi is null)
 			{
-				Program.Log("*** EditForm.SetDoubleBuffered() failed to get property ***");
+				Program.Log("Utils.SetDblBuf()", "*** Failed to get PropertyInfo ***");
 				return;
 			}
 			pi.SetValue(dgv, setting, null);
 		}
 		catch(Exception ex)
 		{
-			Program.Log("*** EditForm.SetDoubleBuffered() Exception ***");
-			Program.Log(ex);
+			Program.Log("EditForm.SetDblBuf()", ex);
 		}
 	}
+
+	[DllImport("user32.dll", CharSet = CharSet.Auto)]
+	private static extern int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
+
+	private const int WM_VSCROLL = 0x115;
+	private const int SB_BOTTOM = 7;
+
+	public static void ScrollToBottom(TextBox tb)
+	{
+		_ = SendMessage(tb.Handle, WM_VSCROLL, (IntPtr)SB_BOTTOM, IntPtr.Zero);
+	}
+
+
+
 }

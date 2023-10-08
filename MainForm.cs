@@ -98,6 +98,11 @@ public partial class MainForm:Form
 
 		foreach(Neighbor n in data.neighbors)
 		{
+			if(n.Group is null || n.Group.Trim() == "")
+			{
+				if(!lbGroups.Items.Contains("unassigned")) lbGroups.Items.Add("unassigned");
+				continue;
+			}
 			if(!lbGroups.Items.Contains(n.Group))
 				lbGroups.Items.Add(n.Group);
 		}
@@ -114,11 +119,16 @@ public partial class MainForm:Form
 
 		foreach(Neighbor n in data.neighbors)
 		{
-			if("" + lbGroups.SelectedItem != n.Group) continue;
+			if("" + lbGroups.SelectedItem == "unassigned")
+			{
+				if(n.Group?.Trim() != "") continue;
+			}
+			else if("" + lbGroups.SelectedItem != n.Group) continue;
 
-			ListViewItem lvi = new(n.NameRecv) 
-			{ 
-				Tag = n, 
+
+			ListViewItem lvi = new(n.NameRecv)
+			{
+				Tag = n,
 				UseItemStyleForSubItems = false,
 				ToolTipText = $"{n.Name}"
 			};
@@ -130,9 +140,9 @@ public partial class MainForm:Form
 			lvi.ToolTipText = $"{n.Name}";
 			lvRecv.Items.Add(lvi);
 
-			ListViewItem lvi2 = new(n.NameSend) 
-			{ 
-				Tag = n, 
+			ListViewItem lvi2 = new(n.NameSend)
+			{
+				Tag = n,
 				UseItemStyleForSubItems = false,
 				ToolTipText = $"{n.Name}"
 			};

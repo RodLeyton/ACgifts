@@ -52,7 +52,7 @@ partial class MainForm
 		// 
 		butEdit.Location = new Point(10, 9);
 		butEdit.Name = "butEdit";
-		butEdit.Size = new Size(80, 26);
+		butEdit.Size = new Size(89, 26);
 		butEdit.TabIndex = 5;
 		butEdit.Text = "Edit";
 		butEdit.UseVisualStyleBackColor = true;
@@ -99,7 +99,7 @@ partial class MainForm
 		lbGroups.ItemHeight = 20;
 		lbGroups.Location = new Point(10, 44);
 		lbGroups.Name = "lbGroups";
-		lbGroups.Size = new Size(80, 204);
+		lbGroups.Size = new Size(89, 204);
 		lbGroups.TabIndex = 6;
 		lbGroups.SelectedIndexChanged += LbGroups_SelectedIndexChanged;
 		// 

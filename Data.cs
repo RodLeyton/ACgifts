@@ -5,7 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.VisualBasic.Logging;
 
 namespace ACgifts;
 internal class Data
@@ -26,9 +28,14 @@ internal class Data
 	public void Load()
 	{
 		int cnt = 0, fail = 0;
+		Program.Log("Data.Load()","Loading neighbors from datafile.");
 
 		neighbors.Clear();
-		if(!File.Exists(FILENAME + FILEEXT)) return;
+		if(!File.Exists(FILENAME + FILEEXT))
+		{
+
+			return;
+		}
 
 		StreamReader sr = new(FILENAME + FILEEXT);
 		while(!sr.EndOfStream)
@@ -44,38 +51,38 @@ internal class Data
 				if(n != null) neighbors.Add(n);
 				else
 				{
-					Program.Log($"Data.Load() Line {cnt} failed parse: {line}");
+					Program.Log("Data.Load()", $"Line {cnt} failed parse: {line}");
 					fail++;
 				}
 			}
 			catch(Exception ex)
 			{
 				fail++;
-				Program.Log("Exception caught in Data.Load()");
-				Program.Log($"Line {cnt} => {line}");
-				Program.Log(ex);
+				Program.Log("Data.Load()",$"Exception caught during processing of line {cnt} line={line}");
+				Program.Log("Data.Load()", ex);
 			}
 		}
 		sr.Close();
 		if(fail > 0)
 		{
 			MessageBox.Show($"Not all data was imported, {fail}/{cnt} failed. Contact the developer for assistance.");
-			Program.Log($"*** Data.Load() complete. {fail}/{cnt} failed.");
+			Program.Log("Data.Load()", $"***  Load complete. {fail}/{cnt} failed.");
 		}
+		Program.Log("Data.Load()", $"{neighbors.Count} loaded.");
 	}
 
 	public void Save()
 	{
 		if(neighbors.Count == 0)
 		{
-			Program.Log($"Data.Save() Aborted, neighbors is empty.");
+			Program.Log("Data.Save()", "Save Aborted, neighbors is empty.");
 			return;
 		}
 
-		Program.Log($"Data.Save() Saving datafile.");
+		Program.Log("Data.Save()", "Saving datafile.");
 		if(!dataBackupDone)
 		{
-			Program.Log($"Data.Save() Moving backups");
+			Program.Log("Data.Save()", "Rotating backup data files");
 			try
 			{
 				for(int i = 10; i > 0; i--)
@@ -88,12 +95,12 @@ internal class Data
 				if(File.Exists(FILENAME + FILEEXT))
 					File.Move(FILENAME + FILEEXT, FILENAME + ".bak1" + FILEEXT);
 
-				Program.Log($"Data.Save() Moved backupfiles successfully.");
+				Program.Log($"Data.Save()", "Rotated backup files successfully.");
 			}
 			catch (Exception ex)
 			{
-				Program.Log($"*** Data.Save() Exception moving backup data files ***");
-				Program.Log(ex);
+				Program.Log($"Data.Save()", "Exception moving backup data files");
+				Program.Log("Data.Save()", ex);
 			}
 			dataBackupDone = true;
 		}
@@ -108,8 +115,8 @@ internal class Data
 		}
 		catch (Exception ex)
 		{
-			Program.Log($"*** Data.Save() Exception saving current data file ***");
-			Program.Log(ex);
+			Program.Log("Data.Save()", "Exception saving current data file");
+			Program.Log("Data.Save()", ex);
 		}
 		finally
 		{
@@ -122,6 +129,7 @@ internal class Data
 	{
 		SaveFileDialog sfd = new()
 		{
+			Filter = "Data File|*.dat",
 			FileName = $"ACgifts_backup_{DateTime.Now:yyyy-MM-dd}{FILEEXT}"
 		};
 		if(sfd.ShowDialog() != DialogResult.OK) return;
@@ -138,11 +146,11 @@ internal class Data
 		};
 		if(ofd.ShowDialog() == DialogResult.OK)
 		{
-			Program.Log($"Data.Restore() Restore started src='{ofd.FileName}'");
+			Program.Log("Data.Restore()", $"Restore started src='{ofd.FileName}'");
 			if(!File.Exists(ofd.FileName))
 			{
 				MessageBox.Show($"Couldn't access {ofd.FileName}, please check permissions.");
-				Program.Log($"*** Data.Restore() Couldn't access {ofd.FileName}' restore aborted.");
+				Program.Log($"Data.Restore()", $"'{ofd.FileName}' does not exist.");
 				return;
 			}
 
@@ -162,16 +170,15 @@ internal class Data
 					if(n != null) temp.Add(n);
 					else
 					{
-						Program.Log($"Data.Restore() Line {cnt} failed parse: {line}");
+						Program.Log("Data.Restore()", $"*** Line {cnt} failed parse: {line}");
 						fail++;
 					}
 				}
 				catch(Exception ex)
 				{
 					fail++;
-					Program.Log("*** Data.Restore() Exception caught in Data.Load() ***");
-					Program.Log($"Line {cnt} => {line}");
-					Program.Log(ex);
+					Program.Log("Data.Restore()", $"Exception caught on line {cnt} => {line}");
+					Program.Log("Data.Restore()", ex);
 					break;
 				}
 			}
@@ -179,17 +186,17 @@ internal class Data
 			if(fail > 0)
 			{
 				MessageBox.Show($"Backup file is corrupt, {fail}/{cnt} failed.\r\nAll data from restore was rejected, current data has been maintained.\r\nContact the developer for assistance.");
-				Program.Log($"Backup file '{ofd.FileName}' is corrupt, {fail}/{cnt} failed. Restore aborted.");
+				Program.Log("Data.Restore()", $"Backup file '{ofd.FileName}' is corrupt, {fail}/{cnt} failed. Restore aborted.");
 				return;
 			}
 
 			string backup = $"ACgifts_backup_pre_restore_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{FILEEXT}";
 
-			Program.Log($"Data.Restore() Backed file parsed successfully. {cnt} records found.");
+			Program.Log("Data.Restore()", $"Backup file parsed successfully. {cnt} records found.");
 
 			if(neighbors.Count > 0 && File.Exists(FILENAME + FILEEXT))
 			{
-				Program.Log($"Data.Restore() Backing up current data file to '{backup}'");
+				Program.Log("Data.Restore()", $"Backing up current data file to '{backup}'");
 				Save();
 				File.Move(FILENAME + FILEEXT, backup);
 			}
@@ -200,33 +207,40 @@ internal class Data
 			MessageBox.Show($"Restored all {cnt} neighbors successfully!");
 
 
-			Program.Log($"Data.Restore() Saving new data file.");
+			Program.Log("Data.Restore()", "Saving new data file.");
 			Save();
-			Program.Log($"Data.Restore() Complete.");
+			Program.Log("Data.Restore()", "Restore Complete.");
 		}
 	}
 	public void Import(string file)
 	{
-		DialogResult res = MessageBox.Show("Do you want to clear existing data?", "Delete data?", MessageBoxButtons.YesNoCancel);
-		if(res == DialogResult.Cancel) return;
-
-		Program.Log($"Data.Import() Importing data: src='{file}'");
-
-
-		if(res == DialogResult.Yes)
+		if(neighbors.Count == 0)
 		{
-			neighbors.Clear();
-			Program.Log($"Data.Import() Cleared existing data.");
+			Program.Log($"Data.Import()", "Skiped clear data prompt since neighbors.Count == 0");
 		}
 		else
 		{
-			Program.Log($"Data.Import() Retaining {neighbors.Count} existing records.");
+			DialogResult res = MessageBox.Show("Do you want to clear existing data?", "Delete data?", MessageBoxButtons.YesNoCancel);
+			if(res == DialogResult.Cancel) return;
 
-			string backup = $"ACgifts_backup_pre_import_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{FILEEXT}";
+			Program.Log($"Data.Import()", $"Importing data from '{file}'");
 
-			Program.Log($"Data.Import() Backing up current data file to '{backup}'");
-			Save();
-			File.Move(FILENAME + FILEEXT, backup);
+
+			if(res == DialogResult.Yes)
+			{
+				neighbors.Clear();
+				Program.Log("Data.Import()", "User requested to clear existing data.");
+			}
+			else
+			{
+				Program.Log("Data.Import()", $"Retaining {neighbors.Count} existing records.");
+
+				string backup = $"ACgifts_backup_pre_import_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{FILEEXT}";
+
+				Program.Log("Data.Import()", $"Backing up current data file to '{backup}'");
+				Save();
+				File.Move(FILENAME + FILEEXT, backup);
+			}
 		}
 
 
@@ -235,8 +249,8 @@ internal class Data
 		parser.HasFieldsEnclosedInQuotes = true;
 		parser.SetDelimiters(",");
 		parser.ReadLine();
-		int cnt = 0, fail = 0;
-		int impDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
+		int cnt = 0, fail = 0, parseError = 0;
+		//int impDate = int.Parse(DateTime.Now.ToString("yyyyMMdd"));
 
 
 		while(!parser.EndOfData)
@@ -250,75 +264,103 @@ internal class Data
 			catch(Exception ex)
 			{
 				fail++;
-				Program.Log($"*** Data.Import() Exception caught for parser.ReadFields() on line {cnt} ***");
-				Program.Log(ex);
+				Program.Log($"Data.Import()", $"Exception caught for parser.ReadFields() on line {cnt}");
+				Program.Log("Data.Import()", ex);
 				cnt++;
 				continue;
 			}
-
 			if(fields is null)
 			{
 				fail++;
-				Program.Log($"*** Data.Import() TextFieldParser Couldn't Parse line {cnt}");
+				Program.Log("Data.Import()", $"TextFieldParser Couldn't Parse line {cnt}");
 				cnt++;
 				continue;
 			}
-			if(fields.Length != 12)
+			if(fields.Length != 11)
 			{
 				fail++;
-				Program.Log($"*** Data.Import() Only {fields.Length} fields found on line {cnt}. Dropped data = {string.Join(',', fields)}");
+				Program.Log($"Data.Import()", $"Only {fields.Length} fields found on line {cnt}. Dropped: {string.Join(',', fields)}");
 				cnt++;
 				continue;
 			}
 
 			cnt++;
-			//Order,Name,NameSend,CodeSend,LastSend,CntSent,NameRecv,CodeRecv,LastRecv,CntRecv,Group,Added
-			string sOrder = fields[0];
-			string name = fields[1];
-			string nameSend = fields[2];
-			string codeSend = fields[3];
-			string sLastSend = fields[4];
-			string sCntSent = fields[5];
-			string nameRecv = fields[6];
-			string codeRecv = fields[7];
-			string sLastRecv = fields[8];
-			string sCntRecv = fields[9];
-			string group = fields[10];
-			string sAdded = fields[11];
+			//Name	Group	NameSend	CodeSend	LastSend	CntSend	NameRecv	CodeRecv	LastRecv	CntRecv	Added
+			string name = fields[0].Trim();
+			string group = fields[1].Trim();
+			string nameSend = fields[2].Trim();
+			string codeSend = fields[3].Trim();
+			string sLastSend = fields[4].Trim();
+			string sCntSent = fields[5].Trim();
+			string nameRecv = fields[6].Trim();
+			string codeRecv = fields[7].Trim();
+			string sLastRecv = fields[8].Trim();
+			string sCntRecv = fields[9].Trim();
+			string sAdded = fields[10].Trim();
 
-			if(!int.TryParse(sOrder, out int order)) order = 0;
 			if(!int.TryParse(sCntSent, out int cntSent)) cntSent = 0;
 			if(!int.TryParse(sCntRecv, out int cntRecv)) cntRecv = 0;
 
-			DateTime lastSend = DateTime.MinValue, lastRecv = DateTime.MinValue;
-			if(DateTime.TryParse(sLastSend, null, DateTimeStyles.None, out DateTime dtS))
-				lastSend = dtS;
-			if(DateTime.TryParse(sLastRecv, null, DateTimeStyles.None, out DateTime dtR))
-				lastRecv = dtR;
-			if(!DateTime.TryParse(sLastRecv, null, DateTimeStyles.None, out DateTime added))
-				added = DateTime.Now;
+			DateTime lastSend = DateTime.MinValue, lastRecv = DateTime.MinValue, added = DateTime.Now;
+
+			if(sLastSend != "")
+			{
+				if(DateTime.TryParse(sLastSend, null, DateTimeStyles.None, out DateTime dtS)) lastSend = dtS;
+				else {
+					parseError++;
+					Program.Log("Data.Import()", $"Line {cnt}: LastSend date format was incorrect. Val={sLastSend}");
+				}
+			}
+
+			if(sLastRecv != "")
+			{
+				if(DateTime.TryParse(sLastRecv, null, DateTimeStyles.None, out DateTime dtR)) lastRecv = dtR;
+				else {
+					parseError++;
+					Program.Log("Data.Import()", $"Line {cnt}: LastRecv date format was incorrect. Val={sLastRecv}");
+				}
+			}
+
+			if(sAdded != "")
+			{
+				if(DateTime.TryParse(sAdded, null, DateTimeStyles.None, out DateTime dtA)) added = dtA;
+				else {
+					parseError++;
+					Program.Log("Data.Import()", $"Line {cnt}: 'Added' date format was incorrect, set to DateTime.Now   Val={sAdded}");
+				}
+			}
+
+			neighbors.Add(new(name, nameSend, nameRecv, codeSend, codeRecv, group, added, lastSend, lastRecv, cntSent, cntRecv));
 
 
-			//if(DateTime.TryParseExact(sLastSend, "dd/MM/yyyy", null, DateTimeStyles.None, out DateTime dtS))
-			//	lastSend = dtS;
-			//if(DateTime.TryParseExact(sLastRecv, "dd/MM/yyyy", null, DateTimeStyles.None, out DateTime dtR))
-			//	lastRecv = dtR;
-			//if(!DateTime.TryParseExact(sLastRecv, "dd/MM/yyyy", null, DateTimeStyles.None, out DateTime added))
-			//	added = DateTime.Now;
-
-			neighbors.Add(new(order, name, nameSend, nameRecv, codeSend, codeRecv, group, added, lastSend, lastRecv, cntSent, cntRecv));
 		}
+		ReOrder();
 		Save();
 
 		if(fail > 0)
 		{
 			MessageBox.Show($"Import file is corrupt, {fail}/{cnt} lines failed.\r\nPlease check the file format.");
-			Program.Log($"Data.Import() File '{file}' is malformed, {fail}/{cnt} lines failed.");
+			Program.Log("Data.Import()", $"*** File '{file}' is malformed, {fail}/{cnt} lines failed.");
+			return;
+		}
+
+		if(parseError > 0)
+		{
+			MessageBox.Show($"Import file had some datetime errors, but all lines were imported.\r\nPlease check the log for details.");
+			Program.Log("Data.Import()", $"*** File '{file}' had parse errors, {fail}/{cnt} lines failed.");
 			return;
 		}
 
 
 		MessageBox.Show($"Import Added {cnt} neighbors successfully!");
-		Program.Log($"Data.Import() Added {cnt} neighbors successfully!");
+		Program.Log("Data.Import()", $"Added {cnt} neighbors successfully!");
 	}
+
+	public void ReOrder()
+	{
+		int ord = 0;
+		foreach(Neighbor n in neighbors)
+			n.Order = ord++;
+	}
+
 }

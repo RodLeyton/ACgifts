@@ -34,8 +34,9 @@ internal partial class EditForm:Form
 		dgvData.DataSource = bindSource;
 
 		cbGroup.Items.Add("All");
+		cbGroup.Items.Add("Unassigned");
 		foreach(Neighbor n in data.neighbors)
-			if(!cbGroup.Items.Contains(n.Group)) cbGroup.Items.Add(n.Group);
+			if(n.Group?.Trim() != "" && !cbGroup.Items.Contains(n.Group)) cbGroup.Items.Add(n.Group);
 
 		cbGroup.SelectedIndex = 0;
 	}
@@ -48,12 +49,22 @@ internal partial class EditForm:Form
 
 		foreach(DataGridViewRow row in dgvData.Rows)
 		{
+			if(row.IsNewRow) continue;
+
 			if(cbGroup.SelectedIndex < 1)
 			{
 				row.Visible = true;
 				continue;
 			}
-			if(row.IsNewRow) continue;
+
+			if(row.Cells[1].Value is not string group) group = "";
+
+			if(cbGroup.SelectedIndex == 1)
+			{
+				if(group.Trim() == "") row.Visible = true;
+				else row.Visible = false;
+				continue;
+			}
 			row.Visible = (string)row.Cells[1].Value == cbGroup.Text;
 		}
 
@@ -95,6 +106,12 @@ internal partial class EditForm:Form
 		}
 		catch { }
 	}
+	private void ButLog_Click(object sender, EventArgs e)
+	{
+		new LogViewForm().ShowDialog();
+	}
+
+
 	private void ButMoveUp_Click(object sender, EventArgs e)
 	{
 		if(dgvData.SelectedRows.Count == 0) return;
@@ -120,7 +137,7 @@ internal partial class EditForm:Form
 			}
 		}
 		dgvData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-		ReOrder();
+		data.ReOrder();
 	}
 	private void ButMoveDown_Click(object sender, EventArgs e)
 	{
@@ -147,7 +164,7 @@ internal partial class EditForm:Form
 			}
 		}
 		dgvData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-		ReOrder();
+		data.ReOrder();
 	}
 
 
@@ -172,7 +189,6 @@ internal partial class EditForm:Form
 				MessageBox.Show("The entered value must be a date\n\nPress [ESC] to undo");
 				break;
 			default:
-
 				MessageBox.Show($"An unknown error has occured in col {e.ColumnIndex}\n\nPress [ESC] to undo");
 				break;
 		}
@@ -256,17 +272,17 @@ internal partial class EditForm:Form
 	{
 		if(sender is null)
 		{
-			Program.Log($"*** {method} Sender was null");
+			Program.Log("EditForm.GetCxtArgs()",$"*** {method} Sender was null");
 			return null;
 		}
 		if(sender is not ToolStripMenuItem tsmi)
 		{
-			Program.Log($"*** {method} Sender was {sender.GetType()} expecting ToolStripMenuItem");
+			Program.Log("EditForm.GetCxtArgs()", $"*** {method} Sender was {sender.GetType()} expecting ToolStripMenuItem");
 			return null;
 		}
 		if(tsmi.Tag is not ContextEventArgs ctxa)
 		{
-			Program.Log($"*** {method} Sender.Tag was {tsmi.Tag.GetType()} expecting ContextEventArgs");
+			Program.Log("EditForm.GetCxtArgs()", $"*** {method} Sender.Tag was {tsmi.Tag.GetType()} expecting ContextEventArgs");
 			return null;
 		}
 		return ctxa;
@@ -286,7 +302,7 @@ internal partial class EditForm:Form
 		bindSource.Insert(ctxa.RowIndex, newNeighbor);
 
 		dgvData.CurrentCell = dgvData.Rows[ctxa.RowIndex].Cells[0];
-		ReOrder();
+		data.ReOrder();
 	}
 	private void CtxDelete(object? sender, EventArgs? e)
 	{
@@ -294,7 +310,7 @@ internal partial class EditForm:Form
 		if(ctxa is null) return;
 
 		bindSource.Remove(ctxa.Neighbor);
-		ReOrder();
+		data.ReOrder();
 	}
 	private void CtxMoveUp(object? sender, EventArgs? e)
 	{
@@ -312,7 +328,7 @@ internal partial class EditForm:Form
 			}
 			rowToMove--;
 		}
-		ReOrder();
+		data.ReOrder();
 	}
 	private void CtxMoveDown(object? sender, EventArgs? e)
 	{
@@ -330,17 +346,7 @@ internal partial class EditForm:Form
 			}
 			rowToMove++;
 		}
-		ReOrder();
+		data.ReOrder();
 	}
-
-	private void ReOrder()
-	{
-		int ord = 0;
-		foreach(Neighbor n in data.neighbors)
-			n.Order = ord++;
-	}
-
-
-
 
 }

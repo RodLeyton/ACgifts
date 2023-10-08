@@ -58,9 +58,9 @@ internal class Neighbor
 		CntRecv = 0;
 	}
 
-	public Neighbor(int order, string name, string nameSend, string nameRecv, string idSend, string idRecv, string group, DateTime added, DateTime? lastSend, DateTime? lastRecv, int cntSend, int cntRecv)
+	public Neighbor(string name, string nameSend, string nameRecv, string idSend, string idRecv, string group, DateTime added, DateTime? lastSend, DateTime? lastRecv, int cntSend, int cntRecv)
 	{
-		Order = order;
+		Order = 0;
 		Name = name;
 		NameSend = nameSend;
 		NameRecv = nameRecv;

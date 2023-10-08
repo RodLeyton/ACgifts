@@ -46,13 +46,28 @@ h1,h2 {
 	font-family: sans-serif;
 	color: #905f1d;
 }
-h4 {
-	margin: 20px 10px 0 60px;
+h4,h5 {
+	margin: 15px 10px 0 60px;
 	font-family: sans-serif;
 	color: #8f5404;
 }
 
 
-p {
-	margin: 5px 30px 5px 60px;
+
+p,ul {
+	margin: 0 30px 10px 60px;
 }
+
+.bad { color: #CC0000 !important; }
+
+
+.imgLeft, .imgRight  { 
+	display: flex;
+	align-items: center;
+ }
+ 
+.imgLeft img, .imgRight  img { 
+	margin: 0 10px 0 60px;
+ }
+
+

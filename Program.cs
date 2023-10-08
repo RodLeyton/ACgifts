@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
@@ -12,6 +14,11 @@ internal static class Program
 	private static StreamWriter? logfile;
 	private static readonly object _locker = new();
 
+#if DEBUG
+	public static string LOG_FILE = "log-debug.txt";
+#else
+	public static string LOG_FILE = "log-release.txt";
+#endif
 
 
 
@@ -50,31 +57,16 @@ internal static class Program
 	private static void DoWork()
 	{
 
-
-
 #if DEBUG
 		Directory.CreateDirectory("data");
-		RotateLogs("data/log-debug");
-		logfile = new StreamWriter("data/log-debug.txt", append: true) { AutoFlush = true };
-		Log($"App startup {DateTime.Now}");
+		SetupLogfile();
+		Log("", $"App startup {DateTime.Now:u}");
 
-		try
-		{
-			Application.Run(new MainForm());
-		}
-		catch(Exception ex)
-		{
-			MessageBox.Show("Program.Main() Exception: " + ex.Message);
-			Log("*** Program.Main() Fatal Exception ***");
-			Log(ex);
-		}
-		finally
-		{
-			Log("App closed " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss.ffff \"GMT\"zzz") + "\r\n");
-			logfile?.Flush();
-			logfile?.Close();
-		}
+		Application.Run(new MainForm());
 
+		Log("",$"App closed {DateTime.Now:u}\r\n");
+		logfile?.Flush();
+		logfile?.Close();
 
 #else
 
@@ -82,9 +74,8 @@ internal static class Program
 		try
 		{
 			Directory.CreateDirectory("data");
-			RotateLogs("data/log-release");
-			logfile = new StreamWriter("data/log-release.txt", append: true) { AutoFlush = true };
-			Log($"App startup {DateTime.Now}");
+			SetupLogfile();
+			Log("", $"App startup {DateTime.Now:u}");
 
 			Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
@@ -94,68 +85,114 @@ internal static class Program
 		catch(Exception ex)
 		{
 			MessageBox.Show("ACgifts Unhandled Exception. Sorry this is fatal, Exiting.\n" + ex.Message, "ACgifts Fatal Error.");
-			Log("*** Program.Main() Fatal Exception ***");
-			Log(ex);
+			Log("Program.Main()", $"*****  Fatal Exception  *****");
+			Log("Program.Main()", ex);
 		}
 		finally
 		{
-			Log("App closed " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss.ffff \"GMT\"zzz") + "\r\n");
+			Log("",$"App closed {DateTime.Now:u}\r\n");
 			logfile?.Flush();
 			logfile?.Close();
 		}
-
 #endif
 
 	}
 
 
 
-
-
-
-
-	public static void Log(string msg)
+	public static void Log(string from, string msg)
 	{
 		lock(_locker)
 		{
+			if(from != "") logfile?.Write(from.PadRight(20));
 			logfile?.WriteLine(msg);
 #if DEBUG
 			Debug.WriteLine(msg);
 #endif
 		}
 	}
-	public static void Log(Exception ex)
+	public static void Log(string from, Exception ex)
 	{
 		lock(_locker)
 		{
+			logfile?.WriteLine($"----- {from}  {ex.Message}  ".PadRight(80,'-'));
 			logfile?.WriteLine(ex.Message);
 			logfile?.WriteLine(ex.StackTrace);
+			logfile?.WriteLine(new string('-',80));
 #if DEBUG
-			Debug.WriteLine(ex.Message);
+			Debug.WriteLine($"----- {from}  {ex.Message}");
 			Debug.WriteLine(ex.StackTrace);
 #endif
 		}
 	}
 
-	private static void RotateLogs(string filename)
+	public static string GetLogs()
 	{
+		lock(_locker)
+		{
+			if(logfile == null) return "";
+			try
+			{
+				logfile.Flush();
+				logfile.Close();
+				string content = File.ReadAllText(GetFullLogPath());
+				return content;
+			}
+			catch (Exception ex)
+			{
+				return ex.Message + "\r\nError reading logfile, click the Dir button and navigate to the data directory.";
+			}
+			finally
+			{
+				logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
+			}
+		}
+	}
+	private static void SetupLogfile()
+	{
+		if(logfile != null) throw new Exception("Cannot rotate logs when they are open!");
+		string noExt = Path.ChangeExtension(GetFullLogPath(), null);
+
 		try
 		{
-			if(!File.Exists(filename + ".txt")) return;
-				
-			FileInfo fi = new(filename + ".txt");
-			if(fi.Length < 10000) return;
+			if(!File.Exists(GetFullLogPath()))
+			{
+				logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
+				Log("Program",$"logfile created {DateTime.Now:u}");
+				return;
+			}
 
+			FileInfo fi = new(GetFullLogPath());
+			if(fi.Length > 10000)
+			{
+				if(File.Exists(noExt + ".bak.txt"))
+					File.Delete(noExt + ".bak.txt");
 
-			if(File.Exists(filename + ".bak.txt"))
-				File.Delete(filename + ".bak.txt");
-
-			File.Move(filename + ".txt", filename + ".bak.txt");
+				File.Move(GetFullLogPath(), noExt + ".bak.txt");
+				logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
+				Log("Program", $"logfile rotated {DateTime.Now:u}");
+				return;
+			}
+			logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
 		}
 		catch (Exception ex)
 		{
 			MessageBox.Show("ACgifts encountered an error rotating logs: \r\n" + ex.Message);
 		}
+	}
+	
+	
+	public static string GetFullLogPath()
+	{
+		return GetDataDir() + LOG_FILE;
+	}
+	public static string GetAppDir()
+	{
+		return Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+	}
+	public static string GetDataDir()
+	{
+		return GetAppDir() + "data" + Path.DirectorySeparatorChar;
 	}
 
 
