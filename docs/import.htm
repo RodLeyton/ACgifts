@@ -11,8 +11,8 @@
 		<li><a href="index.htm">Home</a></li>
 		<li><a href="https://github.com/RodLeyton/ACgifts/raw/master/install/setup.exe">Download ACgifts</a></li>
 		<li><a href="faq.htm">Help/FAQ</a></li>
-		<li><a href="https://github.com/RodLeyton/ACgifts">Repo</a></li>
-		<li><a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about">Contact</a></li>
+		<li><a href="https://github.com/RodLeyton/ACgifts" target="_blank">Repo</a></li>
+		<li><a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about" target="_blank">Contact</a></li>
 	</ul>
 
 	<h1>Importing neighbors via CSV file</h1>
@@ -48,7 +48,7 @@
 	
 	<p>&nbsp;</p>
 	<h2 id="datetime">Valid date time formats</h2>
-	<p>All <a href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings">standard formats</a> are accepted, some of which depend on your locale.<br>
+	<p>All <a href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings" target="_blank">standard formats</a> are accepted, some of which depend on your locale.<br>
 	Take note any locale dependent formats differ depending on what location your computer is set to. This is by design and usually is a very helpfull convenience.<br>
 	For example the short date format 01/02/2023 will refer to Janurary in the US and Feburary in France. 
 	If you stick to what is normally used in your country (and your computers location is correct) you should be fine.<br>
@@ -78,6 +78,7 @@
 		<li>Most normal language formats will also work so long as it is unambigous</li>
 		<li>'April 10, 2023' - works as expected in any locale.</li>
 		<li>'1 march 2023 9pm' - works as expected in any locale.</li>
+		<li>'1 mar 2023 6am' - works as expected in any locale.</li>
 		<li class="bad">'1st march 2023 9pm' - fails to parse!</li>
 		<li class="bad">'half past a sparrows fart' - only works in the Australian outback.</li>
 	</ul>
