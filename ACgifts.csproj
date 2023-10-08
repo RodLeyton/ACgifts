@@ -40,9 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="data\nieghbors.dat">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Update="docs\banner.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -102,7 +99,6 @@
 
   <ItemGroup>
     <Folder Include="docs\install\" />
-    <Folder Include="data\" />
   </ItemGroup>
 
 </Project>

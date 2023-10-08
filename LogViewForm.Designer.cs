@@ -75,6 +75,7 @@ partial class LogViewForm
 		Controls.Add(labLocation);
 		Controls.Add(tbLog);
 		Name = "LogViewForm";
+		StartPosition = FormStartPosition.CenterParent;
 		Text = "LogViewForm";
 		ResumeLayout(false);
 		PerformLayout();
