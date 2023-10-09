@@ -22,6 +22,7 @@
 		<li><a href="#errorLog">Where can I find the error logs?</a></li>
 		<li><a href="#warnings">What are there all these warnings when installing?</a></li>
 		<li><a href="#refund">What if I don't like it, can I get a refund?</a></li>
+		<li><a href="#data">Why are there so many .dat files?</a></li>
 		
 	</ul>
 
@@ -101,7 +102,7 @@
 	<h2 id="errorLog">Where can I find the logfile?</h2>
 	<div class="imgLeft"><img src="log_button.png">
 		<span>Logs are located in the application directorys 'data' subfolder.<br>
-		When the primary log reaches 10kB it is moved to 'log-release.bak.txt' and a new file is started.<br>
+		When the primary log reaches 250kB it is moved to 'log-release.bak.txt' and a new file is started.<br>
 		The exact location will depend on your OS, but the easiest way to find it is to click the Dir or Log buttons on the Edit form.</span>
 	</div>
 	<p><a href="faq.htm">back to top</a></p>
@@ -149,6 +150,15 @@
 	
 	<h3>But why did my anivirus not pick this up?</h3>
 	<p>Well my best guess is because the app doesn't contain any virus or malware!</p>
+	<p><a href="faq.htm">back to top</a></p>
+	
+	
+	<hr>
+	<h3 id="data">Why are there so many .dat files?</h3>
+	<p>Safety of data is the top priority! Every time the app is started a backup of the previous sessions data is saved.<br>
+	These are rotated so the largest number	(max 30) is the oldest.<br>
+	Normally this should cover the last month, so we have plenty of options to recover data if anything goes wrong!<br>
+	In addition, before a restore or import a backup is also created (these are never deleted) named 'ACgifts_backup_pre...'</p>
 	<p><a href="faq.htm">back to top</a></p>
 	
 	

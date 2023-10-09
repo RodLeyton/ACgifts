@@ -103,33 +103,6 @@ internal static class Program
 	}
 
 
-
-	public static void Log(string from, string msg)
-	{
-		lock(_locker)
-		{
-			if(from != "") swLog?.Write(from.PadRight(20));
-			swLog?.WriteLine(msg);
-#if DEBUG
-			Debug.WriteLine(msg);
-#endif
-		}
-	}
-	public static void Log(string from, Exception ex)
-	{
-		lock(_locker)
-		{
-			swLog?.WriteLine($"----- {from}  {ex.Message}  ".PadRight(80,'-'));
-			swLog?.WriteLine(ex.Message);
-			swLog?.WriteLine(ex.StackTrace);
-			swLog?.WriteLine(new string('-',80));
-#if DEBUG
-			Debug.WriteLine($"----- {from}  {ex.Message}");
-			Debug.WriteLine(ex.StackTrace);
-#endif
-		}
-	}
-
 	public static string GetLogs()
 	{
 		lock(_locker)
@@ -166,7 +139,7 @@ internal static class Program
 			else
 			{
 				FileInfo fi = new(LOG_FILE);
-				if(fi.Length > 10000)
+				if(fi.Length > 256000)
 				{
 					if(File.Exists(LOG_FILE_NO_EXT + ".bak.txt"))
 						File.Delete(LOG_FILE_NO_EXT + ".bak.txt");
@@ -188,6 +161,9 @@ internal static class Program
 			swLog ??= new StreamWriter(LOG_FILE, append: true) { AutoFlush = true };
 
 			Log("Program.Init", $"App startup {DateTime.Now:u}");
+			Log("Program.Init", $"APP_DIR {APP_DIR}");
+			Log("Program.Init", $"DATA_DIR {DATA_DIR}");
+
 
 			DirectoryInfo d = new(@"files");
 			if(!d.Exists) Log("Program.Init", $"Files directory not found!");
@@ -197,9 +173,18 @@ internal static class Program
 
 				foreach(FileInfo file in Files)
 				{
+					if(file.Name.EndsWith(".dat") || file.Name.EndsWith(".config"))
+					{
+						if(!File.Exists(DATA_DIR + file.Name))
+						{
+							Log("Program.Init", $"Copying '{file.Name}' to DATA_DIR");
+							File.Copy(file.FullName, DATA_DIR + file.Name);
+						}
+						continue;
+					}
 					if(!File.Exists(APP_DIR + file.Name))
 					{
-						Log("Program.Init", $"Copying {file.Name} to app dir");
+						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
 						File.Copy(file.FullName, APP_DIR + file.Name);
 					}
 				}
@@ -210,8 +195,7 @@ internal static class Program
 			MessageBox.Show("ACgifts encountered an initialisation error: \r\n" + ex.Message);
 		}
 
-
-		if(appConfig.IsDefaults) Program.Log("Program.Init", "Configfile does not exist. Using defaults");
+		if(appConfig.IsDefaults) Program.Log("Program.Init", "AppConfig does not exist. Using defaults");
 		else Program.Log("Program.Init", "AppConfig loaded successfully");
 	}
 
@@ -220,7 +204,7 @@ internal static class Program
 		StreamWriter? sFile = null;
 		try
 		{
-			sFile = new StreamWriter(APP_DIR + "app.config", append: false) { AutoFlush = true };
+			sFile = new StreamWriter(DATA_DIR + "app.config", append: false) { AutoFlush = true };
 			appConfig.IsDefaults = false;
 			sFile.WriteLine(JsonSerializer.Serialize(appConfig));
 			Program.Log($"Program.SaveConfig", "Config saved successfully");
@@ -238,10 +222,6 @@ internal static class Program
 	}
 
 
-	public static string GetLogFile()
-	{
-		return Path.Combine(GetDataDir(), "logfile.txt");
-	}
 
 	public static string GetAppDir()
 	{
@@ -253,11 +233,45 @@ internal static class Program
 		string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 		return Path.Combine(localAppData, "CrashnBurn", subDir) + Path.DirectorySeparatorChar;
 	}
-
 	public static string GetDataDir()
 	{
 		return Path.Combine(GetAppDir(), "Data") + Path.DirectorySeparatorChar;
 	}
+	public static string GetLogFile()
+	{
+		return Path.Combine(GetAppDir(), "logfile.txt");
+	}
+
+
+
+
+	public static void Log(string from, string msg)
+	{
+		lock(_locker)
+		{
+			if(from != "") swLog?.Write(from.PadRight(20));
+			swLog?.WriteLine(msg);
+#if DEBUG
+			Debug.WriteLine(msg);
+#endif
+		}
+	}
+	public static void Log(string from, Exception ex)
+	{
+		lock(_locker)
+		{
+			swLog?.WriteLine($"----- {from}  {ex.Message}  ".PadRight(80, '-'));
+			swLog?.WriteLine(ex.Message);
+			swLog?.WriteLine(ex.StackTrace);
+			swLog?.WriteLine(new string('-', 80));
+#if DEBUG
+			Debug.WriteLine($"----- {from}  {ex.Message}");
+			Debug.WriteLine(ex.StackTrace);
+#endif
+		}
+	}
+
+
 
 
 #if !DEBUG

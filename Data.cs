@@ -10,15 +10,15 @@ internal class Data
 	public BindingList<Neighbor> neighbors;
 
 	private bool dataBackupDone = false;
-	private readonly string dataFile, dataFileNoExt;
+	private readonly string DATA_FILE, DATA_FILE_NO_EXT;
 
 	public Data() 
 	{
 		neighbors = new();
 
-		dataFileNoExt = Program.GetDataDir() + "neighbors";
-		dataFile = dataFileNoExt + ".dat";
-}
+		DATA_FILE_NO_EXT = Program.GetDataDir() + "neighbors";
+		DATA_FILE = DATA_FILE_NO_EXT + ".dat";
+	}
 
 
 
@@ -83,15 +83,15 @@ internal class Data
 			Program.Log("Data.Save", "Rotating backup data files");
 			try
 			{
-				for(int i = 10; i > 0; i--)
+				for(int i = 30; i > 0; i--)
 				{
-					if(File.Exists($"{dataFileNoExt}.bak{i}.dat"))
-						File.Delete($"{dataFileNoExt}.bak{i}.dat");
-					if(File.Exists($"{dataFileNoExt}.bak{i-1}.dat"))
-						File.Move($"{dataFileNoExt}.bak{i-1}.dat", $"{dataFileNoExt}.bak{i}.dat");
+					if(File.Exists($"{DATA_FILE_NO_EXT}.bak{i}.dat"))
+						File.Delete($"{DATA_FILE_NO_EXT}.bak{i}.dat");
+					if(File.Exists($"{DATA_FILE_NO_EXT}.bak{i-1}.dat"))
+						File.Move($"{DATA_FILE_NO_EXT}.bak{i-1}.dat", $"{DATA_FILE_NO_EXT}.bak{i}.dat");
 				}
-				if(File.Exists(dataFile))
-					File.Move(dataFile, $"{dataFileNoExt}.bak1.dat");
+				if(File.Exists(DATA_FILE))
+					File.Move(DATA_FILE, $"{DATA_FILE_NO_EXT}.bak1.dat");
 
 				Program.Log($"Data.Save", "Rotated backup files successfully.");
 			}
@@ -106,7 +106,7 @@ internal class Data
 		StreamWriter? sFile = null;
 		try
 		{
-			sFile = new StreamWriter(dataFile, append: false) { AutoFlush = false };
+			sFile = new StreamWriter(DATA_FILE, append: false) { AutoFlush = false };
 
 			foreach(Neighbor n in neighbors)
 				sFile.WriteLine(JsonSerializer.Serialize(n));
@@ -127,7 +127,7 @@ internal class Data
 
 	public void Backup()
 	{
-		if(!File.Exists(dataFile) && neighbors.Count == 0)
+		if(!File.Exists(DATA_FILE) && neighbors.Count == 0)
 		{
 			Program.Log("Data.Backup", "Backup cancelled, no data exists");
 			MessageBox.Show("We do not have any data to back up.", "ACgifts no data");
@@ -150,7 +150,7 @@ internal class Data
 		}
 		Save();
 
-		File.Copy(dataFile, sfd.FileName);
+		File.Copy(DATA_FILE, sfd.FileName);
 		Program.Log("Data.Backup", "Backup complete");
 	}
 	public void Restore()
@@ -161,7 +161,7 @@ internal class Data
 		};
 		if(ofd.ShowDialog() == DialogResult.OK)
 		{
-			Program.Log("Data.Restore", $"Restore started src='{ofd.FileName}'");
+			Program.Log("Data.Restore", $"Restore started, src='{ofd.FileName}'");
 			if(!File.Exists(ofd.FileName))
 			{
 				MessageBox.Show($"Couldn't access {ofd.FileName}, please check permissions.");
@@ -205,15 +205,15 @@ internal class Data
 				return;
 			}
 
-			string backup = $"ACgifts_backup_pre_restore_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat";
+			string backup = Path.Combine(Program.GetDataDir(), $"ACgifts_backup_pre_restore_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat");
 
 			Program.Log("Data.Restore", $"Backup file parsed successfully. {cnt} records found.");
 
-			if(neighbors.Count > 0 && File.Exists(dataFile))
+			if(neighbors.Count > 0 && File.Exists(DATA_FILE))
 			{
 				Program.Log("Data.Restore", $"Backing up current data file to '{backup}'");
 				Save();
-				File.Move(dataFile, backup);
+				File.Move(DATA_FILE, backup);
 			}
 
 			neighbors.Clear();
@@ -253,11 +253,11 @@ internal class Data
 			{
 				Program.Log("Data.Import", $"Retaining {neighbors.Count} existing records.");
 
-				string backup = $"ACgifts_backup_pre_import_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat";
-
+				string backup = Path.Combine(Program.GetDataDir(), $"ACgifts_backup_pre_import_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat");
 				Program.Log("Data.Import", $"Backing up current data file to '{backup}'");
+
 				Save();
-				File.Move(dataFile, backup);
+				File.Move(DATA_FILE, backup);
 			}
 		}
 
@@ -370,7 +370,7 @@ internal class Data
 	}
 	public void Export()
 	{
-		if(!File.Exists(dataFile) && neighbors.Count == 0)
+		if(!File.Exists(DATA_FILE) && neighbors.Count == 0)
 		{
 			Program.Log("Data.Export", "Export cancelled, no data exists");
 			MessageBox.Show("We do not have any data to Export.", "ACgifts no data");
