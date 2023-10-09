@@ -265,6 +265,7 @@ internal class Data
 
 		while(!parser.EndOfData)
 		{
+			cnt++;
 			//Process row
 			string[]? fields;
 			try
@@ -274,27 +275,23 @@ internal class Data
 			catch(Exception ex)
 			{
 				fail++;
-				Program.Log($"Data.Import()", $"Exception caught for parser.ReadFields() on line {cnt}");
+				Program.Log($"Data.Import()", $"Exception caught for parser.ReadFields() on line:{parser.LineNumber}  src={parser.ErrorLine}");
 				Program.Log("Data.Import()", ex);
-				cnt++;
 				continue;
 			}
 			if(fields is null)
 			{
 				fail++;
-				Program.Log("Data.Import()", $"TextFieldParser Couldn't Parse line {cnt}");
-				cnt++;
+				Program.Log("Data.Import()", $"TextFieldParser Couldn't Parse line:{parser.LineNumber}  src={parser.ErrorLine}");
 				continue;
 			}
 			if(fields.Length != 11)
 			{
 				fail++;
-				Program.Log($"Data.Import()", $"Only {fields.Length} fields found on line {cnt}. Dropped: {string.Join(',', fields)}");
-				cnt++;
+				Program.Log($"Data.Import()", $"Only {fields.Length} fields found on line:{parser.LineNumber}  src={parser.ErrorLine}");
 				continue;
 			}
 
-			cnt++;
 			//Name	Group	NameSend	CodeSend	LastSend	CntSend	NameRecv	CodeRecv	LastRecv	CntRecv	Added
 			string name = fields[0].Trim();
 			string group = fields[1].Trim();
@@ -311,7 +308,8 @@ internal class Data
 			if(!int.TryParse(sCntSent, out int cntSent)) cntSent = 0;
 			if(!int.TryParse(sCntRecv, out int cntRecv)) cntRecv = 0;
 
-			DateTime lastSend = DateTime.MinValue, lastRecv = DateTime.MinValue, added = DateTime.Now;
+			DateTime? lastSend = null, lastRecv = null;
+			DateTime added = DateTime.Now;
 
 			if(sLastSend != "")
 			{

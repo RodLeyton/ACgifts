@@ -29,6 +29,7 @@ partial class MainForm
 	private void InitializeComponent()
 	{
 		components = new System.ComponentModel.Container();
+		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 		butSendAll = new Button();
 		butEdit = new Button();
 		lvRecv = new LvExNeighbor();
@@ -227,6 +228,7 @@ partial class MainForm
 		Controls.Add(lbGroups);
 		Controls.Add(butEdit);
 		Controls.Add(butSendAll);
+		Icon = (Icon)resources.GetObject("$this.Icon");
 		MaximumSize = new Size(1000, 1800);
 		MinimumSize = new Size(550, 427);
 		Name = "MainForm";

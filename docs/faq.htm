@@ -17,27 +17,151 @@
 
 	<h1>ACgifts FAQ</h1>
 	<ul>
-		<li><a href="import.htm">Importing data via csv file</a></li>
+		<li><a href="#import">How can I import csv files</a></li>
+		<li><a href="#datetime">I'm getting errors with dates in csv files</a></li>
 		<li><a href="#errorLog">Where can I find the error logs?</a></li>
-		<li><a href="warnings.htm">What are there all these warnings when installing?</a></li>
+		<li><a href="#warnings">What are there all these warnings when installing?</a></li>
 		<li><a href="#refund">What if I don't like it, can I get a refund?</a></li>
 		
 	</ul>
 
-	<p>&nbsp;</p>
-	<h2 id="#errorLog">Where can I find the logfile?</h2>
+	<hr>
+	<h2 id="imports">Importing neighbors via CSV file</h2>
+	<p>A template file for the csv format can be found <a href="import template.csv">here</a>. It is also in the application directory (you can find that with the Dir button on the edit form).<br>
+	Please refer to this file in a text editor if you're having import issues, it has many examples of acceptable formats including special characters and dates.</p>
+	<p>The easiest way to edit csv files is in a spreadsheet application such as MS Excell or LibreOffice/Openoffice Calc.<br>
+	If any errors occur you will recieve a message directing you to check the <a href="faq.htm#errorLog">error log</a></p>
+	
+	<h3>Fields in the csv file</h3>
+	<h5>Name</h5>
+	<p>This is the forum or acual name of your neighbor, currently it is only displayed as a tooltip when you hover over the game names, in the future I may add a details panel</p>
+	
+	<h5>Group</h5>
+	<p>Either a fuel ring name, or something like main. If blank will be grouped under 'unassigned'.</p>
+
+	<h5>NameSend / NameRecv</h5>
+	<p>The game name of the account you send to or receive from. Obviously these are different in fuel rings, but they may be the same on your main account.</p>
+	
+	<h5>CodeSend / CodeRecv</h5>
+	<p>At present these are not displayed, and may be left empty. However in future an extra details form may be added.</p>
+	
+	<h5>LastSend / LastRecv</h5>
+	<p>The date and time of the last gift sent and recieved. This may be left blank, or be a <a href="#datetime">valid format</a><p>
+	
+	<h5>CntSend / CntRecv</h5>
+	<p>The count of gifts sent and recieved since this neighbor was added. If left blank defaults to 0.<br>
+	This value is used to calculate the gifting rate (or reliability) and should reflect to the number of gifts since the date in the 'Added' field.<br>
+	In other words, if you specify the neighbor was added 10 days ago (and they gift every day) the count shoud be 10.<p>
+	
+	<h5>Added</h5>
+	<p>The date and time this neighbor was added to your list. This may be left blank, or be a <a href="#datetime">valid format</a><br>
+	If left blank it will default to the current date. This value to used to calculate the gifting rate (or reliability).<p>
+	
+	
+	<hr>
+	<h2 id="datetime">Valid date time formats</h2>
+	<p>All <a href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings" target="_blank">standard formats</a> are accepted, some of which depend on your locale.<br>
+	Take note any locale dependent formats differ depending on what location your computer is set to. This is by design and usually is a very helpfull convenience.<br>
+	For example the short date format 01/02/2023 will refer to Janurary in the US and Feburary in France. 
+	If you stick to what is normally used in your country (and your computers location is correct) you should be fine.<br>
+	It is worth pointing out that when using a spreadsheet if you set the cell format to a datetime type (instead of text) you should avoid any hassle as it will format it correctly for your locale.</p>
+	<p>Some examples follow</p>
+	
+	<h5>Short date <span class="bad">(locale dependant)</span></h5>
+	<ul>
+		<li>US - MM/dd/yyyy</li>
+		<li>France - dd/MM/yyyy </li>
+		<li>Japan - yyyy/MM/dd</li>
+		<li>Denmark - dd.MM.yyyy</li>
+	</ul>
+		
+	<h5>General date time <span class="bad">(locale dependant)</span></h5>
+	<ul>
+		<li>Short date (as above) with time  e.g. in the US &nbsp; 'MM/dd/yyyy HH:mm'</li>
+	</ul>
+		
+	<h5>ISO 8601 (universal standard)</h5>
+	<ul>
+		<li>yyyy-MM-ddThh:mm:ss &nbsp; e.g. 2023-01-20T09:30:00 => 20 Jan 2023 9:30 am</li>
+	</ul>
+		
+	<h5>Non-standard formats</h5>
+	<ul>
+		<li>Most normal language formats will also work so long as it is unambigous</li>
+		<li>'April 10, 2023' - works as expected in any locale.</li>
+		<li>'1 march 2023 9pm' - works as expected in any locale.</li>
+		<li>'1 mar 2023 6am' - works as expected in any locale.</li>
+		<li class="bad">'1st march 2023 9pm' - fails to parse!</li>
+		<li class="bad">'half past a sparrows fart' - only works in the Australian outback.</li>
+	</ul>
+	<p><a href="faq.htm">back to top</a></p>
+
+
+	<hr>
+	<h2 id="errorLog">Where can I find the logfile?</h2>
 	<div class="imgLeft"><img src="log_button.png">
 		<span>Logs are located in the application directorys 'data' subfolder.<br>
 		When the primary log reaches 10kB it is moved to 'log-release.bak.txt' and a new file is started.<br>
 		The exact location will depend on your OS, but the easiest way to find it is to click the Dir or Log buttons on the Edit form.</span>
 	</div>
+	<p><a href="faq.htm">back to top</a></p>
 	
 
-	<h2 id="#refund">What if I don't like it, can I get a refund?</h2>
+	<hr>
+	<h2 id="refund">What if I don't like it, can I get a refund?</h2>
 	<p>Of course, we offer a same day 100% (including postage and packaging) refund on your purchase price!<br>
 	Please note this refund does not include any other costs you may have incured, including but not limited to vetinary bills, airfares, car insurance, etc<br>
 	Considering the upfront cost of $0 including postage and packaging (only avaliable via download) it is an absolute bargain!</p>
+	<p><a href="faq.htm">back to top</a></p>
 	
+	
+	<hr>
+	<h2 id="warnings">What are all these warnings when I install it?</h2>
+	<p>Basically I'm too cheap to pay for a certificate. But then again would you pay for one?<br>
+	This is a not for profit project, and I don't mean like all thouse other non-profits that take in millions per year.<br>
+	Lets not forget you have the ability to compile the <a href="https://github.com/RodLeyton/ACgifts" target="_blank">source code</a> yourself without a single warning.<br>
+	Even then a security certificate only verifies identity, not the code signed by it.</p>
+	<p>Lets look at the warnings...</p>
+		
+	<h3>Windows protected your PC, Unrecognised app prevented from starting</h3>
+	<div class="imgLeft">
+		<img src="smartscreen.png">
+		<span>The warning is "I haven't seen this app before"<br>
+		Considering I just made it, we cannot be surprised.<br>
+		However throw some money at it and they'll recognise it real fast.<br>
+		To continue just click 'More info' on this warning and select 'Run anyway'.<br>
+		But before you do, have a quick read <a href="https://www.advancedinstaller.com/prevent-smartscreen-from-appearing.html" target="_blank">here</a> as to why this warning comes up and the 2 teirs of speed and cost to remove it.
+		</span>
+	</div>
+	
+	<p>&nbsp;</p>
+
+	<h3 id="warnings">Publisher cannot be verified</h3>
+	<div class="imgLeft"><img src="not_verified.png">
+		<span>I'd like to point out in todays era of big data Microsoft and Google know more about me than I do.<br>
+		But not enough to Verify me apparently.<br>
+		Of course the installer is a Microsoft product, built by a Microsoft product tied to my account by a Microsoft email<br>
+		to which I need to use my phone (which in my country is tied to my drivers license) to log into.<br>
+		And here we are on a Microsoft operating system also tied to my Microsoft account yet aparently Microsoft cannot verify my identity.<br>
+		However paying a 3rd party will fix all that??? OK I've finished ranting!
+		</span>
+	</div>
+	
+	<h3>But why did my anivirus not pick this up?</h3>
+	<p>Well my best guess is because the app doesn't contain any virus or malware!</p>
+	<p><a href="faq.htm">back to top</a></p>
+	
+	
+	<hr>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+	
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
+	<p><a href="faq.htm">back to top</a></p>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
 	
 </body>
 </html>

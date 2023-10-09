@@ -66,13 +66,16 @@ internal class Utils
 
 		if(obj is string str)
 		{
-			str = str.Replace("\"","\"\"");
 			if(str.Contains(',') ||
+				str.Contains('"') ||
 				str.Contains('\r') ||
 				str.Contains('\n') ||
 				str.StartsWith(' ') ||
 				str.EndsWith(' '))
+			{
+				str = str.Replace("\"","\"\"");
 				return $"\"{str}\"";
+			}
 			return str;
 		}
 		Program.Log("Utils.EscapeCSV()", $"Unexpected type: {obj.GetType()} is not implemented.");

@@ -28,6 +28,7 @@ partial class LogViewForm
 	/// </summary>
 	private void InitializeComponent()
 	{
+		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LogViewForm));
 		tbLog = new TextBox();
 		labLocation = new Label();
 		label1 = new Label();
@@ -74,9 +75,10 @@ partial class LogViewForm
 		Controls.Add(label1);
 		Controls.Add(labLocation);
 		Controls.Add(tbLog);
+		Icon = (Icon)resources.GetObject("$this.Icon");
 		Name = "LogViewForm";
 		StartPosition = FormStartPosition.CenterParent;
-		Text = "LogViewForm";
+		Text = "ACgifts - Logs";
 		ResumeLayout(false);
 		PerformLayout();
 	}

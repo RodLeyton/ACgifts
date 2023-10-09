@@ -41,8 +41,8 @@ body {
 }
 .sel { color: #FFFF99 !important; }
 
-h1,h2 {
-	margin: 30px 60px 5px 50px;
+h1,h2,h3 {
+	margin: 30px 60px 10px 50px;
 	font-family: sans-serif;
 	color: #905f1d;
 }
@@ -52,7 +52,10 @@ h4,h5 {
 	color: #8f5404;
 }
 
-
+hr {
+	margin: 40px 40px 0 40px;
+	color: #8f5404;
+}
 
 p,ul,.stdMargin {
 	margin: 0 60px 10px 60px;

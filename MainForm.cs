@@ -47,6 +47,7 @@ public partial class MainForm:Form
 			Height = MinimumSize.Height;
 		}
 		else WindowRestore.GeometryFromString(geo, this);
+		MainForm_Resize(null, null);
 
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.AC_GAME_NAME, "Game name"));
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.FORUM_NAME, "Forum name"));
@@ -71,7 +72,7 @@ public partial class MainForm:Form
 		Properties.Settings.Default.MainFormGeo = WindowRestore.GeometryToString(this);
 		Properties.Settings.Default.Save();
 	}
-	private void MainForm_Resize(object sender, EventArgs e)
+	private void MainForm_Resize(object? sender, EventArgs? e)
 	{
 		lvRecv.Left = lbGroups.Right + 10;
 		cbSortOrder.Left = lvRecv.Left;
@@ -107,7 +108,7 @@ public partial class MainForm:Form
 	{
 		labSent.Text = $"Sent   {sentGroup}/{cntGroup}";                         // Note contains U+2009   &&thinsp;
 		labRecv.Text = $"Recv  {recvGroup}/{cntGroup}";
-		labSentToday.Text = $"Sent   {sentToday}/{data.neighbors.Count}";		// Note contains U+2009   &&thinsp;
+		labSentToday.Text = $"Sent   {sentToday}/{data.neighbors.Count}";          // Note contains U+2009   &&thinsp;
 		labRecvToday.Text = $"Recv  {recvToday}/{data.neighbors.Count}";
 	}
 	private void UpdateGroupsLV()

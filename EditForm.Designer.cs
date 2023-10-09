@@ -28,6 +28,7 @@ partial class EditForm
 	/// </summary>
 	private void InitializeComponent()
 	{
+		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditForm));
 		cbGroup = new ComboBox();
 		butImport = new Button();
 		dgvData = new DataGridView();
@@ -172,10 +173,11 @@ partial class EditForm
 		Controls.Add(dgvData);
 		Controls.Add(butImport);
 		Controls.Add(cbGroup);
+		Icon = (Icon)resources.GetObject("$this.Icon");
 		MinimumSize = new Size(800, 500);
 		Name = "EditForm";
 		StartPosition = FormStartPosition.CenterParent;
-		Text = "EditForm";
+		Text = "ACgifts - Editor";
 		((System.ComponentModel.ISupportInitialize)dgvData).EndInit();
 		ResumeLayout(false);
 		PerformLayout();

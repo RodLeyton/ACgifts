@@ -1,15 +1,15 @@
 ACgifts change log.
+-------------------------------------------------------------------------------
+Not every commit will appear here, only those published for application updates.
 
 
 
-
-v1.0.0.12 - Commit 'Publish, missing files' on 2023-10-09
+v1.0.0.12  -  2023-10-09  -  Commit 'Publish, missing files' 
 -------------------------------------------------------------------------------
 Added extra files to app dir.
 
 
-
-v1.0.0.6 - Commit 'Publish, new fetures and minor bugfix' on 2023-10-09
+v1.0.0.6  -  2023-10-09  -  Commit 'Publish, new fetures and minor bugfix'
 -------------------------------------------------------------------------------
 Added csv template, and homepage link to clickonce install dir.
 Added counters of sent/recv to mainform.
@@ -20,7 +20,6 @@ Modified to consider any gifts sent/recv in the last 6hrs as being done today.
 Added export to CSV file feature.
 
 
-
-v1.0.0.5
+v1.0.0.5  -  2023-10-07  -  Commit "Publish"
 -------------------------------------------------------------------------------
 Initial release.

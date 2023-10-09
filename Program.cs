@@ -31,7 +31,7 @@ internal static class Program
 			{
 				hasHandle = mutex.WaitOne(5000, false);
 				if(hasHandle == false)
-					throw new TimeoutException("Timeout waiting for exclusive access");
+					throw new TimeoutException("ACgifts: Timeout waiting for exclusive access");
 			}
 			catch(AbandonedMutexException)
 			{
