@@ -41,7 +41,11 @@ public partial class MainForm:Form
 	private void MainForm_Load(object sender, EventArgs e)
 	{
 		string geo = Properties.Settings.Default.MainFormGeo;
-		if(geo == null || geo == "") Size = MaximumSize;
+		if(geo == null || geo == "")
+		{
+			Width = MaximumSize.Width;
+			Height = MinimumSize.Height;
+		}
 		else WindowRestore.GeometryFromString(geo, this);
 
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.AC_GAME_NAME, "Game name"));

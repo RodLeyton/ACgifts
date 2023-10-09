@@ -1,6 +1,12 @@
 ACgifts change log.
 
 
+v1.0.0.7 - Commit 'Publish, missing files' on 2023-10-09
+-------------------------------------------------------------------------------
+Added the extra files to app dir that previous publish didn't deploy.
+
+
+
 v1.0.0.6 - Commit 'Publish, new fetures and minor bugfix' on 2023-10-09
 -------------------------------------------------------------------------------
 Added csv template, and homepage link to clickonce install dir.
