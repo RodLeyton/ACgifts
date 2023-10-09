@@ -10,9 +10,14 @@ public partial class MainForm:Form
 	public MainForm()
 	{
 		InitializeComponent();
+#if DEBUG
+		Text = "*** Debug ***";
+		BackColor = Color.PaleGoldenrod;
+#else
 		string versionString = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion") ?? "0.0.0.0";
 		Version version = Version.Parse(versionString);
 		Text = $"ACgifts  v{version}";
+#endif
 
 		data = new();
 
@@ -26,6 +31,7 @@ public partial class MainForm:Form
 		lvRecv.Columns.Add("Last", Program.appConfig.Col2width);
 		lvRecv.Columns.Add("Cnt", Program.appConfig.Col3width);
 		lvRecv.Columns.Add("Rate", Program.appConfig.Col4width);
+		lvRecv.Columns.Add("Added", Program.appConfig.Col5width);
 
 		lvSend.IsSend = true;
 		lvSend.ShowItemToolTips = true;
@@ -37,6 +43,7 @@ public partial class MainForm:Form
 		lvSend.Columns.Add("Last", Program.appConfig.Col2width);
 		lvSend.Columns.Add("Cnt", Program.appConfig.Col3width);
 		lvSend.Columns.Add("Rate", Program.appConfig.Col4width);
+		lvSend.Columns.Add("Added", Program.appConfig.Col5width);
 	}
 	private void MainForm_Load(object sender, EventArgs e)
 	{
@@ -69,6 +76,7 @@ public partial class MainForm:Form
 		Program.appConfig.Col2width = lvSend.Columns[2].Width;
 		Program.appConfig.Col3width = lvSend.Columns[3].Width;
 		Program.appConfig.Col4width = lvSend.Columns[4].Width;
+		Program.appConfig.Col5width = lvSend.Columns[5].Width;
 		Program.appConfig.MainFormGeo = WindowRestore.GeometryToString(this);
 		Program.SaveConfig();
 	}
@@ -94,6 +102,13 @@ public partial class MainForm:Form
 		}
 		lvSend.Refresh();
 		UpdateTotals();
+		Task.Run(async delegate
+		{
+			await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+			if(IsDisposed || !IsHandleCreated || Disposing) return;
+			if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
+			else lvSend.Refresh();
+		});
 	}
 	private void ButEdit_Click(object sender, EventArgs e)
 	{
@@ -106,10 +121,10 @@ public partial class MainForm:Form
 
 	private void UpdateTotals()
 	{
-		labSent.Text = $"Sent   {sentGroup}/{cntGroup}";                         // Note contains U+2009   &&thinsp;
-		labRecv.Text = $"Recv  {recvGroup}/{cntGroup}";
-		labSentToday.Text = $"Sent   {sentToday}/{data.neighbors.Count}";          // Note contains U+2009   &&thinsp;
-		labRecvToday.Text = $"Recv  {recvToday}/{data.neighbors.Count}";
+		labSent.Text = $"{sentGroup}/{cntGroup}";
+		labRecv.Text = $"{recvGroup}/{cntGroup}";
+		labSentToday.Text = $"{sentToday}/{data.neighbors.Count}";
+		labRecvToday.Text = $"{recvToday}/{data.neighbors.Count}";
 	}
 	private void UpdateGroupsLV()
 	{
@@ -178,6 +193,7 @@ public partial class MainForm:Form
 			lvi.SubItems.Add("");
 			lvi.SubItems.Add("");
 			lvi.SubItems.Add("");
+			lvi.SubItems.Add("");
 			lvi.ToolTipText = $"{n.Name}";
 			lvRecv.Items.Add(lvi);
 
@@ -188,6 +204,7 @@ public partial class MainForm:Form
 				ToolTipText = $"{n.Name}"
 			};
 			lvi2.SubItems.Add("Send");
+			lvi2.SubItems.Add("");
 			lvi2.SubItems.Add("");
 			lvi2.SubItems.Add("");
 			lvi2.SubItems.Add("");
@@ -227,14 +244,8 @@ public partial class MainForm:Form
 			{
 				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
 				if(IsDisposed || !IsHandleCreated || Disposing) return;
-				if(lvRecv.InvokeRequired)
-				{
-					lvRecv.Invoke(() => lvRecv.Refresh());
-				}
-				else
-				{
-					lvRecv.Refresh();
-				}
+				if(lvRecv.InvokeRequired) lvRecv.Invoke(() => lvRecv.Refresh());
+				else lvRecv.Refresh();
 			});
 			return;
 		}
@@ -262,14 +273,8 @@ public partial class MainForm:Form
 			{
 				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
 				if(IsDisposed || !IsHandleCreated || Disposing) return;
-				if(lvSend.InvokeRequired)
-				{
-					lvSend.Invoke(() => lvSend.Refresh());
-				}
-				else
-				{
-					lvSend.Refresh();
-				}
+				if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
+				else lvSend.Refresh();
 			});
 			return;
 		}

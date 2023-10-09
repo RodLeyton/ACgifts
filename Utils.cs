@@ -83,5 +83,16 @@ internal class Utils
 		throw new NotImplementedException("Unexpected type " + obj.GetType());
 	}
 
+	public static string GetAgeStr(DateTime? dt)
+	{
+		if(dt == null) return "";
+		if(dt == DateTime.MinValue) return "";
 
+		TimeSpan ts = DateTime.Now - (DateTime)dt;
+		if(ts.Duration().Days > 60) return $" {ts.Days / 30} months";
+		if(ts.Duration().Days > 1) return $" {ts.Days} days";
+		if(ts.Duration().Hours > 0) return $" {ts.Hours}:{ts.Minutes}";
+		if(ts.Duration().Minutes > 0) return $" {ts.Minutes} mins";
+		return " just now";
+	}
 }

@@ -12,7 +12,7 @@ public class LvExNeighbor:ListView
 	private readonly Brush todoButColor = Brushes.NavajoWhite;
 	private readonly Brush disabledButColor = Brushes.Gray;
 	public const int TODAY_HOURS = 6;
-	public const int BUT_DISABLE_MILLIS = 800;
+	public const int BUT_DISABLE_MILLIS = 600;
 
 
 	bool mb_Measured = false;
@@ -153,8 +153,17 @@ public class LvExNeighbor:ListView
 				Neighbor n = (Neighbor)lvi.Tag;
 
 
+				double daysSinceAdded = (DateTime.Now - n.Added).TotalDays;
+				double giftRate = (IsSend ? n.CntSend : n.CntRecv) / Math.Max(1, daysSinceAdded);
+
 				int subitem = 0; // Name Send/Recv
-				TextRenderer.DrawText(gfx, IsSend ? n.NameSend : n.NameRecv, Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+				Color fontCol = Color.Black;
+				// If was added over 14days ago warn of low gift rate
+				if(daysSinceAdded > 14 && giftRate < 0.5) fontCol = Color.Red;
+				// If last gift was over 5days ago, or never gifts and added over 5 days ago warn.
+				if((DateTime.Now - ((IsSend ? n.LastSend : n.LastRecv) ?? n.Added)).TotalDays > 5) fontCol = Color.Red;
+				TextRenderer.DrawText(gfx, IsSend ? n.NameSend : n.NameRecv, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 				subitem++;  // Send/Recv button
@@ -181,14 +190,16 @@ public class LvExNeighbor:ListView
 
 
 				subitem++;  // Age
-				TextRenderer.DrawText(gfx, GetAgeStr(IsSend ? n.LastSend : n.LastRecv), Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				TextRenderer.DrawText(gfx, Utils.GetAgeStr(IsSend ? n.LastSend : n.LastRecv), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 				
 				subitem++;  // Count
-				TextRenderer.DrawText(gfx, IsSend ? n.CntSend+" " : n.CntRecv+" ", Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				TextRenderer.DrawText(gfx, IsSend ? n.CntSend+" " : n.CntRecv+" ", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 				subitem++;  // Rate
-				double rate = (IsSend ? n.CntSend : n.CntRecv) / Math.Max(1, (DateTime.Now - n.Added).TotalDays);
-				TextRenderer.DrawText(gfx, $"{rate:P0}", Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				TextRenderer.DrawText(gfx, $"{giftRate:P0}", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+				subitem++;  // Added
+				TextRenderer.DrawText(gfx, Utils.GetAgeStr(n.Added), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 				break;
 			}
 
@@ -220,16 +231,5 @@ public class LvExNeighbor:ListView
 	}
 
 
-	public static string GetAgeStr(DateTime? dt)
-	{
-		if(dt == null) return "";
-		if(dt == DateTime.MinValue) return "";
 
-		TimeSpan ts = DateTime.Now - (DateTime)dt;
-		if(ts.Duration().Days > 60) return $" {ts.Days / 30} months";
-		if(ts.Duration().Days > 1) return $" {ts.Days} days";
-		if(ts.Duration().Hours > 0) return $" {ts.Hours}:{ts.Minutes}";
-		if(ts.Duration().Minutes > 0) return $" {ts.Minutes} mins";
-		return " just now";
-	}
 }

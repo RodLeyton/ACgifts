@@ -34,7 +34,7 @@ internal partial class EditForm:Form
 		cbGroup.Items.Add("All");
 		cbGroup.Items.Add("Unassigned");
 		foreach(Neighbor n in data.neighbors)
-			if(n.Group?.Trim() != "" && !cbGroup.Items.Contains(n.Group)) cbGroup.Items.Add(n.Group);
+			if(n.Group != null && n.Group?.Trim() != "" && !cbGroup.Items.Contains(n.Group)) cbGroup.Items.Add(n.Group);
 
 		cbGroup.SelectedIndex = 0;
 	}
@@ -176,14 +176,13 @@ internal partial class EditForm:Form
 
 		switch(e.ColumnIndex)
 		{
-			case 0:
-			case 6:
-			case 10:
+			case 5:
+			case 9:
 				MessageBox.Show("The entered value must be a number\n\nPress [ESC] to undo");
 				break;
-			case 3:
-			case 7:
-			case 11:
+			case 2:
+			case 6:
+			case 10:
 				MessageBox.Show("The entered value must be a date\n\nPress [ESC] to undo");
 				break;
 			default:
@@ -195,14 +194,13 @@ internal partial class EditForm:Form
 	{
 		switch(e.ColumnIndex)
 		{
-			case 0:   // All numbers default to 0
-			case 6:
-			case 10:
+			case 5:   // All numbers default to 0
+			case 9:
 				if(e.Value is null || (string)e.Value == "") e.Value = 0;
 				e.ParsingApplied = true;
 				return;
 
-			case 3: // Added column defaults to DateTime.Now
+			case 2: // Added column defaults to DateTime.Now
 				if(e.Value is null || (string)e.Value == "") e.Value = DateTime.Now;
 				e.ParsingApplied = true;
 				return;

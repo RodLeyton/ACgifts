@@ -45,6 +45,10 @@ partial class MainForm
 		gbGroup = new GroupBox();
 		label1 = new Label();
 		label5 = new Label();
+		label2 = new Label();
+		label3 = new Label();
+		label4 = new Label();
+		label6 = new Label();
 		groupBox1.SuspendLayout();
 		gbGroup.SuspendLayout();
 		SuspendLayout();
@@ -128,54 +132,52 @@ partial class MainForm
 		// labSent
 		// 
 		labSent.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-		labSent.AutoSize = true;
 		labSent.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-		labSent.Location = new Point(4, 17);
+		labSent.Location = new Point(41, 17);
 		labSent.Name = "labSent";
-		labSent.Size = new Size(44, 17);
+		labSent.Size = new Size(50, 17);
 		labSent.TabIndex = 10;
-		labSent.Text = "Sent 0";
-		labSent.TextAlign = ContentAlignment.MiddleLeft;
+		labSent.Text = "0/0";
+		labSent.TextAlign = ContentAlignment.MiddleRight;
 		// 
 		// labRecv
 		// 
 		labRecv.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-		labRecv.AutoSize = true;
 		labRecv.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-		labRecv.Location = new Point(4, 36);
+		labRecv.Location = new Point(41, 36);
 		labRecv.Name = "labRecv";
-		labRecv.Size = new Size(46, 17);
+		labRecv.Size = new Size(50, 17);
 		labRecv.TabIndex = 11;
-		labRecv.Text = "Recv 0";
-		labRecv.TextAlign = ContentAlignment.MiddleLeft;
+		labRecv.Text = "0/0";
+		labRecv.TextAlign = ContentAlignment.MiddleRight;
 		// 
 		// labSentToday
 		// 
 		labSentToday.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-		labSentToday.AutoSize = true;
 		labSentToday.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-		labSentToday.Location = new Point(4, 17);
+		labSentToday.Location = new Point(41, 17);
 		labSentToday.Name = "labSentToday";
-		labSentToday.Size = new Size(44, 17);
+		labSentToday.Size = new Size(50, 17);
 		labSentToday.TabIndex = 12;
-		labSentToday.Text = "Sent 0";
-		labSentToday.TextAlign = ContentAlignment.MiddleLeft;
+		labSentToday.Text = "0/0";
+		labSentToday.TextAlign = ContentAlignment.MiddleRight;
 		// 
 		// labRecvToday
 		// 
 		labRecvToday.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-		labRecvToday.AutoSize = true;
 		labRecvToday.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-		labRecvToday.Location = new Point(4, 35);
+		labRecvToday.Location = new Point(41, 35);
 		labRecvToday.Name = "labRecvToday";
-		labRecvToday.Size = new Size(46, 17);
+		labRecvToday.Size = new Size(50, 17);
 		labRecvToday.TabIndex = 13;
-		labRecvToday.Text = "Recv 0";
-		labRecvToday.TextAlign = ContentAlignment.MiddleLeft;
+		labRecvToday.Text = "0/0";
+		labRecvToday.TextAlign = ContentAlignment.MiddleRight;
 		// 
 		// groupBox1
 		// 
+		groupBox1.Controls.Add(label3);
 		groupBox1.Controls.Add(labRecvToday);
+		groupBox1.Controls.Add(label2);
 		groupBox1.Controls.Add(labSentToday);
 		groupBox1.Location = new Point(10, 318);
 		groupBox1.Name = "groupBox1";
@@ -186,7 +188,9 @@ partial class MainForm
 		// 
 		// gbGroup
 		// 
+		gbGroup.Controls.Add(label4);
 		gbGroup.Controls.Add(labSent);
+		gbGroup.Controls.Add(label6);
 		gbGroup.Controls.Add(labRecv);
 		gbGroup.Controls.Add(label1);
 		gbGroup.Controls.Add(label5);
@@ -215,11 +219,59 @@ partial class MainForm
 		label5.TabIndex = 13;
 		label5.Text = "label5";
 		// 
+		// label2
+		// 
+		label2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		label2.AutoSize = true;
+		label2.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
+		label2.Location = new Point(5, 17);
+		label2.Name = "label2";
+		label2.Size = new Size(33, 17);
+		label2.TabIndex = 16;
+		label2.Text = "Sent";
+		label2.TextAlign = ContentAlignment.MiddleLeft;
+		// 
+		// label3
+		// 
+		label3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		label3.AutoSize = true;
+		label3.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
+		label3.Location = new Point(6, 35);
+		label3.Name = "label3";
+		label3.Size = new Size(35, 17);
+		label3.TabIndex = 17;
+		label3.Text = "Recv";
+		label3.TextAlign = ContentAlignment.MiddleLeft;
+		// 
+		// label4
+		// 
+		label4.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		label4.AutoSize = true;
+		label4.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
+		label4.Location = new Point(5, 36);
+		label4.Name = "label4";
+		label4.Size = new Size(35, 17);
+		label4.TabIndex = 19;
+		label4.Text = "Recv";
+		label4.TextAlign = ContentAlignment.MiddleLeft;
+		// 
+		// label6
+		// 
+		label6.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+		label6.AutoSize = true;
+		label6.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
+		label6.Location = new Point(6, 17);
+		label6.Name = "label6";
+		label6.Size = new Size(33, 17);
+		label6.TabIndex = 18;
+		label6.Text = "Sent";
+		label6.TextAlign = ContentAlignment.MiddleLeft;
+		// 
 		// MainForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(534, 388);
+		ClientSize = new Size(1094, 388);
 		Controls.Add(gbGroup);
 		Controls.Add(groupBox1);
 		Controls.Add(cbSortOrder);
@@ -229,7 +281,7 @@ partial class MainForm
 		Controls.Add(butEdit);
 		Controls.Add(butSendAll);
 		Icon = (Icon)resources.GetObject("$this.Icon");
-		MaximumSize = new Size(1000, 1800);
+		MaximumSize = new Size(1110, 1800);
 		MinimumSize = new Size(550, 427);
 		Name = "MainForm";
 		Text = "ACgifts";
@@ -259,4 +311,8 @@ partial class MainForm
 	private GroupBox gbGroup;
 	private Label label1;
 	private Label label5;
+	private Label label2;
+	private Label label3;
+	private Label label4;
+	private Label label6;
 }
