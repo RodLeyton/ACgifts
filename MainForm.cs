@@ -1,17 +1,19 @@
-﻿
-namespace ACgifts;
+﻿namespace ACgifts;
 
 public partial class MainForm:Form
 {
 	private readonly Data data;
 	private readonly LVsort lvSendSort, lvRecvSort;
+	private int sentGroup = 0, recvGroup = 0, sentToday = 0, recvToday = 0, cntGroup = 0;
 
-	//todo add sent/recv cnt per group and total today
-	//todo reject second click on send/recv if within x sec
 
 	public MainForm()
 	{
 		InitializeComponent();
+		string versionString = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion") ?? "0.0.0.0";
+		Version version = Version.Parse(versionString);
+		Text = $"ACgifts  v{version}";
+
 		data = new();
 
 		lvRecv.IsSend = false;
@@ -38,6 +40,10 @@ public partial class MainForm:Form
 	}
 	private void MainForm_Load(object sender, EventArgs e)
 	{
+		string geo = Properties.Settings.Default.MainFormGeo;
+		if(geo == null || geo == "") Size = MaximumSize;
+		else WindowRestore.GeometryFromString(geo, this);
+
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.AC_GAME_NAME, "Game name"));
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.FORUM_NAME, "Forum name"));
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.LIST_ORDER, "List Order"));
@@ -45,7 +51,6 @@ public partial class MainForm:Form
 		lvSendSort.SortType = cbSortOrder.SelectedIndex;
 		lvRecvSort.SortType = cbSortOrder.SelectedIndex;
 
-		WindowRestore.GeometryFromString(Properties.Settings.Default.MainFormGeo, this);
 		data.Load();
 		UpdateGroupsLV();
 	}
@@ -66,7 +71,7 @@ public partial class MainForm:Form
 	{
 		lvRecv.Left = lbGroups.Right + 10;
 		cbSortOrder.Left = lvRecv.Left;
-		lvRecv.Width = (this.ClientSize.Width - lvRecv.Left - 20) / 2 - 10;
+		lvRecv.Width = (this.ClientSize.Width - lvRecv.Left - 20) / 2;
 		lvSend.Width = lvRecv.Width;
 		lvSend.Left = lvRecv.Left + lvRecv.Width + 10;
 		butSendAll.Left = lvSend.Left;
@@ -79,8 +84,11 @@ public partial class MainForm:Form
 		{
 			if(lbGroups.SelectedItem?.ToString() != n.Group) continue;
 			n.AddSend();
+			sentGroup++;
+			sentToday++;
 		}
 		lvSend.Refresh();
+		UpdateTotals();
 	}
 	private void ButEdit_Click(object sender, EventArgs e)
 	{
@@ -91,7 +99,13 @@ public partial class MainForm:Form
 
 
 
-
+	private void UpdateTotals()
+	{
+		labSent.Text = $"Sent   {sentGroup}/{cntGroup}";                         // Note contains U+2009   &&thinsp;
+		labRecv.Text = $"Recv  {recvGroup}/{cntGroup}";
+		labSentToday.Text = $"Sent   {sentToday}/{data.neighbors.Count}";		// Note contains U+2009   &&thinsp;
+		labRecvToday.Text = $"Recv  {recvToday}/{data.neighbors.Count}";
+	}
 	private void UpdateGroupsLV()
 	{
 		lbGroups.Items.Clear();
@@ -111,20 +125,42 @@ public partial class MainForm:Form
 	}
 	private void LbGroups_SelectedIndexChanged(object sender, EventArgs e)
 	{
+		gbGroup.Text = lbGroups.SelectedItem.ToString();
+		sentGroup = 0;
+		recvGroup = 0;
+		sentToday = 0;
+		recvToday = 0;
+		cntGroup = 0;
+
 		lvRecv.BeginUpdate();
 		lvRecv.Items.Clear();
 
 		lvSend.BeginUpdate();
 		lvSend.Items.Clear();
 
+
 		foreach(Neighbor n in data.neighbors)
 		{
+			bool sent = false, recv = false;
+
+			if(n.SendThisSess) sent = true;
+			else if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalHours < LvExNeighbor.TODAY_HOURS) sent = true;
+
+			if(n.RecvThisSess) recv = true;
+			else if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalHours < LvExNeighbor.TODAY_HOURS) recv = true;
+
+			if(sent) sentToday++;
+			if(recv) recvToday++;
+
 			if("" + lbGroups.SelectedItem == "unassigned")
 			{
 				if(n.Group?.Trim() != "") continue;
 			}
 			else if("" + lbGroups.SelectedItem != n.Group) continue;
 
+			cntGroup++;
+			if(sent) sentGroup++;
+			if(recv) recvGroup++;
 
 			ListViewItem lvi = new(n.NameRecv)
 			{
@@ -158,6 +194,7 @@ public partial class MainForm:Form
 
 		lvRecv.EndUpdate();
 		lvSend.EndUpdate();
+		UpdateTotals();
 	}
 
 
@@ -170,10 +207,33 @@ public partial class MainForm:Form
 
 		if(hitTest.SubItem?.Text == "Recv")
 		{
-			if(hitTest.Item?.Tag is Neighbor n) n.AddRecv();
+			if(hitTest.Item?.Tag is not Neighbor n) return;
+
+			// Reject double accidental clicks
+			if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalMilliseconds < LvExNeighbor.BUT_DISABLE_MILLIS) return;
+
+			n.AddRecv();
 			lvRecv.Refresh();
+			recvGroup++;
+			recvToday++;
+			UpdateTotals();
+
+			Task.Run(async delegate
+			{
+				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+				if(IsDisposed || !IsHandleCreated || Disposing) return;
+				if(lvRecv.InvokeRequired)
+				{
+					lvRecv.Invoke(() => lvRecv.Refresh());
+				}
+				else
+				{
+					lvRecv.Refresh();
+				}
+			});
 			return;
 		}
+
 	}
 	private void LvSend_MouseClick(object sender, MouseEventArgs e)
 	{
@@ -182,10 +242,33 @@ public partial class MainForm:Form
 
 		if(hitTest.SubItem?.Text == "Send")
 		{
-			if(hitTest.Item?.Tag is Neighbor n) n.AddSend();
+			if(hitTest.Item?.Tag is not Neighbor n) return;
+
+			// Reject double accidental clicks
+			if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalMilliseconds < LvExNeighbor.BUT_DISABLE_MILLIS) return;
+
+			n.AddSend();
 			lvSend.Refresh();
+			sentGroup++;
+			sentToday++;
+			UpdateTotals();
+
+			Task.Run(async delegate
+			{
+				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+				if(IsDisposed || !IsHandleCreated || Disposing) return;
+				if(lvSend.InvokeRequired)
+				{
+					lvSend.Invoke(() => lvSend.Refresh());
+				}
+				else
+				{
+					lvSend.Refresh();
+				}
+			});
 			return;
 		}
+
 	}
 
 	private void Timer1_Tick(object sender, EventArgs e)
@@ -211,4 +294,6 @@ public partial class MainForm:Form
 		lvRecv.Sort();
 		lvSend.Sort();
 	}
+
+
 }

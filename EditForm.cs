@@ -1,7 +1,5 @@
 ﻿using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Reflection;
 
 namespace ACgifts;
 
@@ -83,6 +81,10 @@ internal partial class EditForm:Form
 			bindSource.ResetBindings(true);
 		}
 	}
+	private void ButExport_Click(object sender, EventArgs e)
+	{
+		data.Export();
+	}
 	private void ButBackup_Click(object sender, EventArgs e)
 	{
 		data.Backup();
@@ -110,8 +112,6 @@ internal partial class EditForm:Form
 	{
 		new LogViewForm().ShowDialog();
 	}
-
-
 	private void ButMoveUp_Click(object sender, EventArgs e)
 	{
 		if(dgvData.SelectedRows.Count == 0) return;
@@ -166,8 +166,6 @@ internal partial class EditForm:Form
 		dgvData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 		data.ReOrder();
 	}
-
-
 
 
 
@@ -272,7 +270,7 @@ internal partial class EditForm:Form
 	{
 		if(sender is null)
 		{
-			Program.Log("EditForm.GetCxtArgs()",$"*** {method} Sender was null");
+			Program.Log("EditForm.GetCxtArgs()", $"*** {method} Sender was null");
 			return null;
 		}
 		if(sender is not ToolStripMenuItem tsmi)

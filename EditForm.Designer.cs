@@ -38,6 +38,7 @@ partial class EditForm
 		butMoveUp = new Button();
 		butMoveDown = new Button();
 		butLog = new Button();
+		butExport = new Button();
 		((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
 		SuspendLayout();
 		// 
@@ -52,7 +53,7 @@ partial class EditForm
 		// 
 		// butImport
 		// 
-		butImport.Location = new Point(473, 12);
+		butImport.Location = new Point(513, 12);
 		butImport.Name = "butImport";
 		butImport.Size = new Size(67, 23);
 		butImport.TabIndex = 2;
@@ -107,7 +108,7 @@ partial class EditForm
 		// 
 		// butDir
 		// 
-		butDir.Location = new Point(580, 12);
+		butDir.Location = new Point(692, 12);
 		butDir.Name = "butDir";
 		butDir.Size = new Size(36, 23);
 		butDir.TabIndex = 7;
@@ -137,7 +138,7 @@ partial class EditForm
 		// 
 		// butLog
 		// 
-		butLog.Location = new Point(622, 12);
+		butLog.Location = new Point(734, 12);
 		butLog.Name = "butLog";
 		butLog.Size = new Size(36, 23);
 		butLog.TabIndex = 10;
@@ -145,11 +146,22 @@ partial class EditForm
 		butLog.UseVisualStyleBackColor = true;
 		butLog.Click += ButLog_Click;
 		// 
+		// butExport
+		// 
+		butExport.Location = new Point(586, 12);
+		butExport.Name = "butExport";
+		butExport.Size = new Size(67, 23);
+		butExport.TabIndex = 11;
+		butExport.Text = "Export";
+		butExport.UseVisualStyleBackColor = true;
+		butExport.Click += ButExport_Click;
+		// 
 		// EditForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(784, 461);
+		Controls.Add(butExport);
 		Controls.Add(butLog);
 		Controls.Add(butMoveDown);
 		Controls.Add(butMoveUp);
@@ -181,4 +193,5 @@ partial class EditForm
 	private Button butMoveUp;
 	private Button butMoveDown;
 	private Button butLog;
+	private Button butExport;
 }

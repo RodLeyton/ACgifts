@@ -1,13 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Microsoft.VisualBasic.FileIO;
-using Microsoft.VisualBasic.Logging;
 
 namespace ACgifts;
 internal class Data
@@ -70,7 +64,6 @@ internal class Data
 		}
 		Program.Log("Data.Load()", $"{neighbors.Count} loaded.");
 	}
-
 	public void Save()
 	{
 		if(neighbors.Count == 0)
@@ -112,6 +105,8 @@ internal class Data
 
 			foreach(Neighbor n in neighbors)
 				sFile.WriteLine(JsonSerializer.Serialize(n));
+
+			Program.Log($"Data.Save()", "Save completed successfully");
 		}
 		catch (Exception ex)
 		{
@@ -127,6 +122,13 @@ internal class Data
 
 	public void Backup()
 	{
+		if(!File.Exists(FILENAME + FILEEXT) && neighbors.Count == 0)
+		{
+			Program.Log("Data.Backup()", "Backup cancelled, no data exists");
+			MessageBox.Show("We do not have any data to back up.", "ACgifts no data");
+			return;
+		}
+
 		SaveFileDialog sfd = new()
 		{
 			Filter = "Data File|*.dat",
@@ -134,11 +136,17 @@ internal class Data
 		};
 		if(sfd.ShowDialog() != DialogResult.OK) return;
 
-		if(File.Exists(sfd.FileName)) File.Delete(sfd.FileName);
+		Program.Log("Data.Backup()", $"Backup to '{sfd.FileName}' started");
 
+		if(File.Exists(sfd.FileName))
+		{
+			Program.Log("Data.Backup()", "File exists, deleting");
+			File.Delete(sfd.FileName);
+		}
 		Save();
-		File.Copy(FILENAME + FILEEXT, sfd.FileName);
 
+		File.Copy(FILENAME + FILEEXT, sfd.FileName);
+		Program.Log("Data.Backup()", "Backup complete");
 	}
 	public void Restore()
 	{
@@ -357,7 +365,78 @@ internal class Data
 		MessageBox.Show($"Import Added {cnt} neighbors successfully!");
 		Program.Log("Data.Import()", $"Added {cnt} neighbors successfully!");
 	}
+	public void Export()
+	{
+		if(!File.Exists(FILENAME + FILEEXT) && neighbors.Count == 0)
+		{
+			Program.Log("Data.Export()", "Export cancelled, no data exists");
+			MessageBox.Show("We do not have any data to Export.", "ACgifts no data");
+			return;
+		}
 
+		SaveFileDialog sfd = new()
+		{
+			Filter = "CSV File|*.csv",
+			FileName = $"ACgifts_export_{DateTime.Now:yyyy-MM-dd}.csv"
+		};
+		if(sfd.ShowDialog() != DialogResult.OK) return;
+
+		if(File.Exists(sfd.FileName))
+		{
+			Program.Log("Data.Export()", "File exists, deleting");
+			File.Delete(sfd.FileName);
+		}
+
+
+
+		StreamWriter? sFile = null;
+		try
+		{
+			sFile = new StreamWriter(sfd.FileName, append: false) { AutoFlush = false };
+			sFile.WriteLine("Name,Group,NameSend,CodeSend,LastSend,CntSend,NameRecv,CodeRecv,LastRecv,CntRecv,Added");
+
+			foreach(Neighbor n in neighbors)
+			{
+				//Name	Group	NameSend	CodeSend	LastSend	CntSend	NameRecv	CodeRecv	LastRecv	CntRecv	Added
+
+				sFile.Write(Utils.EscapeCSV(n.Name));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.Group));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.NameSend));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.IdSend));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.LastSend));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.CntSend));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.NameRecv));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.IdRecv));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.LastRecv));
+				sFile.Write(',');
+				sFile.Write(Utils.EscapeCSV(n.CntRecv));
+				sFile.Write(',');
+				sFile.WriteLine(Utils.EscapeCSV(n.Added));
+			}
+			Program.Log("Data.Export()", "Export complete");
+		}
+		catch(Exception ex)
+		{
+			Program.Log("Data.Export()", "Exception exporting current data to csv");
+			Program.Log("Data.Export()", ex);
+		}
+		finally
+		{
+			sFile?.Flush();
+			sFile?.Close();
+		}
+
+
+
+	}
 	public void ReOrder()
 	{
 		int ord = 0;

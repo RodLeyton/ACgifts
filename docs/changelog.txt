@@ -1,0 +1,18 @@
+ACgifts change log.
+
+
+v1.0.0.6 - Commit 'Publish, new fetures and minor bugfix' on 2023-10-09
+-------------------------------------------------------------------------------
+Added csv template, and homepage link to clickonce install dir.
+Added counters of sent/recv to mainform.
+Bugfix in rate/reliability display.
+Added version text to MainForm title.
+Added code to reject additional clicks to send/recv buttons for 1sec.
+Modified to consider any gifts sent/recv in the last 6hrs as being done today.
+Added export to CSV file feature.
+
+
+
+v1.0.0.5
+-------------------------------------------------------------------------------
+Initial release.

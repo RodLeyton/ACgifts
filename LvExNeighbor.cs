@@ -8,6 +8,16 @@ namespace ACgifts;
 
 public class LvExNeighbor:ListView
 {
+	private readonly Brush doneButColor = Brushes.LightGreen;
+	private readonly Brush todoButColor = Brushes.NavajoWhite;
+	private readonly Brush disabledButColor = Brushes.Gray;
+	public const int TODAY_HOURS = 6;
+	public const int BUT_DISABLE_MILLIS = 800;
+
+
+	bool mb_Measured = false;
+	int ms32_RowHeight = 20;
+
 	#region Windows API
 	[StructLayout(LayoutKind.Sequential)]
 	struct DRAWITEMSTRUCT
@@ -35,10 +45,11 @@ public class LvExNeighbor:ListView
 	const int WM_REFLECT = 0x2000;
 	const int WM_LBUTTONDOWN = 0x0201;
 	const int WM_RBUTTONDOWN = 0x0204;
+
+
+
 	#endregion
 
-	bool mb_Measured = false;
-	int ms32_RowHeight = 20;
 
 	public LvExNeighbor()
 	{
@@ -142,22 +153,23 @@ public class LvExNeighbor:ListView
 				Neighbor n = (Neighbor)lvi.Tag;
 
 
-
 				int subitem = 0; // Name Send/Recv
 				TextRenderer.DrawText(gfx, IsSend ? n.NameSend : n.NameRecv, Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 				subitem++;  // Send/Recv button
-				Brush colBut = Brushes.NavajoWhite;
+				Brush colBut = todoButColor;
 				if(IsSend)
 				{
-					if(n.SendThisSess) colBut = Brushes.PaleGreen;
-					else if(DateTime.Now - n.LastSend < new TimeSpan(4,0,0)) colBut = Brushes.LightGreen;
+					if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalMilliseconds < BUT_DISABLE_MILLIS) colBut = disabledButColor;
+					else if(n.SendThisSess) colBut = doneButColor;
+					else if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalHours < TODAY_HOURS) colBut = doneButColor;
 				}
 				else
 				{
-					if(n.RecvThisSess) colBut = Brushes.PaleGreen;
-					else if(DateTime.Now - n.LastRecv < new TimeSpan(4, 0, 0)) colBut = Brushes.LightGreen;
+					if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalMilliseconds < BUT_DISABLE_MILLIS) colBut = disabledButColor;
+					else if(n.RecvThisSess) colBut = doneButColor;
+					else if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalHours < TODAY_HOURS) colBut = doneButColor;
 				}
 
 				Rectangle rct = new(lvi.SubItems[subitem].Bounds.X + 1, lvi.SubItems[subitem].Bounds.Y + 1, lvi.SubItems[subitem].Bounds.Width - 2, lvi.SubItems[subitem].Bounds.Height - 2);
@@ -174,13 +186,12 @@ public class LvExNeighbor:ListView
 				subitem++;  // Count
 				TextRenderer.DrawText(gfx, IsSend ? n.CntSend+" " : n.CntRecv+" ", Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
-
 				subitem++;  // Rate
-				double rate = (IsSend ? n.CntSend : n.CntRecv) / (DateTime.Now - n.Added).TotalDays / 100;
+				double rate = (IsSend ? n.CntSend : n.CntRecv) / Math.Max(1, (DateTime.Now - n.Added).TotalDays);
 				TextRenderer.DrawText(gfx, $"{rate:P0}", Font, lvi.SubItems[subitem].Bounds, Color.Black, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-
 				break;
 			}
+
 		}
 	}
 

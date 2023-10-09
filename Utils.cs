@@ -53,5 +53,31 @@ internal class Utils
 	}
 
 
+	public static string EscapeCSV(object? obj)
+	{
+		if(obj is null) return "";
+		if(obj is DateTime dt)
+		{
+			if(dt == DateTime.MinValue) return "";
+			return dt.ToString("s");
+		}
+		if(obj is int i) return i.ToString();
+		if(obj is long l) return l.ToString();
+
+		if(obj is string str)
+		{
+			str = str.Replace("\"","\"\"");
+			if(str.Contains(',') ||
+				str.Contains('\r') ||
+				str.Contains('\n') ||
+				str.StartsWith(' ') ||
+				str.EndsWith(' '))
+				return $"\"{str}\"";
+			return str;
+		}
+		Program.Log("Utils.EscapeCSV()", $"Unexpected type: {obj.GetType()} is not implemented.");
+		throw new NotImplementedException("Unexpected type " + obj.GetType());
+	}
+
 
 }
