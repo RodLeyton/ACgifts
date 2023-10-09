@@ -7,7 +7,7 @@ public partial class LogViewForm:Form
 	public LogViewForm()
 	{
 		InitializeComponent();
-		labLocation.Text = Program.GetFullLogPath() + " (click to copy)";
+		labLocation.Text = Program.GetLogFile();
 
 		tbLog.Text = Program.GetLogs();
 		Utils.ScrollToBottom(tbLog);
@@ -16,7 +16,7 @@ public partial class LogViewForm:Form
 
 	private void LabLocation_Click(object sender, EventArgs e)
 	{
-		Clipboard.SetText(Program.GetFullLogPath());
+		Clipboard.SetText(Program.GetLogFile());
 		labLocation.ForeColor = Color.Blue;
 
 		Task.Run(async delegate

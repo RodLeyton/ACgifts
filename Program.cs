@@ -1,17 +1,16 @@
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Text.Json;
 
 namespace ACgifts;
 
 internal static class Program
 {
-	private static StreamWriter? logfile;
+	public static AppConfig appConfig = null!;
+	private static StreamWriter? swLog;
 	private static readonly object _locker = new();
 
-#if DEBUG
-	public static string LOG_FILE = "log-debug.txt";
-#else
-	public static string LOG_FILE = "log-release.txt";
-#endif
+	private static string APP_DIR = null!, DATA_DIR = null!, LOG_FILE = null!, LOG_FILE_NO_EXT = null!;
 
 
 
@@ -31,12 +30,32 @@ internal static class Program
 			{
 				hasHandle = mutex.WaitOne(5000, false);
 				if(hasHandle == false)
-					throw new TimeoutException("ACgifts: Timeout waiting for exclusive access");
+				{
+					MessageBox.Show("ACgifts is already running!","Cannot start second instance");
+					return;
+				}
 			}
-			catch(AbandonedMutexException)
+			catch(AbandonedMutexException) { hasHandle = true; }
+
+			try
 			{
-				hasHandle = true;
+				APP_DIR = GetAppDir();
+				DATA_DIR = GetDataDir();
+				LOG_FILE = GetLogFile();
+				LOG_FILE_NO_EXT = Path.ChangeExtension(LOG_FILE, null);
+
+				if(!Directory.Exists(DATA_DIR)) Directory.CreateDirectory(DATA_DIR);
+
+				string[] confLines = File.ReadAllLines(DATA_DIR + "app.config");
+				appConfig = (AppConfig)(JsonSerializer.Deserialize(confLines[0], typeof(AppConfig)) ?? new AppConfig());
 			}
+			catch(Exception ex)
+			{
+				Program.Log("Program.Init", $"Exception caught loading AppConfig");
+				Program.Log("Program.Init", ex);
+			}
+			finally { appConfig ??= new(); }
+
 			DoWork();
 		}
 		finally
@@ -51,25 +70,17 @@ internal static class Program
 	{
 
 #if DEBUG
-		Directory.CreateDirectory("data");
-		SetupLogfile();
-		Log("", $"App startup {DateTime.Now:u}");
-
+		Init();
 		Application.Run(new MainForm());
 
 		Log("",$"App closed {DateTime.Now:u}\r\n");
-		logfile?.Flush();
-		logfile?.Close();
+		swLog?.Flush();
+		swLog?.Close();
 
 #else
-
-
 		try
 		{
-			Directory.CreateDirectory("data");
-			SetupLogfile();
-			Log("", $"App startup {DateTime.Now:u}");
-
+			Init();
 			Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 			Application.Run(new MainForm());
@@ -84,8 +95,8 @@ internal static class Program
 		finally
 		{
 			Log("",$"App closed {DateTime.Now:u}\r\n");
-			logfile?.Flush();
-			logfile?.Close();
+			swLog?.Flush();
+			swLog?.Close();
 		}
 #endif
 
@@ -97,8 +108,8 @@ internal static class Program
 	{
 		lock(_locker)
 		{
-			if(from != "") logfile?.Write(from.PadRight(20));
-			logfile?.WriteLine(msg);
+			if(from != "") swLog?.Write(from.PadRight(20));
+			swLog?.WriteLine(msg);
 #if DEBUG
 			Debug.WriteLine(msg);
 #endif
@@ -108,10 +119,10 @@ internal static class Program
 	{
 		lock(_locker)
 		{
-			logfile?.WriteLine($"----- {from}  {ex.Message}  ".PadRight(80,'-'));
-			logfile?.WriteLine(ex.Message);
-			logfile?.WriteLine(ex.StackTrace);
-			logfile?.WriteLine(new string('-',80));
+			swLog?.WriteLine($"----- {from}  {ex.Message}  ".PadRight(80,'-'));
+			swLog?.WriteLine(ex.Message);
+			swLog?.WriteLine(ex.StackTrace);
+			swLog?.WriteLine(new string('-',80));
 #if DEBUG
 			Debug.WriteLine($"----- {from}  {ex.Message}");
 			Debug.WriteLine(ex.StackTrace);
@@ -123,12 +134,12 @@ internal static class Program
 	{
 		lock(_locker)
 		{
-			if(logfile == null) return "";
+			if(swLog == null) return "";
 			try
 			{
-				logfile.Flush();
-				logfile.Close();
-				string content = File.ReadAllText(GetFullLogPath());
+				swLog.Flush();
+				swLog.Close();
+				string content = File.ReadAllText(LOG_FILE);
 				return content;
 			}
 			catch (Exception ex)
@@ -137,77 +148,137 @@ internal static class Program
 			}
 			finally
 			{
-				logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
+				swLog = new StreamWriter(LOG_FILE, append: true) { AutoFlush = true };
 			}
 		}
 	}
-	private static void SetupLogfile()
+	private static void Init()
 	{
-		if(logfile != null) throw new Exception("Cannot rotate logs when they are open!");
-		string noExt = Path.ChangeExtension(GetFullLogPath(), null);
+		if(swLog != null) throw new Exception("Cannot rotate logs when they are open!");
 
 		try
 		{
-			if(!File.Exists(GetFullLogPath()))
+			if(!File.Exists(LOG_FILE))
 			{
-				logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
-				Log("Program",$"logfile created {DateTime.Now:u}");
-				return;
+				swLog = new StreamWriter(LOG_FILE, append: true) { AutoFlush = true };
+				Log("Program.Init", $"Logfile created {DateTime.Now:u}");
 			}
-
-			FileInfo fi = new(GetFullLogPath());
-			if(fi.Length > 10000)
+			else
 			{
-				if(File.Exists(noExt + ".bak.txt"))
-					File.Delete(noExt + ".bak.txt");
+				FileInfo fi = new(LOG_FILE);
+				if(fi.Length > 10000)
+				{
+					if(File.Exists(LOG_FILE_NO_EXT + ".bak.txt"))
+						File.Delete(LOG_FILE_NO_EXT + ".bak.txt");
 
-				File.Move(GetFullLogPath(), noExt + ".bak.txt");
-				logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
-				Log("Program", $"logfile rotated {DateTime.Now:u}");
-				return;
+					File.Move(LOG_FILE, LOG_FILE_NO_EXT + ".bak.txt");
+					swLog = new StreamWriter(LOG_FILE, append: true) { AutoFlush = true };
+					Log("Program.Init", $"Logfile rotated {DateTime.Now:u}");
+				}
 			}
-			logfile = new StreamWriter(GetFullLogPath(), append: true) { AutoFlush = true };
 		}
 		catch (Exception ex)
 		{
 			MessageBox.Show("ACgifts encountered an error rotating logs: \r\n" + ex.Message);
 		}
+
+
+		try
+		{
+			swLog ??= new StreamWriter(LOG_FILE, append: true) { AutoFlush = true };
+
+			Log("Program.Init", $"App startup {DateTime.Now:u}");
+
+			DirectoryInfo d = new(@"files");
+			if(!d.Exists) Log("Program.Init", $"Files directory not found!");
+			else
+			{
+				FileInfo[] Files = d.GetFiles();
+
+				foreach(FileInfo file in Files)
+				{
+					if(!File.Exists(APP_DIR + file.Name))
+					{
+						Log("Program.Init", $"Copying {file.Name} to app dir");
+						File.Copy(file.FullName, APP_DIR + file.Name);
+					}
+				}
+			}
+		}
+		catch(Exception ex)
+		{
+			MessageBox.Show("ACgifts encountered an initialisation error: \r\n" + ex.Message);
+		}
+
+
+		if(appConfig.IsDefaults) Program.Log("Program.Init", "Configfile does not exist. Using defaults");
+		else Program.Log("Program.Init", "AppConfig loaded successfully");
 	}
-	
-	
-	public static string GetFullLogPath()
+
+	public static void SaveConfig()
 	{
-		return GetDataDir() + LOG_FILE;
+		StreamWriter? sFile = null;
+		try
+		{
+			sFile = new StreamWriter(APP_DIR + "app.config", append: false) { AutoFlush = true };
+			appConfig.IsDefaults = false;
+			sFile.WriteLine(JsonSerializer.Serialize(appConfig));
+			Program.Log($"Program.SaveConfig", "Config saved successfully");
+		}
+		catch(Exception ex)
+		{
+			Program.Log("Program.SaveConfig", "Exception saving Config");
+			Program.Log("Program.SaveConfig", ex);
+		}
+		finally
+		{
+			sFile?.Flush();
+			sFile?.Close();
+		}
 	}
+
+
+	public static string GetLogFile()
+	{
+		return Path.Combine(GetDataDir(), "logfile.txt");
+	}
+
 	public static string GetAppDir()
 	{
-		return Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+#if DEBUG
+		string subDir = "ACgifts_Debug";
+#else
+		string subDir = "ACgifts_Release";
+#endif
+		string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+		return Path.Combine(localAppData, "CrashnBurn", subDir) + Path.DirectorySeparatorChar;
 	}
+
 	public static string GetDataDir()
 	{
-		return GetAppDir() + "data" + Path.DirectorySeparatorChar;
+		return Path.Combine(GetAppDir(), "Data") + Path.DirectorySeparatorChar;
 	}
 
 
 #if !DEBUG
 	static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
 	{
-		logfile?.WriteLine("\r\nThreadException, caught in Program.Main()");
-		logfile?.WriteLine("From: " + sender.ToString());
-		logfile?.WriteLine(e.ToString());
-		logfile?.WriteLine(e.Exception.ToString());
-		logfile?.WriteLine(" ");
-		logfile?.Flush();
+		swLog?.WriteLine("\r\nThreadException, caught in Program.Main()");
+		swLog?.WriteLine("From: " + sender.ToString());
+		swLog?.WriteLine(e.ToString());
+		swLog?.WriteLine(e.Exception.ToString());
+		swLog?.WriteLine(" ");
+		swLog?.Flush();
 		MessageBox.Show("It appears ACgifts has encountered an unexpected event.\nPlease check the logfile for details.");
 	}
 	static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 	{
-		logfile?.WriteLine("\r\nUnhandledException, caught in Program.Main()");
-		logfile?.WriteLine("From: " + sender.ToString());
-		logfile?.WriteLine(e.ToString());
-		logfile?.WriteLine(e.ExceptionObject.ToString());
-		logfile?.WriteLine(" ");
-		logfile?.Flush();
+		swLog?.WriteLine("\r\nUnhandledException, caught in Program.Main()");
+		swLog?.WriteLine("From: " + sender.ToString());
+		swLog?.WriteLine(e.ToString());
+		swLog?.WriteLine(e.ExceptionObject.ToString());
+		swLog?.WriteLine(" ");
+		swLog?.Flush();
 		MessageBox.Show("It appears ACgifts has encountered an unexpected event.\nPlease check the logfile for details.");
 	}
 #endif

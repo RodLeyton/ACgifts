@@ -28,6 +28,12 @@
   <ItemGroup>
     <None Remove="ACgifts Homepage.url" />
     <None Remove="Changelog.url" />
+    <None Remove="files\ACgifts Homepage.url" />
+    <None Remove="files\Changelog.url" />
+    <None Remove="files\import template.csv" />
+    <None Remove="files\LICENSE.txt" />
+    <None Remove="files\neighbors.dat" />
+    <None Remove="files\README.md" />
     <None Remove="import template.csv" />
     <None Remove="LICENSE.txt" />
     <None Remove="README.md" />
@@ -36,34 +42,24 @@
 
 	
   <ItemGroup>
-    <Content Include="ACgifts Homepage.url">
+    <Content Include="files\ACgifts Homepage.url">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Changelog.url">
+    <Content Include="files\Changelog.url">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="import template.csv">
+    <Content Include="files\import template.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="LICENSE.txt">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+    <Content Include="files\LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Plane.ico" />
-    <Content Include="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+    <Content Include="files\neighbors.dat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
+    <Content Include="files\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -115,10 +111,6 @@
     </None>
     <None Update="Project Homepage.url">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

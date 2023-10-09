@@ -30,14 +30,14 @@ internal class Utils
 			PropertyInfo? pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
 			if(pi is null)
 			{
-				Program.Log("Utils.SetDblBuf()", "*** Failed to get PropertyInfo ***");
+				Program.Log("Utils.SetDblBuf", "*** Failed to get PropertyInfo ***");
 				return;
 			}
 			pi.SetValue(dgv, setting, null);
 		}
 		catch(Exception ex)
 		{
-			Program.Log("EditForm.SetDblBuf()", ex);
+			Program.Log("EditForm.SetDblBuf", ex);
 		}
 	}
 
@@ -63,6 +63,7 @@ internal class Utils
 		}
 		if(obj is int i) return i.ToString();
 		if(obj is long l) return l.ToString();
+		if(obj is double d) return d.ToString();
 
 		if(obj is string str)
 		{

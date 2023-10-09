@@ -101,7 +101,7 @@ internal partial class EditForm:Form
 		{
 			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
 			{
-				FileName = Directory.GetCurrentDirectory(),
+				FileName = Program.GetAppDir(),
 				UseShellExecute = true,
 				Verb = "open"
 			});
@@ -270,17 +270,17 @@ internal partial class EditForm:Form
 	{
 		if(sender is null)
 		{
-			Program.Log("EditForm.GetCxtArgs()", $"*** {method} Sender was null");
+			Program.Log("EditForm.GetCxtArgs", $"*** {method} Sender was null");
 			return null;
 		}
 		if(sender is not ToolStripMenuItem tsmi)
 		{
-			Program.Log("EditForm.GetCxtArgs()", $"*** {method} Sender was {sender.GetType()} expecting ToolStripMenuItem");
+			Program.Log("EditForm.GetCxtArgs", $"*** {method} Sender was {sender.GetType()} expecting ToolStripMenuItem");
 			return null;
 		}
 		if(tsmi.Tag is not ContextEventArgs ctxa)
 		{
-			Program.Log("EditForm.GetCxtArgs()", $"*** {method} Sender.Tag was {tsmi.Tag.GetType()} expecting ContextEventArgs");
+			Program.Log("EditForm.GetCxtArgs", $"*** {method} Sender.Tag was {tsmi.Tag.GetType()} expecting ContextEventArgs");
 			return null;
 		}
 		return ctxa;
@@ -288,7 +288,7 @@ internal partial class EditForm:Form
 
 	private void CtxInsert(object? sender, EventArgs? e)
 	{
-		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxInsert()", sender);
+		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxInsert", sender);
 		if(ctxa is null) return;
 
 		Neighbor newNeighbor = new()
@@ -304,7 +304,7 @@ internal partial class EditForm:Form
 	}
 	private void CtxDelete(object? sender, EventArgs? e)
 	{
-		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxDelete()", sender);
+		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxDelete", sender);
 		if(ctxa is null) return;
 
 		bindSource.Remove(ctxa.Neighbor);
@@ -312,7 +312,7 @@ internal partial class EditForm:Form
 	}
 	private void CtxMoveUp(object? sender, EventArgs? e)
 	{
-		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxMoveUp()", sender);
+		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxMoveUp", sender);
 		if(ctxa is null) return;
 
 		int rowToMove = ctxa.RowIndex - 1;
@@ -330,7 +330,7 @@ internal partial class EditForm:Form
 	}
 	private void CtxMoveDown(object? sender, EventArgs? e)
 	{
-		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxMoveDown()", sender);
+		ContextEventArgs? ctxa = GetContextArgs("EditForm.CtxMoveDown", sender);
 		if(ctxa is null) return;
 
 		int rowToMove = ctxa.RowIndex + 1;

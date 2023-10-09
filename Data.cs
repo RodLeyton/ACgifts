@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.VisualBasic.FileIO;
@@ -8,30 +9,33 @@ internal class Data
 {
 	public BindingList<Neighbor> neighbors;
 
-	private const string FILENAME = "data/nieghbors";
-	private const string FILEEXT = ".dat";
 	private bool dataBackupDone = false;
+	private readonly string dataFile, dataFileNoExt;
 
 	public Data() 
 	{
 		neighbors = new();
-	}
+
+		dataFileNoExt = Program.GetDataDir() + "neighbors";
+		dataFile = dataFileNoExt + ".dat";
+}
 
 
 
 	public void Load()
 	{
 		int cnt = 0, fail = 0;
-		Program.Log("Data.Load()","Loading neighbors from datafile.");
+		Program.Log("Data.Load","Loading neighbors from datafile.");
 
 		neighbors.Clear();
-		if(!File.Exists(FILENAME + FILEEXT))
+		string dataFile = Program.GetDataDir() + "neighbors.dat";
+		if(!File.Exists(dataFile))
 		{
-
+			Program.Log("Data.Load", "Datafile does not exist.");
 			return;
 		}
 
-		StreamReader sr = new(FILENAME + FILEEXT);
+		StreamReader sr = new(dataFile);
 		while(!sr.EndOfStream)
 		{
 			string? line = "";
@@ -45,55 +49,56 @@ internal class Data
 				if(n != null) neighbors.Add(n);
 				else
 				{
-					Program.Log("Data.Load()", $"Line {cnt} failed parse: {line}");
+					Program.Log("Data.Load", $"Line {cnt} failed parse: {line}");
 					fail++;
 				}
 			}
 			catch(Exception ex)
 			{
 				fail++;
-				Program.Log("Data.Load()",$"Exception caught during processing of line {cnt} line={line}");
-				Program.Log("Data.Load()", ex);
+				Program.Log("Data.Load",$"Exception caught during processing of line {cnt} line={line}");
+				Program.Log("Data.Load", ex);
 			}
 		}
 		sr.Close();
 		if(fail > 0)
 		{
 			MessageBox.Show($"Not all data was imported, {fail}/{cnt} failed. Contact the developer for assistance.");
-			Program.Log("Data.Load()", $"***  Load complete. {fail}/{cnt} failed.");
+			Program.Log("Data.Load", $"***  Load complete. {fail}/{cnt} failed.");
 		}
-		Program.Log("Data.Load()", $"{neighbors.Count} loaded.");
+		Program.Log("Data.Load", $"{neighbors.Count} loaded.");
 	}
 	public void Save()
 	{
 		if(neighbors.Count == 0)
 		{
-			Program.Log("Data.Save()", "Save Aborted, neighbors is empty.");
+			Program.Log("Data.Save", "Save Aborted, neighbors is empty.");
 			return;
 		}
 
-		Program.Log("Data.Save()", "Saving datafile.");
+		Program.Log("Data.Save", "Saving datafile.");
+
 		if(!dataBackupDone)
 		{
-			Program.Log("Data.Save()", "Rotating backup data files");
+			Program.Log("Data.Save", "Rotating backup data files");
 			try
 			{
 				for(int i = 10; i > 0; i--)
 				{
-					if(File.Exists(FILENAME + ".bak" + i + FILEEXT))
-						File.Delete(FILENAME + ".bak" + i + FILEEXT);
-					if(File.Exists(FILENAME + ".bak" + (i - 1) + FILEEXT))
-						File.Move(FILENAME + ".bak" + (i - 1) + FILEEXT, FILENAME + ".bak" + i + FILEEXT);
+					if(File.Exists($"{dataFileNoExt}.bak{i}.dat"))
+						File.Delete($"{dataFileNoExt}.bak{i}.dat");
+					if(File.Exists($"{dataFileNoExt}.bak{i-1}.dat"))
+						File.Move($"{dataFileNoExt}.bak{i-1}.dat", $"{dataFileNoExt}.bak{i}.dat");
 				}
-				if(File.Exists(FILENAME + FILEEXT))
-					File.Move(FILENAME + FILEEXT, FILENAME + ".bak1" + FILEEXT);
+				if(File.Exists(dataFile))
+					File.Move(dataFile, $"{dataFileNoExt}.bak1.dat");
 
-				Program.Log($"Data.Save()", "Rotated backup files successfully.");
+				Program.Log($"Data.Save", "Rotated backup files successfully.");
 			}
 			catch (Exception ex)
 			{
-				Program.Log($"Data.Save()", "Exception moving backup data files");
-				Program.Log("Data.Save()", ex);
+				Program.Log($"Data.Save", "Exception moving backup data files");
+				Program.Log("Data.Save", ex);
 			}
 			dataBackupDone = true;
 		}
@@ -101,17 +106,17 @@ internal class Data
 		StreamWriter? sFile = null;
 		try
 		{
-			sFile = new StreamWriter(FILENAME + FILEEXT, append: false) { AutoFlush = false };
+			sFile = new StreamWriter(dataFile, append: false) { AutoFlush = false };
 
 			foreach(Neighbor n in neighbors)
 				sFile.WriteLine(JsonSerializer.Serialize(n));
 
-			Program.Log($"Data.Save()", "Save completed successfully");
+			Program.Log($"Data.Save", "Save completed successfully");
 		}
 		catch (Exception ex)
 		{
-			Program.Log("Data.Save()", "Exception saving current data file");
-			Program.Log("Data.Save()", ex);
+			Program.Log("Data.Save", "Exception saving current data file");
+			Program.Log("Data.Save", ex);
 		}
 		finally
 		{
@@ -122,9 +127,9 @@ internal class Data
 
 	public void Backup()
 	{
-		if(!File.Exists(FILENAME + FILEEXT) && neighbors.Count == 0)
+		if(!File.Exists(dataFile) && neighbors.Count == 0)
 		{
-			Program.Log("Data.Backup()", "Backup cancelled, no data exists");
+			Program.Log("Data.Backup", "Backup cancelled, no data exists");
 			MessageBox.Show("We do not have any data to back up.", "ACgifts no data");
 			return;
 		}
@@ -132,21 +137,21 @@ internal class Data
 		SaveFileDialog sfd = new()
 		{
 			Filter = "Data File|*.dat",
-			FileName = $"ACgifts_backup_{DateTime.Now:yyyy-MM-dd}{FILEEXT}"
+			FileName = $"ACgifts_backup_{DateTime.Now:yyyy-MM-dd}.dat"
 		};
 		if(sfd.ShowDialog() != DialogResult.OK) return;
 
-		Program.Log("Data.Backup()", $"Backup to '{sfd.FileName}' started");
+		Program.Log("Data.Backup", $"Backup to '{sfd.FileName}' started");
 
 		if(File.Exists(sfd.FileName))
 		{
-			Program.Log("Data.Backup()", "File exists, deleting");
+			Program.Log("Data.Backup", "File exists, deleting");
 			File.Delete(sfd.FileName);
 		}
 		Save();
 
-		File.Copy(FILENAME + FILEEXT, sfd.FileName);
-		Program.Log("Data.Backup()", "Backup complete");
+		File.Copy(dataFile, sfd.FileName);
+		Program.Log("Data.Backup", "Backup complete");
 	}
 	public void Restore()
 	{
@@ -156,11 +161,11 @@ internal class Data
 		};
 		if(ofd.ShowDialog() == DialogResult.OK)
 		{
-			Program.Log("Data.Restore()", $"Restore started src='{ofd.FileName}'");
+			Program.Log("Data.Restore", $"Restore started src='{ofd.FileName}'");
 			if(!File.Exists(ofd.FileName))
 			{
 				MessageBox.Show($"Couldn't access {ofd.FileName}, please check permissions.");
-				Program.Log($"Data.Restore()", $"'{ofd.FileName}' does not exist.");
+				Program.Log($"Data.Restore", $"'{ofd.FileName}' does not exist.");
 				return;
 			}
 
@@ -180,15 +185,15 @@ internal class Data
 					if(n != null) temp.Add(n);
 					else
 					{
-						Program.Log("Data.Restore()", $"*** Line {cnt} failed parse: {line}");
+						Program.Log("Data.Restore", $"*** Line {cnt} failed parse: {line}");
 						fail++;
 					}
 				}
 				catch(Exception ex)
 				{
 					fail++;
-					Program.Log("Data.Restore()", $"Exception caught on line {cnt} => {line}");
-					Program.Log("Data.Restore()", ex);
+					Program.Log("Data.Restore", $"Exception caught on line {cnt} => {line}");
+					Program.Log("Data.Restore", ex);
 					break;
 				}
 			}
@@ -196,19 +201,19 @@ internal class Data
 			if(fail > 0)
 			{
 				MessageBox.Show($"Backup file is corrupt, {fail}/{cnt} failed.\r\nAll data from restore was rejected, current data has been maintained.\r\nContact the developer for assistance.");
-				Program.Log("Data.Restore()", $"Backup file '{ofd.FileName}' is corrupt, {fail}/{cnt} failed. Restore aborted.");
+				Program.Log("Data.Restore", $"Backup file '{ofd.FileName}' is corrupt, {fail}/{cnt} failed. Restore aborted.");
 				return;
 			}
 
-			string backup = $"ACgifts_backup_pre_restore_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{FILEEXT}";
+			string backup = $"ACgifts_backup_pre_restore_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat";
 
-			Program.Log("Data.Restore()", $"Backup file parsed successfully. {cnt} records found.");
+			Program.Log("Data.Restore", $"Backup file parsed successfully. {cnt} records found.");
 
-			if(neighbors.Count > 0 && File.Exists(FILENAME + FILEEXT))
+			if(neighbors.Count > 0 && File.Exists(dataFile))
 			{
-				Program.Log("Data.Restore()", $"Backing up current data file to '{backup}'");
+				Program.Log("Data.Restore", $"Backing up current data file to '{backup}'");
 				Save();
-				File.Move(FILENAME + FILEEXT, backup);
+				File.Move(dataFile, backup);
 			}
 
 			neighbors.Clear();
@@ -217,42 +222,42 @@ internal class Data
 			MessageBox.Show($"Restored all {cnt} neighbors successfully!");
 
 
-			Program.Log("Data.Restore()", "Saving new data file.");
+			Program.Log("Data.Restore", "Saving new data file.");
 			Save();
-			Program.Log("Data.Restore()", "Restore Complete.");
+			Program.Log("Data.Restore", "Restore Complete.");
 		}
 	}
 	public void Import(string file)
 	{
-		Program.Log($"Data.Import()", $"Importing data from '{file}'");
+		Program.Log($"Data.Import", $"Importing data from '{file}'");
 
 		if(neighbors.Count == 0)
 		{
-			Program.Log($"Data.Import()", "Skiped clear data prompt since neighbors.Count == 0");
+			Program.Log($"Data.Import", "Skiped clear data prompt since neighbors.Count == 0");
 		}
 		else
 		{
 			DialogResult res = MessageBox.Show("Do you want to clear existing data?", "Delete data?", MessageBoxButtons.YesNoCancel);
 			if(res == DialogResult.Cancel)
 			{
-				Program.Log($"Data.Import()", "Import cancelled by user.");
+				Program.Log($"Data.Import", "Import cancelled by user.");
 				return;
 			}
 
 			if(res == DialogResult.Yes)
 			{
 				neighbors.Clear();
-				Program.Log("Data.Import()", "User requested to clear existing data.");
+				Program.Log("Data.Import", "User requested to clear existing data.");
 			}
 			else
 			{
-				Program.Log("Data.Import()", $"Retaining {neighbors.Count} existing records.");
+				Program.Log("Data.Import", $"Retaining {neighbors.Count} existing records.");
 
-				string backup = $"ACgifts_backup_pre_import_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}{FILEEXT}";
+				string backup = $"ACgifts_backup_pre_import_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.dat";
 
-				Program.Log("Data.Import()", $"Backing up current data file to '{backup}'");
+				Program.Log("Data.Import", $"Backing up current data file to '{backup}'");
 				Save();
-				File.Move(FILENAME + FILEEXT, backup);
+				File.Move(dataFile, backup);
 			}
 		}
 
@@ -275,20 +280,20 @@ internal class Data
 			catch(Exception ex)
 			{
 				fail++;
-				Program.Log($"Data.Import()", $"Exception caught for parser.ReadFields() on line:{parser.LineNumber}  src={parser.ErrorLine}");
-				Program.Log("Data.Import()", ex);
+				Program.Log($"Data.Import", $"Exception caught for parser.ReadFields() on line:{parser.LineNumber}  src={parser.ErrorLine}");
+				Program.Log("Data.Import", ex);
 				continue;
 			}
 			if(fields is null)
 			{
 				fail++;
-				Program.Log("Data.Import()", $"TextFieldParser Couldn't Parse line:{parser.LineNumber}  src={parser.ErrorLine}");
+				Program.Log("Data.Import", $"TextFieldParser Couldn't Parse line:{parser.LineNumber}  src={parser.ErrorLine}");
 				continue;
 			}
 			if(fields.Length != 11)
 			{
 				fail++;
-				Program.Log($"Data.Import()", $"Only {fields.Length} fields found on line:{parser.LineNumber}  src={parser.ErrorLine}");
+				Program.Log($"Data.Import", $"Only {fields.Length} fields found on line:{parser.LineNumber}  src={parser.ErrorLine}");
 				continue;
 			}
 
@@ -316,7 +321,7 @@ internal class Data
 				if(DateTime.TryParse(sLastSend, null, DateTimeStyles.None, out DateTime dtS)) lastSend = dtS;
 				else {
 					parseError++;
-					Program.Log("Data.Import()", $"Line {cnt}: LastSend date format was incorrect. Val={sLastSend}");
+					Program.Log("Data.Import", $"Line {cnt}: LastSend date format was incorrect. Val={sLastSend}");
 				}
 			}
 
@@ -325,7 +330,7 @@ internal class Data
 				if(DateTime.TryParse(sLastRecv, null, DateTimeStyles.None, out DateTime dtR)) lastRecv = dtR;
 				else {
 					parseError++;
-					Program.Log("Data.Import()", $"Line {cnt}: LastRecv date format was incorrect. Val={sLastRecv}");
+					Program.Log("Data.Import", $"Line {cnt}: LastRecv date format was incorrect. Val={sLastRecv}");
 				}
 			}
 
@@ -334,7 +339,7 @@ internal class Data
 				if(DateTime.TryParse(sAdded, null, DateTimeStyles.None, out DateTime dtA)) added = dtA;
 				else {
 					parseError++;
-					Program.Log("Data.Import()", $"Line {cnt}: 'Added' date format was incorrect, set to DateTime.Now   Val={sAdded}");
+					Program.Log("Data.Import", $"Line {cnt}: 'Added' date format was incorrect, set to DateTime.Now   Val={sAdded}");
 				}
 			}
 
@@ -348,26 +353,26 @@ internal class Data
 		if(fail > 0)
 		{
 			MessageBox.Show($"Import file is corrupt, {fail}/{cnt} lines failed.\r\nPlease check the file format.");
-			Program.Log("Data.Import()", $"*** File '{file}' is malformed, {fail}/{cnt} lines failed.");
+			Program.Log("Data.Import", $"*** File '{file}' is malformed, {fail}/{cnt} lines failed.");
 			return;
 		}
 
 		if(parseError > 0)
 		{
 			MessageBox.Show($"Import file had some datetime errors, but all lines were imported.\r\nPlease check the log for details.");
-			Program.Log("Data.Import()", $"*** File '{file}' had parse errors, {fail}/{cnt} lines failed.");
+			Program.Log("Data.Import", $"*** File '{file}' had parse errors, {fail}/{cnt} lines failed.");
 			return;
 		}
 
 
 		MessageBox.Show($"Import Added {cnt} neighbors successfully!");
-		Program.Log("Data.Import()", $"Added {cnt} neighbors successfully!");
+		Program.Log("Data.Import", $"Added {cnt} neighbors successfully!");
 	}
 	public void Export()
 	{
-		if(!File.Exists(FILENAME + FILEEXT) && neighbors.Count == 0)
+		if(!File.Exists(dataFile) && neighbors.Count == 0)
 		{
-			Program.Log("Data.Export()", "Export cancelled, no data exists");
+			Program.Log("Data.Export", "Export cancelled, no data exists");
 			MessageBox.Show("We do not have any data to Export.", "ACgifts no data");
 			return;
 		}
@@ -381,7 +386,7 @@ internal class Data
 
 		if(File.Exists(sfd.FileName))
 		{
-			Program.Log("Data.Export()", "File exists, deleting");
+			Program.Log("Data.Export", "File exists, deleting");
 			File.Delete(sfd.FileName);
 		}
 
@@ -419,12 +424,12 @@ internal class Data
 				sFile.Write(',');
 				sFile.WriteLine(Utils.EscapeCSV(n.Added));
 			}
-			Program.Log("Data.Export()", "Export complete");
+			Program.Log("Data.Export", "Export complete");
 		}
 		catch(Exception ex)
 		{
-			Program.Log("Data.Export()", "Exception exporting current data to csv");
-			Program.Log("Data.Export()", ex);
+			Program.Log("Data.Export", "Exception exporting current data to csv");
+			Program.Log("Data.Export", ex);
 		}
 		finally
 		{

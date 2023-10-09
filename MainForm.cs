@@ -21,26 +21,26 @@ public partial class MainForm:Form
 		lvRecvSort = new LVsort(false);
 		lvRecv.ListViewItemSorter = lvRecvSort;
 
-		lvRecv.Columns.Add("Recv Name", Properties.Settings.Default.Col0width);
-		lvRecv.Columns.Add("", Properties.Settings.Default.Col1width);
-		lvRecv.Columns.Add("Last", Properties.Settings.Default.Col2width);
-		lvRecv.Columns.Add("Cnt", Properties.Settings.Default.Col3width);
-		lvRecv.Columns.Add("Rate", Properties.Settings.Default.Col4width);
+		lvRecv.Columns.Add("Recv Name", Program.appConfig.Col0width);
+		lvRecv.Columns.Add("", Program.appConfig.Col1width);
+		lvRecv.Columns.Add("Last", Program.appConfig.Col2width);
+		lvRecv.Columns.Add("Cnt", Program.appConfig.Col3width);
+		lvRecv.Columns.Add("Rate", Program.appConfig.Col4width);
 
 		lvSend.IsSend = true;
 		lvSend.ShowItemToolTips = true;
 		lvSendSort = new LVsort(true);
 		lvSend.ListViewItemSorter = lvSendSort;
 
-		lvSend.Columns.Add("Send Name", Properties.Settings.Default.Col0width);
-		lvSend.Columns.Add("", Properties.Settings.Default.Col1width);
-		lvSend.Columns.Add("Last", Properties.Settings.Default.Col2width);
-		lvSend.Columns.Add("Cnt", Properties.Settings.Default.Col3width);
-		lvSend.Columns.Add("Rate", Properties.Settings.Default.Col4width);
+		lvSend.Columns.Add("Send Name", Program.appConfig.Col0width);
+		lvSend.Columns.Add("", Program.appConfig.Col1width);
+		lvSend.Columns.Add("Last", Program.appConfig.Col2width);
+		lvSend.Columns.Add("Cnt", Program.appConfig.Col3width);
+		lvSend.Columns.Add("Rate", Program.appConfig.Col4width);
 	}
 	private void MainForm_Load(object sender, EventArgs e)
 	{
-		string geo = Properties.Settings.Default.MainFormGeo;
+		string geo = Program.appConfig.MainFormGeo;
 		if(geo == null || geo == "")
 		{
 			Width = MaximumSize.Width;
@@ -52,7 +52,7 @@ public partial class MainForm:Form
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.AC_GAME_NAME, "Game name"));
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.FORUM_NAME, "Forum name"));
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.LIST_ORDER, "List Order"));
-		cbSortOrder.SelectedIndex = Properties.Settings.Default.SortOrder;
+		cbSortOrder.SelectedIndex = Program.appConfig.SortOrder;
 		lvSendSort.SortType = cbSortOrder.SelectedIndex;
 		lvRecvSort.SortType = cbSortOrder.SelectedIndex;
 
@@ -63,14 +63,14 @@ public partial class MainForm:Form
 	private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 	{
 		data.Save();
-		Properties.Settings.Default.SortOrder = cbSortOrder.SelectedIndex;
-		Properties.Settings.Default.Col0width = lvSend.Columns[0].Width;
-		Properties.Settings.Default.Col1width = lvSend.Columns[1].Width;
-		Properties.Settings.Default.Col2width = lvSend.Columns[2].Width;
-		Properties.Settings.Default.Col3width = lvSend.Columns[3].Width;
-		Properties.Settings.Default.Col4width = lvSend.Columns[4].Width;
-		Properties.Settings.Default.MainFormGeo = WindowRestore.GeometryToString(this);
-		Properties.Settings.Default.Save();
+		Program.appConfig.SortOrder = cbSortOrder.SelectedIndex;
+		Program.appConfig.Col0width = lvSend.Columns[0].Width;
+		Program.appConfig.Col1width = lvSend.Columns[1].Width;
+		Program.appConfig.Col2width = lvSend.Columns[2].Width;
+		Program.appConfig.Col3width = lvSend.Columns[3].Width;
+		Program.appConfig.Col4width = lvSend.Columns[4].Width;
+		Program.appConfig.MainFormGeo = WindowRestore.GeometryToString(this);
+		Program.SaveConfig();
 	}
 	private void MainForm_Resize(object? sender, EventArgs? e)
 	{

@@ -4,6 +4,13 @@ Not every commit will appear here, only those published for application updates.
 
 
 
+v1.0.0.15  -  2023-10-09  -  Commit 'Publish, Breaking changes to config/data dir' 
+-------------------------------------------------------------------------------
+Fixed loss of app config, settings and data on ClickOnce update.
+Changed app data directory to static [SpecialFolder.LocalApplicationData]\CrashnBurn\ACgifts-[Debug][Release]\Data\
+
+
+
 v1.0.0.14  -  2023-10-09  -  Commit 'Publish, csv bugfix, doc updates' 
 -------------------------------------------------------------------------------
 Fixed bug not quoting escaped quotes when exporting csv data.
