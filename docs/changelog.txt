@@ -1,9 +1,11 @@
 ACgifts change log.
 
 
-v1.0.0.7 - Commit 'Publish, missing files' on 2023-10-09
+
+
+v1.0.0.12 - Commit 'Publish, missing files' on 2023-10-09
 -------------------------------------------------------------------------------
-Added the extra files to app dir that previous publish didn't deploy.
+Added extra files to app dir.
 
 
 
