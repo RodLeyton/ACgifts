@@ -4,6 +4,13 @@ Not every commit will appear here, only those published for application updates.
 
 
 
+v1.0.0.14  -  2023-10-09  -  Commit 'Publish, csv bugfix, doc updates' 
+-------------------------------------------------------------------------------
+Fixed bug not quoting escaped quotes when exporting csv data.
+Updated docs.
+
+
+
 v1.0.0.12  -  2023-10-09  -  Commit 'Publish, missing files' 
 -------------------------------------------------------------------------------
 Added extra files to app dir.
