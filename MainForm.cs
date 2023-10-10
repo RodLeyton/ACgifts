@@ -62,25 +62,21 @@ public partial class MainForm:Form
 	}
 	private void MainForm_Shown(object sender, EventArgs e)
 	{
+		if(Program.IsDebug)
+		{
+			Text = "*** Debug ***";
+			BackColor = Color.PaleGoldenrod;
+		} 
+		else
+		{
+			Text = $"ACgifts  {Program.Version}";
 
-#if DEBUG
-		Text = "*** Debug ***";
-		BackColor = Color.PaleGoldenrod;
-#else
-		string? versionStr = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion");
-		if(versionStr is null || versionStr == "")
-		{
-			Text = $"ACgifts  Release - local build";
-		} else
-		{
-			Text = $"ACgifts  v{versionStr}";
-			if(versionStr != Program.appConfig.InstalledVersion)
+			if(Program.Version != Program.appConfig.InstalledVersion)
 			{
-				Program.appConfig.InstalledVersion = versionStr;
-				LogViewForm.ShowFile($"Updated to v{versionStr}, showing change log", Path.Combine(Program.GetAppDir(), "Changelog.txt"), this);
+				Program.appConfig.InstalledVersion = Program.Version;
+				LogViewForm.ShowFile($"Updated to {Program.Version}, showing change log", Path.Combine(Program.GetAppDir(), "Changelog.txt"), this);
 			}
 		}
-#endif
 	}
 	private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 	{

@@ -10,6 +10,9 @@ internal static class Program
 	private static readonly object _locker = new();
 	private static string APP_DIR = null!, DATA_DIR = null!, LOG_FILE = null!, LOG_FILE_NO_EXT = null!;
 
+	public static bool IsDeployed = false;
+	public static bool IsDebug = false;
+	public static string Version = "local build";
 
 	/// <summary>
 	///  The main entry point for the application.
@@ -64,6 +67,7 @@ internal static class Program
 	{
 
 #if DEBUG
+		IsDebug = true;
 		Init();
 		Application.Run(new MainForm());
 
@@ -74,6 +78,12 @@ internal static class Program
 #else
 		try
 		{
+			string? v = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion");
+			if(v != null)
+			{
+				Version = "v" + v;
+				IsDeployed = true;
+			}
 			Init();
 			Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
@@ -156,6 +166,7 @@ internal static class Program
 
 			Log("Program.Init", $"App startup {DateTime.Now:u}");
 			Log("Program.Init", $"APP_DIR {APP_DIR}");
+			Log("Program.Init", $"Debug:{IsDebug}  Version:{Version}  Deployed:{IsDeployed}");
 			CopyAppFiles();
 		}
 		catch(Exception ex)
@@ -199,7 +210,6 @@ internal static class Program
 				catch (Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
 			}
 		}
-
 
 		DirectoryInfo dirDocs = new(@"docs");
 		if(!dirDocs.Exists) Log("Program.Init", $"Docs directory not found!");

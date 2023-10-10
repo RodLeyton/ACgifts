@@ -4,7 +4,7 @@ Latest version with planned updates can be found at https://rodleyton.github.io/
 
 
 
---> Latest release v1.0.0.22  <--  2023-10-11  -  Commit 'UI improvements, Publish2' 
+--> Latest release v1.0.0.23  <--  2023-10-11  -  Commit 'UI improvements, Publish2' 
 -------------------------------------------------------------------------------
 Reduced deactivation time on send/recv buttons to 600ms.
 Added Red highlight to send/recv names that are older than 14days and have a gift rate <50%

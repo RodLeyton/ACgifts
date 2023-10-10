@@ -116,7 +116,7 @@ partial class EditForm
 		butDir.TabIndex = 7;
 		butDir.Text = "Dir";
 		butDir.UseVisualStyleBackColor = true;
-		butDir.Click += ButDir_Click;
+		butDir.MouseUp += ButDir_MouseUp;
 		// 
 		// butMoveUp
 		// 

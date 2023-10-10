@@ -91,18 +91,30 @@ internal partial class EditForm:Form
 		data.Restore();
 		this.Enabled = true;
 	}
-	private void ButDir_Click(object sender, EventArgs e)
+	private void ButDir_MouseUp(object sender, MouseEventArgs e)
 	{
 		try
 		{
+			if(e.Button == MouseButtons.Left)
+			{
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
+				{
+					FileName = Program.GetAppDir(),
+					UseShellExecute = true,
+					Verb = "open"
+				});
+				return;
+			}
+
 			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
 			{
-				FileName = Program.GetAppDir(),
+				FileName = Environment.CurrentDirectory,
 				UseShellExecute = true,
 				Verb = "open"
 			});
+			return;
 		}
-		catch { }
+		catch(Exception ex) { Program.Log("EditForm.ButDir_MouseUp", ex); }
 	}
 	private void ButLog_Click(object sender, EventArgs e)
 	{
