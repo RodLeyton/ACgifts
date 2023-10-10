@@ -7,7 +7,6 @@ internal partial class EditForm:Form
 {
 	private readonly Data data;
 	private readonly BindingSource bindSource;
-
 	private class ContextEventArgs
 	{
 		public Neighbor Neighbor { get; set; }
@@ -19,7 +18,6 @@ internal partial class EditForm:Form
 			RowIndex = rowIndex;
 		}
 	}
-
 
 
 	public EditForm(Data data)
@@ -38,8 +36,6 @@ internal partial class EditForm:Form
 
 		cbGroup.SelectedIndex = 0;
 	}
-
-
 	private void CbGroup_SelectedIndexChanged(object sender, EventArgs e)
 	{
 		dgvData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
@@ -110,7 +106,7 @@ internal partial class EditForm:Form
 	}
 	private void ButLog_Click(object sender, EventArgs e)
 	{
-		new LogViewForm().ShowDialog();
+		LogViewForm.ShowFile("Application Log", Program.GetLogFile(), Program.GetLogContent(), this, true);
 	}
 	private void ButMoveUp_Click(object sender, EventArgs e)
 	{
@@ -166,7 +162,11 @@ internal partial class EditForm:Form
 		dgvData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 		data.ReOrder();
 	}
-
+	private void ButSave_Click(object sender, EventArgs e)
+	{
+		data.Save();
+		MessageBox.Show("Datafile saved.\r\n\r\nThis is automatically done on program exit,\r\nbut sometimes it is nice to do it after major changes.", "ACgifts Save completed");
+	}
 
 
 	private void DgvData_DataError(object sender, DataGridViewDataErrorEventArgs e)

@@ -31,51 +31,40 @@ partial class LogViewForm
 		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LogViewForm));
 		tbLog = new TextBox();
 		labLocation = new Label();
-		label1 = new Label();
 		SuspendLayout();
 		// 
 		// tbLog
 		// 
 		tbLog.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 		tbLog.Font = new Font("Cascadia Mono", 9F, FontStyle.Regular, GraphicsUnit.Point);
-		tbLog.Location = new Point(12, 52);
+		tbLog.Location = new Point(12, 12);
 		tbLog.Multiline = true;
 		tbLog.Name = "tbLog";
 		tbLog.ScrollBars = ScrollBars.Both;
-		tbLog.Size = new Size(776, 386);
+		tbLog.Size = new Size(760, 447);
 		tbLog.TabIndex = 0;
 		// 
 		// labLocation
 		// 
+		labLocation.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 		labLocation.AutoSize = true;
 		labLocation.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-		labLocation.Location = new Point(12, 27);
+		labLocation.Location = new Point(12, 462);
 		labLocation.Name = "labLocation";
-		labLocation.Size = new Size(43, 17);
-		labLocation.TabIndex = 1;
-		labLocation.Text = "label1";
+		labLocation.Size = new Size(138, 17);
+		labLocation.TabIndex = 2;
+		labLocation.Text = "location (click to copy)";
 		labLocation.Click += LabLocation_Click;
-		// 
-		// label1
-		// 
-		label1.AutoSize = true;
-		label1.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-		label1.Location = new Point(12, 7);
-		label1.Name = "label1";
-		label1.Size = new Size(181, 17);
-		label1.TabIndex = 2;
-		label1.Text = "Logfile location (click to copy)";
-		label1.Click += LabLocation_Click;
 		// 
 		// LogViewForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(800, 450);
-		Controls.Add(label1);
+		ClientSize = new Size(784, 488);
 		Controls.Add(labLocation);
 		Controls.Add(tbLog);
 		Icon = (Icon)resources.GetObject("$this.Icon");
+		MinimumSize = new Size(600, 300);
 		Name = "LogViewForm";
 		StartPosition = FormStartPosition.CenterParent;
 		Text = "ACgifts - Logs";
@@ -87,5 +76,4 @@ partial class LogViewForm
 
 	private TextBox tbLog;
 	private Label labLocation;
-	private Label label1;
 }

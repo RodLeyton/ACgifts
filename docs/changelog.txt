@@ -1,6 +1,7 @@
 ACgifts change log.
 -------------------------------------------------------------------------------
 Not every commit will appear here, only those published for application updates.
+Latest version with planned updates can be found at https://rodleyton.github.io/ACgifts/Changelog.txt
 
 
 
@@ -10,10 +11,15 @@ Reduced deactivation time on send/recv buttons to 600ms.
 Added Red highlight to send/recv names that are older than 14days and have a gift rate <50%
 	or have gifted but not in 5days, or never gifted and were added over 5 days ago.
 Added column showing time since added to list.
-Modified to consider any gifts sent/recv in the last 8hrs (was 6) as being done today.
+Modified to consider any gifts sent/recv in the last 12hrs (was 6) as being done today.
+
+Add right click to send/recv "all but this"
 
 
-v1.0.0.16  -  2023-10-09  -  Commit 'Publish, Breaking changes to config/data dir' 
+
+
+
+--> Latest release v1.0.0.16  -  2023-10-09  -  Commit 'Publish, Breaking changes to config/data dir' 
 -------------------------------------------------------------------------------
 Fixed loss of app config, settings and data on ClickOnce update.
 Changed app data directory to static [SpecialFolder.LocalApplicationData]\CrashnBurn\ACgifts-[Debug][Release]\Data\

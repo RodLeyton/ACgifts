@@ -40,6 +40,7 @@ partial class EditForm
 		butMoveDown = new Button();
 		butLog = new Button();
 		butExport = new Button();
+		butSave = new Button();
 		((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
 		SuspendLayout();
 		// 
@@ -54,9 +55,9 @@ partial class EditForm
 		// 
 		// butImport
 		// 
-		butImport.Location = new Point(513, 12);
+		butImport.Location = new Point(543, 12);
 		butImport.Name = "butImport";
-		butImport.Size = new Size(67, 23);
+		butImport.Size = new Size(60, 23);
 		butImport.TabIndex = 2;
 		butImport.Text = "Import";
 		butImport.UseVisualStyleBackColor = true;
@@ -91,7 +92,7 @@ partial class EditForm
 		// 
 		butBackup.Location = new Point(327, 12);
 		butBackup.Name = "butBackup";
-		butBackup.Size = new Size(67, 23);
+		butBackup.Size = new Size(60, 23);
 		butBackup.TabIndex = 5;
 		butBackup.Text = "Backup";
 		butBackup.UseVisualStyleBackColor = true;
@@ -99,9 +100,9 @@ partial class EditForm
 		// 
 		// butRestore
 		// 
-		butRestore.Location = new Point(400, 12);
+		butRestore.Location = new Point(393, 12);
 		butRestore.Name = "butRestore";
-		butRestore.Size = new Size(67, 23);
+		butRestore.Size = new Size(60, 23);
 		butRestore.TabIndex = 6;
 		butRestore.Text = "Restore";
 		butRestore.UseVisualStyleBackColor = true;
@@ -149,19 +150,30 @@ partial class EditForm
 		// 
 		// butExport
 		// 
-		butExport.Location = new Point(586, 12);
+		butExport.Location = new Point(609, 12);
 		butExport.Name = "butExport";
-		butExport.Size = new Size(67, 23);
+		butExport.Size = new Size(60, 23);
 		butExport.TabIndex = 11;
 		butExport.Text = "Export";
 		butExport.UseVisualStyleBackColor = true;
 		butExport.Click += ButExport_Click;
+		// 
+		// butSave
+		// 
+		butSave.Location = new Point(459, 12);
+		butSave.Name = "butSave";
+		butSave.Size = new Size(60, 23);
+		butSave.TabIndex = 12;
+		butSave.Text = "Save";
+		butSave.UseVisualStyleBackColor = true;
+		butSave.Click += ButSave_Click;
 		// 
 		// EditForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(784, 461);
+		Controls.Add(butSave);
 		Controls.Add(butExport);
 		Controls.Add(butLog);
 		Controls.Add(butMoveDown);
@@ -196,4 +208,5 @@ partial class EditForm
 	private Button butMoveDown;
 	private Button butLog;
 	private Button butExport;
+	private Button butSave;
 }

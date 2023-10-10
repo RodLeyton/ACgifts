@@ -1,4 +1,7 @@
-﻿namespace ACgifts;
+﻿using System;
+using System.Windows.Forms;
+
+namespace ACgifts;
 
 public partial class MainForm:Form
 {
@@ -10,21 +13,13 @@ public partial class MainForm:Form
 	public MainForm()
 	{
 		InitializeComponent();
-#if DEBUG
-		Text = "*** Debug ***";
-		BackColor = Color.PaleGoldenrod;
-#else
-		string versionString = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion") ?? "0.0.0.0";
-		Version version = Version.Parse(versionString);
-		Text = $"ACgifts  v{version}";
-#endif
-
 		data = new();
 
 		lvRecv.IsSend = false;
 		lvRecv.ShowItemToolTips = true;
 		lvRecvSort = new LVsort(false);
 		lvRecv.ListViewItemSorter = lvRecvSort;
+		lvRecvSort.SortType = Program.appConfig.SortOrder;
 
 		lvRecv.Columns.Add("Recv Name", Program.appConfig.Col0width);
 		lvRecv.Columns.Add("", Program.appConfig.Col1width);
@@ -37,6 +32,7 @@ public partial class MainForm:Form
 		lvSend.ShowItemToolTips = true;
 		lvSendSort = new LVsort(true);
 		lvSend.ListViewItemSorter = lvSendSort;
+		lvSendSort.SortType = Program.appConfig.SortOrder;
 
 		lvSend.Columns.Add("Send Name", Program.appConfig.Col0width);
 		lvSend.Columns.Add("", Program.appConfig.Col1width);
@@ -60,13 +56,32 @@ public partial class MainForm:Form
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.FORUM_NAME, "Forum name"));
 		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.LIST_ORDER, "List Order"));
 		cbSortOrder.SelectedIndex = Program.appConfig.SortOrder;
-		lvSendSort.SortType = cbSortOrder.SelectedIndex;
-		lvRecvSort.SortType = cbSortOrder.SelectedIndex;
 
 		data.Load();
 		UpdateGroupsLV();
 	}
+	private void MainForm_Shown(object sender, EventArgs e)
+	{
 
+#if DEBUG
+		Text = "*** Debug ***";
+		BackColor = Color.PaleGoldenrod;
+#else
+		string? versionStr = Environment.GetEnvironmentVariable("ClickOnce_CurrentVersion");
+		if(versionStr is null || versionStr == "")
+		{
+			Text = $"ACgifts  Release - local build";
+		} else
+		{
+			Text = $"ACgifts  v{versionStr}";
+			if(versionStr != Program.appConfig.InstalledVersion)
+			{
+				Program.appConfig.InstalledVersion = versionStr;
+				LogViewForm.ShowFile($"Updated to v{versionStr}, showing change log", Path.Combine(Program.GetAppDir(), "Changelog.txt"), this);
+			}
+		}
+#endif
+	}
 	private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 	{
 		data.Save();
@@ -88,6 +103,11 @@ public partial class MainForm:Form
 		lvSend.Width = lvRecv.Width;
 		lvSend.Left = lvRecv.Left + lvRecv.Width + 10;
 		butSendAll.Left = lvSend.Left;
+	}
+	private void Timer1_Tick(object sender, EventArgs e)
+	{
+		lvSend.Refresh();
+		lvRecv.Refresh();
 	}
 
 
@@ -226,11 +246,21 @@ public partial class MainForm:Form
 	{
 		Point mousePos = lvRecv.PointToClient(Control.MousePosition);
 		ListViewHitTestInfo hitTest = lvRecv.HitTest(mousePos);
+		if(hitTest.Item?.Tag is not Neighbor n) return;
+
+		if(e.Button == MouseButtons.Right)
+		{
+			ContextMenuStrip cm = new();
+			if(n.RecvThisSess)
+				cm.Items.Add(new ToolStripMenuItem($"Undo Recv from '{n.NameSend}'", null, CtxUndoRecv) { Tag = n });
+			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Recv from '{n.NameSend}'", null) { Enabled = false });
+			Utils.ShowContextOnScreen(this, cm, lvRecv.PointToScreen(e.Location));
+			return;
+		}
+
 
 		if(hitTest.SubItem?.Text == "Recv")
 		{
-			if(hitTest.Item?.Tag is not Neighbor n) return;
-
 			// Reject double accidental clicks
 			if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalMilliseconds < LvExNeighbor.BUT_DISABLE_MILLIS) return;
 
@@ -249,17 +279,28 @@ public partial class MainForm:Form
 			});
 			return;
 		}
-
 	}
 	private void LvSend_MouseClick(object sender, MouseEventArgs e)
 	{
 		Point mousePos = lvSend.PointToClient(Control.MousePosition);
 		ListViewHitTestInfo hitTest = lvSend.HitTest(mousePos);
+		if(hitTest.Item?.Tag is not Neighbor n) return;
+
+		if(e.Button == MouseButtons.Right)
+		{
+			ContextMenuStrip cm = new();
+			cm.Items.Add(new ToolStripMenuItem($"Send to all but '{n.NameSend}'", null, CtxSendAllBut) { Tag = n });
+
+			if(n.SendThisSess)
+				cm.Items.Add(new ToolStripMenuItem($"Undo Send to '{n.NameSend}'", null, CtxUndoSend) { Tag = n });
+			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Send to '{n.NameSend}'", null) { Enabled = false });
+
+			Utils.ShowContextOnScreen(this, cm, lvSend.PointToScreen(e.Location));
+			return;
+		}
 
 		if(hitTest.SubItem?.Text == "Send")
 		{
-			if(hitTest.Item?.Tag is not Neighbor n) return;
-
 			// Reject double accidental clicks
 			if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalMilliseconds < LvExNeighbor.BUT_DISABLE_MILLIS) return;
 
@@ -278,14 +319,62 @@ public partial class MainForm:Form
 			});
 			return;
 		}
-
 	}
-
-	private void Timer1_Tick(object sender, EventArgs e)
+	private void CtxSendAllBut(object? sender, EventArgs? e)
 	{
+		if(sender is not ToolStripMenuItem tsmi) return;
+		if(tsmi.Tag is not Neighbor nNoSend) return;
+
+		foreach(Neighbor n in data.neighbors)
+		{
+			if(n.Equals(nNoSend)) continue;
+			if(lbGroups.SelectedItem?.ToString() != n.Group) continue;
+			n.AddSend();
+			sentGroup++;
+			sentToday++;
+		}
 		lvSend.Refresh();
+		UpdateTotals();
+		Task.Run(async delegate
+		{
+			await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+			if(IsDisposed || !IsHandleCreated || Disposing) return;
+			if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
+			else lvSend.Refresh();
+		});
+	}
+	private void CtxUndoSend(object? sender, EventArgs? e)
+	{
+		if(sender is not ToolStripMenuItem tsmi) return;
+		if(tsmi.Tag is not Neighbor n) return;
+
+		if(!n.UndoSend())
+		{
+			Program.Log("MainForm.CtxUndoSend", $"Error! {n.Name}   cnt:{n.CntSend}    sess:{n.SendThisSess}    Prev:{n.PrevSend}");
+			return;
+		}
+		sentGroup--;
+		sentToday--;
+		UpdateTotals();
+		lvSend.Refresh();
+	}
+	private void CtxUndoRecv(object? sender, EventArgs? e)
+	{
+		if(sender is not ToolStripMenuItem tsmi) return;
+		if(tsmi.Tag is not Neighbor n) return;
+
+		if(!n.UndoRecv())
+		{
+			Program.Log("MainForm.CtxUndoRecv", $"Error! {n.Name}   cnt:{n.CntRecv}    sess:{n.RecvThisSess}    Prev:{n.PrevRecv}");
+			return;
+		}
+		recvGroup--;
+		recvToday--;
+		UpdateTotals();
 		lvRecv.Refresh();
 	}
+
+
 
 	private void LvRecv_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 	{
@@ -304,6 +393,5 @@ public partial class MainForm:Form
 		lvRecv.Sort();
 		lvSend.Sort();
 	}
-
 
 }

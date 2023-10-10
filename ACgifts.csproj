@@ -22,100 +22,92 @@
   <ItemGroup>
     <Compile Remove="install\**" />
     <EmbeddedResource Remove="install\**" />
-		<None Include="install\*.*" />
+     <None Include="install\*.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ACgifts Homepage.url" />
-    <None Remove="Changelog.url" />
+    <None Remove="docs\Changelog.txt" />
+    <None Remove="docs\Import Template.csv" />
+    <None Remove="files\ACgifts Help.url" />
     <None Remove="files\ACgifts Homepage.url" />
-    <None Remove="files\Changelog.url" />
-    <None Remove="files\import template.csv" />
-    <None Remove="files\LICENSE.txt" />
     <None Remove="files\neighbors.dat" />
-    <None Remove="files\README.md" />
-    <None Remove="import template.csv" />
     <None Remove="LICENSE.txt" />
     <None Remove="README.md" />
   </ItemGroup>
 
-
-	
   <ItemGroup>
+    <Content Include="docs\Changelog.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="docs\Import Template.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\ACgifts Help.url">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\ACgifts Homepage.url">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\Changelog.url">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\import template.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\LICENSE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\neighbors.dat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\README.md">
+    <Content Include="LICENSE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
+
   <ItemGroup>
     <None Update="docs\banner.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="docs\changelog.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\editform.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\faq.htm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="docs\import template.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\import.htm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\index.htm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="docs\LICENSE.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\log_button.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\mainform.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\not_verified.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="docs\README.md">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\setup_props.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\smartscreen.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\style.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="docs\warnings.htm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Plane.128.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Update="Project Homepage.url">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="docs\install\" />
-  </ItemGroup>
 
 </Project>

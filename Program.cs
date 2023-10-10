@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.Text.Json;
 
 namespace ACgifts;
@@ -9,9 +8,7 @@ internal static class Program
 	public static AppConfig appConfig = null!;
 	private static StreamWriter? swLog;
 	private static readonly object _locker = new();
-
 	private static string APP_DIR = null!, DATA_DIR = null!, LOG_FILE = null!, LOG_FILE_NO_EXT = null!;
-
 
 
 	/// <summary>
@@ -63,9 +60,6 @@ internal static class Program
 			if(hasHandle) mutex.ReleaseMutex();
 		}
 	}
-
-
-
 	private static void DoWork()
 	{
 
@@ -103,7 +97,7 @@ internal static class Program
 	}
 
 
-	public static string GetLogs()
+	public static string GetLogContent()
 	{
 		lock(_locker)
 		{
@@ -162,16 +156,26 @@ internal static class Program
 
 			Log("Program.Init", $"App startup {DateTime.Now:u}");
 			Log("Program.Init", $"APP_DIR {APP_DIR}");
-			Log("Program.Init", $"DATA_DIR {DATA_DIR}");
+			CopyAppFiles();
+		}
+		catch(Exception ex)
+		{
+			MessageBox.Show("ACgifts encountered an initialisation error: \r\n" + ex.Message);
+		}
 
-
-			DirectoryInfo d = new(@"files");
-			if(!d.Exists) Log("Program.Init", $"Files directory not found!");
-			else
+		if(appConfig.IsDefaults) Program.Log("Program.Init", "AppConfig does not exist. Using defaults");
+		else Program.Log("Program.Init", "AppConfig loaded successfully");
+	}
+	private static void CopyAppFiles()
+	{
+		DirectoryInfo dirFiles = new(@"files");
+		if(!dirFiles.Exists) Log("Program.Init", $"Files directory not found!");
+		else
+		{
+			FileInfo[] Files = dirFiles.GetFiles();
+			foreach(FileInfo file in Files)
 			{
-				FileInfo[] Files = d.GetFiles();
-
-				foreach(FileInfo file in Files)
+				try
 				{
 					if(file.Name.EndsWith(".dat") || file.Name.EndsWith(".config"))
 					{
@@ -188,17 +192,28 @@ internal static class Program
 						File.Copy(file.FullName, APP_DIR + file.Name);
 					}
 				}
+				catch (Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
 			}
 		}
-		catch(Exception ex)
+
+
+		DirectoryInfo dirDocs = new(@"docs");
+		if(!dirDocs.Exists) Log("Program.Init", $"Docs directory not found!");
+		else
 		{
-			MessageBox.Show("ACgifts encountered an initialisation error: \r\n" + ex.Message);
+			FileInfo[] Files = dirDocs.GetFiles();
+			foreach(FileInfo file in Files)
+			try
+			{
+				if(!File.Exists(APP_DIR + file.Name))
+				{
+					Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
+					File.Copy(file.FullName, APP_DIR + file.Name);
+				}
+			}
+			catch(Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
 		}
-
-		if(appConfig.IsDefaults) Program.Log("Program.Init", "AppConfig does not exist. Using defaults");
-		else Program.Log("Program.Init", "AppConfig loaded successfully");
 	}
-
 	public static void SaveConfig()
 	{
 		StreamWriter? sFile = null;

@@ -13,6 +13,7 @@ internal class AppConfig
 	public int Col4width { get; set; } = 50;
 	public int Col5width { get; set; } = 130;
 	public string MainFormGeo { get; set; } = "";
+	public string InstalledVersion { get; set; } = "";
 
 
 	public AppConfig() { }

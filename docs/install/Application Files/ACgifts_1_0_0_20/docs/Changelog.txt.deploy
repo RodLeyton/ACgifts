@@ -1,0 +1,54 @@
+ACgifts change log.
+-------------------------------------------------------------------------------
+Not every commit will appear here, only those published for application updates.
+Latest version with planned updates can be found at https://rodleyton.github.io/ACgifts/Changelog.txt
+
+
+
+--> Upcoming in next release...
+-------------------------------------------------------------------------------
+Reduced deactivation time on send/recv buttons to 600ms.
+Added Red highlight to send/recv names that are older than 14days and have a gift rate <50%
+	or have gifted but not in 5days, or never gifted and were added over 5 days ago.
+Added column showing time since added to list.
+Modified to consider any gifts sent/recv in the last 12hrs (was 6) as being done today.
+
+Add right click to send/recv "all but this"
+
+
+
+
+
+--> Latest release v1.0.0.16  -  2023-10-09  -  Commit 'Publish, Breaking changes to config/data dir' 
+-------------------------------------------------------------------------------
+Fixed loss of app config, settings and data on ClickOnce update.
+Changed app data directory to static [SpecialFolder.LocalApplicationData]\CrashnBurn\ACgifts-[Debug][Release]\Data\
+
+
+
+v1.0.0.14  -  2023-10-09  -  Commit 'Publish, csv bugfix, doc updates' 
+-------------------------------------------------------------------------------
+Fixed bug not quoting escaped quotes when exporting csv data.
+Updated docs.
+
+
+
+v1.0.0.12  -  2023-10-09  -  Commit 'Publish, missing files' 
+-------------------------------------------------------------------------------
+Added extra files to app dir.
+
+
+v1.0.0.6  -  2023-10-09  -  Commit 'Publish, new fetures and minor bugfix'
+-------------------------------------------------------------------------------
+Added csv template, and homepage link to clickonce install dir.
+Added counters of sent/recv to mainform.
+Bugfix in rate/reliability display.
+Added version text to MainForm title.
+Added code to reject additional clicks to send/recv buttons for 1sec.
+Modified to consider any gifts sent/recv in the last 6hrs as being done today.
+Added export to CSV file feature.
+
+
+v1.0.0.5  -  2023-10-07  -  Commit "Publish"
+-------------------------------------------------------------------------------
+Initial release.

@@ -11,7 +11,7 @@ public class LvExNeighbor:ListView
 	private readonly Brush doneButColor = Brushes.LightGreen;
 	private readonly Brush todoButColor = Brushes.NavajoWhite;
 	private readonly Brush disabledButColor = Brushes.Gray;
-	public const int TODAY_HOURS = 6;
+	public const int TODAY_HOURS = 12;
 	public const int BUT_DISABLE_MILLIS = 600;
 
 
