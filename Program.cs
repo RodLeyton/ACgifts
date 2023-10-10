@@ -177,19 +177,23 @@ internal static class Program
 			{
 				try
 				{
+					FileInfo fileDest2 = new(APP_DIR + file.Name);
+					if(!fileDest2.Exists || file.LastWriteTime > fileDest2.LastWriteTime)
+					{
+						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
+						File.Copy(file.FullName, APP_DIR + file.Name, true);
+					}
+
+
 					if(file.Name.EndsWith(".dat") || file.Name.EndsWith(".config"))
 					{
-						if(!File.Exists(DATA_DIR + file.Name))
+						FileInfo fileDest = new(DATA_DIR + file.Name);
+						if(!fileDest.Exists)
 						{
 							Log("Program.Init", $"Copying '{file.Name}' to DATA_DIR");
 							File.Copy(file.FullName, DATA_DIR + file.Name);
 						}
 						continue;
-					}
-					if(!File.Exists(APP_DIR + file.Name))
-					{
-						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
-						File.Copy(file.FullName, APP_DIR + file.Name);
 					}
 				}
 				catch (Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
@@ -203,15 +207,18 @@ internal static class Program
 		{
 			FileInfo[] Files = dirDocs.GetFiles();
 			foreach(FileInfo file in Files)
-			try
 			{
-				if(!File.Exists(APP_DIR + file.Name))
+				try
 				{
-					Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
-					File.Copy(file.FullName, APP_DIR + file.Name);
+					FileInfo fileDest = new(APP_DIR + file.Name);
+					if(!fileDest.Exists || file.LastWriteTime > fileDest.LastWriteTime)
+					{
+						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
+						File.Copy(file.FullName, APP_DIR + file.Name, true);
+					}
 				}
+				catch(Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
 			}
-			catch(Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
 		}
 	}
 	public static void SaveConfig()
