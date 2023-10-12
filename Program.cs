@@ -166,7 +166,7 @@ internal static class Program
 
 			Log("Program.Init", $"App startup {DateTime.Now:u}");
 			Log("Program.Init", $"APP_DIR {APP_DIR}");
-			Log("Program.Init", $"Debug:{IsDebug}  Version:{Version}  Deployed:{IsDeployed}");
+			Log("Program.Init", $"Debug:{IsDebug}  Deployed:{IsDeployed}  Version:{Version}");
 			CopyAppFiles();
 		}
 		catch(Exception ex)
@@ -188,14 +188,6 @@ internal static class Program
 			{
 				try
 				{
-					FileInfo fileDest2 = new(APP_DIR + file.Name);
-					if(!fileDest2.Exists || file.LastWriteTime > fileDest2.LastWriteTime)
-					{
-						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
-						File.Copy(file.FullName, APP_DIR + file.Name, true);
-					}
-
-
 					if(file.Name.EndsWith(".dat") || file.Name.EndsWith(".config"))
 					{
 						FileInfo fileDest = new(DATA_DIR + file.Name);
@@ -205,6 +197,13 @@ internal static class Program
 							File.Copy(file.FullName, DATA_DIR + file.Name);
 						}
 						continue;
+					}
+
+					FileInfo fileDest2 = new(APP_DIR + file.Name);
+					if(!fileDest2.Exists || file.LastWriteTime > fileDest2.LastWriteTime)
+					{
+						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
+						File.Copy(file.FullName, APP_DIR + file.Name, true);
 					}
 				}
 				catch (Exception ex) { Log("Program.CopyAppFiles", $"Exception on '{file.Name}' : {ex.Message}"); }
