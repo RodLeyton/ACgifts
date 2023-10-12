@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 
 namespace ACgifts;
 
@@ -14,13 +15,10 @@ class LVsort:IComparer
 	public bool IsSend { get; set; }
 	public int SortType { get; set; }
 
-	private readonly CaseInsensitiveComparer ciCompare;
-
 	public LVsort(bool isSend)
 	{
 		IsSend = isSend;
 		SortType = AC_GAME_NAME;
-		ciCompare = new CaseInsensitiveComparer();
 	}
 
 	/// <summary>
@@ -45,8 +43,8 @@ class LVsort:IComparer
 		switch(SortType)
 		{
 			case AC_GAME_NAME:
-				if(IsSend) return ciCompare.Compare(x.NameSend, y.NameSend);
-				return ciCompare.Compare(x.NameRecv, y.NameRecv);
+				if(IsSend) return Comparer.Default.Compare(x.NameSend, y.NameSend);
+				return Comparer.Default.Compare(x.NameRecv, y.NameRecv);
 
 			case FORUM_NAME:
 				return Comparer.Default.Compare(x.Name, y.Name);
@@ -56,6 +54,5 @@ class LVsort:IComparer
 		}
 		return 0;
 	}
-
 
 }
