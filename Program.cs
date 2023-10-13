@@ -93,12 +93,12 @@ internal static class Program
 		catch(Exception ex)
 		{
 			MessageBox.Show("ACgifts Unhandled Exception. Sorry this is fatal, Exiting.\n" + ex.Message, "ACgifts Fatal Error.");
-			Log("Program.Main()", $"*****  Fatal Exception  *****");
-			Log("Program.Main()", ex);
+			Log("Program.Main", $"*****  Fatal Exception  *****");
+			Log("Program.Main", ex);
 		}
 		finally
 		{
-			Log("",$"App closed {DateTime.Now:u}\r\n");
+			Log("Program.Main",$"App closed {DateTime.Now:u}\r\n");
 			swLog?.Flush();
 			swLog?.Close();
 		}
