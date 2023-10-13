@@ -3,8 +3,16 @@ ACgifts change log.
 Latest version with planned updates can be found at https://rodleyton.github.io/ACgifts/Changelog.txt
 
 
+--> Latest release v1.0.0.24  -  2023-10-14
+-------------------------------------------------------------------------------
+Added 'Find [name] in all groups' to mainForm context menu.
+	Searches by Forum name and codes for easier recving.
+Minor UI updates, inc. minor bugfix to list order sorting on mainForm.
+Added demo data option generated with current dates.
 
---> Latest release v1.0.0.23  <--  2023-10-11  -  Commit 'UI improvements, Publish2' 
+
+
+v1.0.0.23  <--  2023-10-11
 -------------------------------------------------------------------------------
 Reduced deactivation time on send/recv buttons to 600ms.
 Added Red highlight to send/recv names that are older than 14days and have a gift rate <50%
@@ -19,26 +27,26 @@ Add right click menu to Send and Recv buttons
 
 
 
-v1.0.0.16  -  2023-10-10  -  Commit 'Publish, Breaking changes to config/data dir' 
+v1.0.0.16  -  2023-10-10
 -------------------------------------------------------------------------------
 Fixed loss of app config, settings and data on ClickOnce update.
 Changed app data directory to static [SpecialFolder.LocalApplicationData]\CrashnBurn\ACgifts-[Debug][Release]\Data\
 
 
 
-v1.0.0.14  -  2023-10-09  -  Commit 'Publish, csv bugfix, doc updates' 
+v1.0.0.14  -  2023-10-09
 -------------------------------------------------------------------------------
 Fixed bug not quoting escaped quotes when exporting csv data.
 Updated docs.
 
 
 
-v1.0.0.12  -  2023-10-09  -  Commit 'Publish, missing files' 
+v1.0.0.12  -  2023-10-09
 -------------------------------------------------------------------------------
 Added extra files to app dir.
 
 
-v1.0.0.6  -  2023-10-09  -  Commit 'Publish, new fetures and minor bugfix'
+v1.0.0.6  -  2023-10-09
 -------------------------------------------------------------------------------
 Added csv template, and homepage link to clickonce install dir.
 Added counters of sent/recv to mainform.
@@ -49,6 +57,6 @@ Modified to consider any gifts sent/recv in the last 6hrs as being done today.
 Added export to CSV file feature.
 
 
-v1.0.0.5  -  2023-10-07  -  Commit "Publish"
+v1.0.0.5  -  2023-10-07
 -------------------------------------------------------------------------------
 Initial release.
