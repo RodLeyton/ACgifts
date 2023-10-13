@@ -89,12 +89,12 @@ internal class Utils
 		if(dt == DateTime.MinValue) return "";
 
 		TimeSpan ts = DateTime.Now - (DateTime)dt;
-		if(ts.Duration().Days >= 365) return $" {ts.Days / 365D:N1} yrs";
-		if(ts.Duration().Days >= 120) return $" {ts.Days / 30} mths";
-		if(ts.Duration().Days > 60) return $" {ts.Days / 30D:N1} mths";
-		if(ts.Duration().Days > 1) return $" {ts.Days} days";
-		if(ts.Duration().Hours > 0) return $" {ts.TotalHours:N1} hrs";
-		if(ts.Duration().Minutes > 0) return $" {ts.Minutes} mins";
+		if(ts.Duration().TotalDays >= 365) return $" {ts.TotalDays / 365:N1} yrs";
+		if(ts.Duration().TotalDays >= 120) return $" {ts.TotalDays / 30} mths";
+		if(ts.Duration().TotalDays > 60) return $" {ts.TotalDays / 30:N1} mths";
+		if(ts.Duration().TotalDays > 2) return $" {ts.TotalDays:N0} days";
+		if(ts.Duration().TotalHours > 0) return $" {ts.TotalHours:N1} hrs";
+		if(ts.Duration().TotalMinutes > 0) return $" {ts.TotalMinutes} mins";
 		return " just now";
 	}
 }
