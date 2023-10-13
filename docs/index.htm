@@ -6,57 +6,98 @@
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide&display=swap">
 </head>
 <body>
-	<div id="header">CrashnBurn</div>
-	<ul id="nav">
-		<li class="sel">Home</li>
-		<li><a href="https://github.com/RodLeyton/ACgifts/raw/master/docs/install/setup.exe">Download ACgifts</a></li>
-		<li><a href="faq.htm">Help/FAQ</a></li>
-		<li><a href="https://github.com/RodLeyton/ACgifts" target="_blank">Repo</a></li>
-		<li><a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about" target="_blank">Contact</a></li>
-	</ul>
-	<h1>We have a new toy for AC fans!</h1>
-	<p>Whether you trade gifts just on your main or have many fuel rings to maintain, tracking gifts can become difficult and time consuming.<br>
-	Speadsheets can do the job sure, but quickly get out of hand and bloated especially as your game count increases.</p>	<h2>Introducing ACgifts</h2>	<p>A simple app that keeps count of gifts sent and recieved, sorted by groups (such as fuel rings) </p>
-	<p>Neighbors can be imported via CSV file or directly entered and edited in app.</p>
+	<div id="header">
+		<div class="content">CrashnBurn</div>
+	</div>
+	<div id="nav">
+		<ul class="content">
+			<li class="sel">Home</li>
+			<li><a href="https://github.com/RodLeyton/ACgifts/raw/master/docs/install/setup.exe">Download ACgifts</a></li>
+			<li><a href="faq.htm">Help/FAQ</a></li>
+			<li><a href="https://github.com/RodLeyton/ACgifts" target="_blank">Repo</a></li>
+			<li><a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about" target="_blank">Contact</a></li>
+		</ul>
+	</div>
 	
-	<h4>Free and open source</h4>
-	<p>The project is hosted on GitHub and contributors are very wellcome. Contact me via the <a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about" target="_blank">forum</a> to request access to the repo.<br>
-	The published files are signed by my own certificate, so you know only I can make updates to the installed app no matter who adds features.<br>
-	But the best feature of open source code is you can view it, compile it and modify it to your liking, and I encourage you to do so!<br>
-	This repo compiles in <a href="https://visualstudio.microsoft.com/free-developer-offers/" target="_blank">Visual Studio 2022</a> community (free) without a single warning or reccomendation.</p>
-	
-	<h4>Quick and easy setup</h4>
-	<p>Packaging and deployment using Microsoft <a href="https://en.wikipedia.org/wiki/ClickOnce" target="_blank">ClickOnce</a> technology enables simple install
-	without requiring elevated priviledges (non-admin) along with automatic and rapid updates.<br>
-	Microsoft .NET6 is required, but you will be directed during install if your PC does not have it already. (if not find it <a href="https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.22-windows-x64-installer" target="_blank">here</a>)<br>
-	Be forewarned you will recieve <a href="faq.htm#warnings">multiple warnings</a> before install because I created my own certificates without paying a 'trusted authority' that only confirms my identity, not how trustworthy the code signed is.</p>
-	<p><a href="https://github.com/RodLeyton/ACgifts/raw/master/docs/install/setup.exe">ACgifts setup</a></p>
-	
-	<h4>Change log</h4>
-	<p>See the <a href="changelog.txt">change log</a> for a description of bugfixes and features added to the latest release.</p>
-	<p>&nbsp;</p>
-	
-	<h2>Find your trading neighbors easily</h2>
-	<p>Neighbors can be sorted by Forum name, Game name or origional list order with 2 only clicks.</p>
-	<p><img src="mainform.png"></p>
-	<p>Column widths are saved, as is the form size and position so once you get it just right it'll always be just right for you :)<br>
-	For convience you can send all gifts with a single click.</p>
-	
-	<p>&nbsp;</p>
+	<div class="content">
+		<h1>We have a new toy for Airport City fans!</h1>
+		<p>Whether you trade gifts just on your main, or have many fuel rings to maintain, 
+			tracking neighbors and gifts eventually becomes difficult and time consuming.<br>
+			Of course speadsheets can do the job, but you too will likely find they get out of hand and bloated, 
+			especially as your game count increases.<br>
+			And naturally the larger the spreadsheet gets, the longer it takes.</p>
+		<p>Maybe you don't care what you recieve, but just want to keep track of who you should send to 
+			knowing that AC favourites cannot be trusted to do the job.</p>
+		<p>Does your spreadsheet keep count of gifts, does it remember the last time one was sent, how about recieved?<br> 
+			Will it <b>warn you</b> if you drop off your neighbors Fav's list? 
+			We know that can happen quite unexpectantly for no reason.<br>
+			How about if your neighbor dissapears off your fav list through no fault of your own? Nobody wants to be that guy...</p>
+		<p>Or have you just given up and relinquished to the 'fact' that it is just too much to do, and "close enough is good enough"?</p>
+		<p>Maybe you (like me) wrote macros for buttons, but it still had so many columns it took up almost all the screen, 
+			and in a moment of unclarity accidentally clicked the wrong one...<br>
+			Can your spreadsheet undo it? Neighter could mine... but Acgifts can!</p>		<h2>Introducing ACgifts</h2>		<p>A simple and very lightweight windows app (~700kb) app that keeps count of gifts sent and recieved, 
+			sorted by groups (such as fuel rings)<br>
+			Neighbors can be imported via CSV file or directly entered and edited in app.<br>
+			And it is easier, faster and much much smaller on the screen (try resizing to minimum width - it still has all you need!)</p>
 		
-	<h2>Builtin editor allows easy addition, deletion or modification of data</h2>
-	
-	<p><img src="editform.png"><p>
-	<p>From the editor you can backup/restore your data, as well as import/export to csv giving you full control.</p>
-	<p>Select multiple rows with the ctrl or shift keys, move up/down or delete via the right click context menu to change the list order, or even insert a new row mid list.</p>
+		
+		<h4>Free and open source</h4>
+		<p>The project is written in C# and hosted on GitHub and contributors are very wellcome. 
+			Contact me via the <a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about" target="_blank">forum</a> 
+			or Discord to request write access to the repo.<br>
+			The best feature of open <a href="https://github.com/RodLeyton/ACgifts" target="_blank">source code</a> is you can view it, compile it and modify it to your liking, and I encourage you to do so!<br>
+			You don't even have to ask to do so, just download and go for it! (But I hope you'd contribute and help to improve it)<br>
+			This repo compiles in <a href="https://visualstudio.microsoft.com/free-developer-offers/" target="_blank">Visual Studio 2022</a> 
+			community (free) without a single warning or code quality reccomendation.</p>
+		
+		<h4>Quick and easy setup</h4>
+		<p>Packaging and deployment using Microsoft <a href="https://en.wikipedia.org/wiki/ClickOnce" target="_blank">ClickOnce</a> 
+			enables simple install without requiring elevated priviledges (non-admin) along with automatic and rapid updates.<br>
+			Microsoft .NET6 is required, you will be directed during install if your PC does not have it already. 
+			(if not find it <a href="https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.22-windows-x64-installer" target="_blank">here</a>)<br>
+			Be forewarned you will recieve <a href="faq.htm#warnings">2 warnings</a> during install (Unrecognised app and Unknown Publisher). 
+			Free software can be expensive to write if you pay for a EV code signing certificate.</p>
+		<p><a href="https://github.com/RodLeyton/ACgifts/raw/master/docs/install/setup.exe">ACgifts setup</a></p>
+		
+		<h4>Change log</h4>
+		<p>See the <a href="changelog.txt">change log</a> for a description of bugfixes and features added to the latest release, 
+			as well as upcoming features.</p>
+		<p>&nbsp;</p>
+		
+		<h2>Send/Recv (main) window</h2>
+		<ul>
+			<li>Find your neighbors easily! Sort by Forum name, Game name or origional list order with 2 only clicks.</li>
+			<li>Find a specific neighbor across all groups.</li>
+			<li>Right click to undo a mistaken send or recv.</li>
+			<li>You can send to all with a single click, and 'all but' a specific neighbor via the context menu (right click).</li>
+			<li>Keep track of how many gifts this session, by group and in total.</li>
+			<li>Column widths are saved, as is the form size and position so once you get it just right it'll always be just right for you :)</li>
+			<li>Neighbors that have been less reliable are highlighted in red.</li>
+		</ul>
+		<p><img src="mainform.png"></p>
+		<p>&nbsp;</p>
+			
+		<h2>Builtin editor allows easy addition, deletion or modification of data</h2>
+		<ul>
+			<li>Backup/Restore your data quickly, as well as import/export to csv.</li>
+			<li>Built-in logviewer, with link to your data directory.</li>
+			<li>Move or delete multiple rows at once making it easy to reorder groups.</li>
+			<li>All data is checked and validated as soon as it is entered, reducing mistakes and headaches.</li>
+			<li>Insert new rows anywhere in the list with right click.</li>
+		</ul>
+		<p><img src="editform.png"><p>
+		<p>Select multiple rows with the ctrl or shift keys, move up/down or delete via the right click context menu to change the list order, 
+			or even insert a new row mid list.</p>
 
 
-	<p>&nbsp;</p>
-	<p>&nbsp;</p>
-	<p>Also be sure to check out the <a href="faq.htm">FAQ/Help page</a> for more information and tips.</p>
-	
-	<p>&nbsp;</p>
-	<p>&nbsp;</p>
-	<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>Also be sure to check out the <a href="faq.htm">FAQ/Help page</a> for more information and tips.</p>
+		
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		
+	</div>
 </body>
 </html>

@@ -118,15 +118,34 @@ public partial class MainForm:Form
 
 	private void ButSendAll_Click(object sender, EventArgs e)
 	{
+		bool skipSentAlready = false, skipAsked = false;
+		timer1.Enabled = false;
+
 		foreach(Neighbor n in data.neighbors)
 		{
 			if(lbGroups.SelectedItem?.ToString() != n.Group) continue;
+
+			if(n.SendThisSess && !skipAsked)
+			{
+				string msg = @"Some gifts have already been sent to these neighbors during this session.
+Do you want to skip these and not send again?
+
+Yes => only send to those you have not sent a gift to already,
+No => Send a gift to everyone";
+				if(MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNo) == DialogResult.Yes) skipSentAlready = true;
+				skipAsked = true;
+			}
+			if(n.SendThisSess && skipSentAlready) continue;
+
 			n.AddSend();
 			sentGroup++;
 			sentToday++;
 		}
 		lvSend.Refresh();
 		UpdateTotals();
+		timer1.Enabled = true;
+
+
 		Task.Run(async delegate
 		{
 			await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
@@ -344,16 +363,36 @@ public partial class MainForm:Form
 		if(sender is not ToolStripMenuItem tsmi) return;
 		if(tsmi.Tag is not Neighbor nNoSend) return;
 
+		bool skipSentAlready = false, skipAsked = false;
+		timer1.Enabled = false;
+
+
 		foreach(Neighbor n in data.neighbors)
 		{
 			if(n.Equals(nNoSend)) continue;
 			if(lbGroups.SelectedItem?.ToString() != n.Group) continue;
+
+			if(n.SendThisSess && !skipAsked)
+			{
+				string msg = @"Some gifts have already been sent to these neighbors during this session.
+Do you want to skip these and not send again?
+
+Yes => only send to those you have not sent a gift to already,
+No => Send a gift to everyone";
+				if(MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNo) == DialogResult.Yes) skipSentAlready = true;
+				skipAsked = true;
+			}
+			if(n.SendThisSess && skipSentAlready) continue;
+
 			n.AddSend();
 			sentGroup++;
 			sentToday++;
 		}
 		lvSend.Refresh();
 		UpdateTotals();
+		timer1.Enabled = true;
+
+
 		Task.Run(async delegate
 		{
 			await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
