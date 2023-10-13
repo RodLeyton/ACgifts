@@ -3,11 +3,6 @@ ACgifts change log.
 Latest version with planned updates can be found at https://rodleyton.github.io/ACgifts/Changelog.txt
 
 
-Upcoming in the next release
--------------------------------------------------------------------------------
-
-
-
 
 --> Latest release v1.0.0.24  -  2023-10-14
 -------------------------------------------------------------------------------
