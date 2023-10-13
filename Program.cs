@@ -71,7 +71,7 @@ internal static class Program
 		Init();
 		Application.Run(new MainForm());
 
-		Log("",$"App closed {DateTime.Now:u}\r\n");
+		Log("Program.Main",$"App closed {DateTime.Now:u}\r\n");
 		swLog?.Flush();
 		swLog?.Close();
 
@@ -188,19 +188,8 @@ internal static class Program
 			{
 				try
 				{
-					if(file.Name.EndsWith(".dat") || file.Name.EndsWith(".config"))
-					{
-						FileInfo fileDest = new(DATA_DIR + file.Name);
-						if(!fileDest.Exists)
-						{
-							Log("Program.Init", $"Copying '{file.Name}' to DATA_DIR");
-							File.Copy(file.FullName, DATA_DIR + file.Name);
-						}
-						continue;
-					}
-
-					FileInfo fileDest2 = new(APP_DIR + file.Name);
-					if(!fileDest2.Exists || file.LastWriteTime > fileDest2.LastWriteTime)
+					FileInfo fileDest = new(APP_DIR + file.Name);
+					if(!fileDest.Exists || file.LastWriteTime > fileDest.LastWriteTime)
 					{
 						Log("Program.Init", $"Copying '{file.Name}' to APP_DIR");
 						File.Copy(file.FullName, APP_DIR + file.Name, true);

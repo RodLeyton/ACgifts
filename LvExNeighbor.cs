@@ -190,7 +190,7 @@ public class LvExNeighbor:ListView
 
 
 				subitem++;  // Age
-				TextRenderer.DrawText(gfx, Utils.GetAgeStr(IsSend ? n.LastSend : n.LastRecv), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				TextRenderer.DrawText(gfx, Utils.GetAgeStr(IsSend ? n.LastSend : n.LastRecv), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 				
 				subitem++;  // Count
 				TextRenderer.DrawText(gfx, IsSend ? n.CntSend+" " : n.CntRecv+" ", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
