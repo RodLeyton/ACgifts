@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace ACgifts;
@@ -65,7 +66,7 @@ public partial class MainForm:Form
 		if(Program.IsDebug)
 		{
 			Text = "*** Debug ***";
-			BackColor = Color.PaleGoldenrod;
+			//BackColor = Color.PaleGoldenrod;
 		} 
 		else
 		{
@@ -77,7 +78,15 @@ public partial class MainForm:Form
 				LogViewForm.ShowFile($"Updated to {Program.Version}, showing change log", Path.Combine(Program.GetAppDir(), "Changelog.txt"), this);
 			}
 		}
-	}
+
+
+		if(data.neighbors.Count == 0 && MessageBox.Show("No datafile exists.\r\nWould you like to create demo data?", 
+			 "ACgifts - Create demo data?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			{
+				data.CreateDemoData();
+				UpdateGroupsLV();
+			}
+		}
 	private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 	{
 		data.Save();
@@ -145,6 +154,7 @@ public partial class MainForm:Form
 	private void UpdateGroupsLV()
 	{
 		lbGroups.Items.Clear();
+		cbSortOrder.Enabled = true;
 
 		foreach(Neighbor n in data.neighbors)
 		{
@@ -156,11 +166,14 @@ public partial class MainForm:Form
 			if(!lbGroups.Items.Contains(n.Group))
 				lbGroups.Items.Add(n.Group);
 		}
-		lbGroups.Sorted = true;
+		lbGroups.Sorted = false;
 		if(lbGroups.Items.Count > 0) lbGroups.SelectedIndex = 0;
 	}
 	private void LbGroups_SelectedIndexChanged(object sender, EventArgs e)
 	{
+		if(lbGroups.SelectedItem is null) return;
+		cbSortOrder.Enabled = true;
+
 		gbGroup.Text = lbGroups.SelectedItem.ToString();
 		sentGroup = 0;
 		recvGroup = 0;
@@ -170,9 +183,11 @@ public partial class MainForm:Form
 
 		lvRecv.BeginUpdate();
 		lvRecv.Items.Clear();
+		lvRecv.Sorting = SortOrder.Ascending;
 
 		lvSend.BeginUpdate();
 		lvSend.Items.Clear();
+		lvSend.Sorting = SortOrder.Ascending;
 
 
 		foreach(Neighbor n in data.neighbors)
@@ -247,9 +262,14 @@ public partial class MainForm:Form
 		if(e.Button == MouseButtons.Right)
 		{
 			ContextMenuStrip cm = new();
+
+			cm.Items.Add(new ToolStripMenuItem($"Find '{n.Name}' in all groups", null, CtxFindSimalar) { Tag = n });
+			cm.Items.Add(new ToolStripSeparator());
+
 			if(n.RecvThisSess)
-				cm.Items.Add(new ToolStripMenuItem($"Undo Recv from '{n.NameSend}'", null, CtxUndoRecv) { Tag = n });
-			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Recv from '{n.NameSend}'", null) { Enabled = false });
+				cm.Items.Add(new ToolStripMenuItem($"Undo Recv from '{n.NameRecv}'", null, CtxUndoRecv) { Tag = n });
+			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Recv from '{n.NameRecv}'", null) { Enabled = false });
+
 			Utils.ShowContextOnScreen(this, cm, lvRecv.PointToScreen(e.Location));
 			return;
 		}
@@ -285,7 +305,10 @@ public partial class MainForm:Form
 		if(e.Button == MouseButtons.Right)
 		{
 			ContextMenuStrip cm = new();
+			cm.Items.Add(new ToolStripMenuItem($"Find '{n.Name}' in all groups", null, CtxFindSimalar) { Tag = n });
+			cm.Items.Add(new ToolStripSeparator());
 			cm.Items.Add(new ToolStripMenuItem($"Send to all but '{n.NameSend}'", null, CtxSendAllBut) { Tag = n });
+			cm.Items.Add(new ToolStripSeparator());
 
 			if(n.SendThisSess)
 				cm.Items.Add(new ToolStripMenuItem($"Undo Send to '{n.NameSend}'", null, CtxUndoSend) { Tag = n });
@@ -369,6 +392,101 @@ public partial class MainForm:Form
 		UpdateTotals();
 		lvRecv.Refresh();
 	}
+	private void CtxFindSimalar(object? sender, EventArgs? e)
+	{
+		if(sender is not ToolStripMenuItem tsmi) return;
+		if(tsmi.Tag is not Neighbor nFind) return;
+
+
+		gbGroup.Text = "";
+		cbSortOrder.Enabled = false;
+		lvRecv.Sorting = SortOrder.None;
+		lvSend.Sorting = SortOrder.None;
+
+
+		lbGroups.ClearSelected();
+		sentGroup = 0;
+		recvGroup = 0;
+		sentToday = 0;
+		recvToday = 0;
+		cntGroup = 0;
+
+		lvRecv.BeginUpdate();
+		lvRecv.Items.Clear();
+
+		lvSend.BeginUpdate();
+		lvSend.Items.Clear();
+
+
+		foreach(Neighbor n in data.neighbors)
+		{
+			bool sent = false, recv = false;
+
+			if(n.SendThisSess) sent = true;
+			else if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalHours < LvExNeighbor.TODAY_HOURS) sent = true;
+
+			if(n.RecvThisSess) recv = true;
+			else if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalHours < LvExNeighbor.TODAY_HOURS) recv = true;
+
+			if(sent) sentToday++;
+			if(recv) recvToday++;
+
+			//bool include = false;
+			if(nFind.IdRecv == n.IdRecv)
+			{
+				Debug.WriteLine($"{n.NameRecv}  IdRecv match");
+			}
+			else if(nFind.IdSend == n.IdSend)
+			{
+				Debug.WriteLine($"{n.NameRecv}  IdSend match");
+			}
+			else if(nFind.Name == n.Name)
+			{
+				Debug.WriteLine($"{n.NameRecv}  Name match");
+			}
+			else if(nFind.NameSend == n.NameSend)
+			{
+				Debug.WriteLine($"{n.NameRecv}  NameSend match");
+			}
+			else if(nFind.NameRecv == n.NameRecv)
+			{
+				Debug.WriteLine($"{n.NameRecv}  NameRecv match");
+			}
+
+			else continue;
+			ListViewItem lvi = new(n.NameRecv)
+			{
+				Tag = n,
+				UseItemStyleForSubItems = false,
+				ToolTipText = $"{n.Name}"
+			};
+
+			lvi.SubItems.Add("Recv");
+			lvi.SubItems.Add("");
+			lvi.SubItems.Add("");
+			lvi.SubItems.Add("");
+			lvi.SubItems.Add("");
+			lvi.ToolTipText = $"{n.Name}";
+			lvRecv.Items.Add(lvi);
+
+			ListViewItem lvi2 = new(n.NameSend)
+			{
+				Tag = n,
+				UseItemStyleForSubItems = false,
+				ToolTipText = $"{n.Name}"
+			};
+			lvi2.SubItems.Add("Send");
+			lvi2.SubItems.Add("");
+			lvi2.SubItems.Add("");
+			lvi2.SubItems.Add("");
+			lvi2.SubItems.Add("");
+			lvSend.Items.Add(lvi2);
+		}
+
+		lvRecv.EndUpdate();
+		lvSend.EndUpdate();
+		UpdateTotals();
+	}
 
 
 
@@ -385,9 +503,13 @@ public partial class MainForm:Form
 	private void CbSortOrder_SelectedIndexChanged(object sender, EventArgs e)
 	{
 		lvSendSort.SortType = cbSortOrder.SelectedIndex;
-		lvRecvSort.SortType = cbSortOrder.SelectedIndex;
-		lvRecv.Sort();
+		lvSend.Sorting = SortOrder.Ascending;
 		lvSend.Sort();
+
+
+		lvRecvSort.SortType = cbSortOrder.SelectedIndex;
+		lvRecv.Sorting = SortOrder.Ascending;
+		lvRecv.Sort();
 	}
 
 }

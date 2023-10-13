@@ -17,6 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,7 +31,6 @@
     <None Remove="docs\Import Template.csv" />
     <None Remove="files\ACgifts Help.url" />
     <None Remove="files\ACgifts Homepage.url" />
-    <None Remove="files\neighbors.dat" />
     <None Remove="LICENSE.txt" />
     <None Remove="README.md" />
   </ItemGroup>
@@ -46,9 +46,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="files\ACgifts Homepage.url">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\neighbors.dat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="LICENSE.txt">

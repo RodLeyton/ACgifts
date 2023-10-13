@@ -67,6 +67,7 @@ internal class Data
 			Program.Log("Data.Load", $"***  Load complete. {fail}/{cnt} failed.");
 		}
 		Program.Log("Data.Load", $"{neighbors.Count} loaded.");
+		ReOrder();
 	}
 	public void Save()
 	{
@@ -447,4 +448,56 @@ internal class Data
 			n.Order = ord++;
 	}
 
+	public void CreateDemoData()
+	{
+		if(neighbors.Count > 0) return;
+
+		// No fuel ring
+		neighbors.Add(new Neighbor("Crystal", "Crystal", "Crystal", "yqtzwfyif", "yqtzwfyif", "",
+			DateTime.Today.AddDays(-3), DateTime.Now.AddMinutes(-10), null, 3, 0));
+
+		neighbors.Add(new Neighbor("Trisha @ home", "Trisha", "Trisha", "8cmn4tjxe", "8cmn4tjxe", "",
+			DateTime.Today.AddDays(-50), DateTime.Now.AddMinutes(-10), DateTime.Now.AddHours(-14.1), 48, 55));
+
+		neighbors.Add(new Neighbor("Android", "Android", "Android", "8cmn4tjxe", "8cmn4tjxe", "",
+			DateTime.Today.AddDays(-40), DateTime.Now.AddMinutes(-10), DateTime.Now.AddHours(-2.8), 40, 36));
+
+
+		// ZF3 ring
+		neighbors.Add(new Neighbor("Dryden & Dale", "Dryden", "ZF3 Dryden", "2knsor285", "hu0njijw6", "ZF3",
+			DateTime.Today.AddDays(-70), DateTime.Now.AddMinutes(-75), DateTime.Now.AddMinutes(-5), 64, 75));
+
+		neighbors.Add(new Neighbor("Bad Neighbor", "Bad Neighbor", "ZF3 Bad Neighbor", "x24btm7ei", "cwzgrxzn8", "ZF3",
+			DateTime.Today.AddDays(-70), DateTime.Now.AddMinutes(-10), DateTime.Now.AddHours(-26.3), 74, 25));
+
+		neighbors.Add(new Neighbor("Fontana", "Fontana", "ZF3 Fontana", "guo4x2rna", "23ecb9cwd", "ZF3",
+			DateTime.Today.AddDays(-70), DateTime.Now.AddMinutes(-10), DateTime.Now.AddHours(-4.5), 67, 67));
+
+		neighbors.Add(new Neighbor("Genie, comma", "Genie", "ZF3 Genie", "ryv0b8z7h", "ptt6y8h68", "ZF3",
+			DateTime.Today.AddDays(-70), DateTime.Now.AddMinutes(-10), DateTime.Now.AddHours(-4.1), 78, 70));
+
+		neighbors.Add(new Neighbor("New guy", "New guy", "ZF3 New guy", "sss0b8z7h", "efd6y8h68", "ZF3",
+			DateTime.Today.AddDays(-2), null, null, 0, 0));
+
+
+		// ZF5 ring
+		neighbors.Add(new Neighbor("Dryden & Dale", "Dryden", "ZF5 Dryden", "2knsor285", "xx0njijw6", "ZF5",
+			DateTime.Today.AddDays(-25), DateTime.Now.AddHours(-22), DateTime.Now.AddHours(-5), 25, 22));
+
+		neighbors.Add(new Neighbor("Bad Neighbor", "Bad Neighbor", "ZF5 Bad Neighbor", "x24btm7ei", "lklgrxzn8", "ZF5",
+			DateTime.Today.AddDays(-25), DateTime.Now.AddHours(-22), DateTime.Now.AddHours(-35.2), 25, 6));
+
+		neighbors.Add(new Neighbor("Genie, comma", "Genie", "ZF5 Genie", "rrv0b8z7h", "pya6u8h68", "ZF5",
+			DateTime.Today.AddDays(-25), DateTime.Now.AddHours(-22), DateTime.Now.AddHours(-25), 24, 24));
+
+		neighbors.Add(new Neighbor("Orlosky+\"quotes\"", "Orlosky", "ZF5 Orlosky", "j4k0tstox", "z1fnczsvr", "ZF5",
+			DateTime.Today.AddDays(-25), DateTime.Now.AddHours(-22), DateTime.Now.AddHours(-45), 24, 20));
+
+		neighbors.Add(new Neighbor("Penelope", "Penelope", "ZF5 Penelope", "odl1vrdyc", "o7hyr8qvb", "ZF5",
+			DateTime.Today.AddDays(-25), DateTime.Now.AddHours(-22), DateTime.Now.AddHours(-15.1), 26, 27));
+
+		neighbors.Add(new Neighbor("\"Turtle\"", "Turtle", "ZF5 Turtle", "5kuqxva1a", "tw2l7lvyr", "ZF3",
+			DateTime.Today.AddDays(-25), DateTime.Now.AddHours(-22), DateTime.Now.AddMinutes(-45), 25, 25));
+
+	}
 }
