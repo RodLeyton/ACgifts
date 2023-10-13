@@ -4,7 +4,8 @@ Latest version with planned updates can be found at https://rodleyton.github.io/
 
 
 
---> Latest release v1.0.0.24  -  2023-10-14
+
+--> Latest release v1.0.0.25  -  2023-10-14
 -------------------------------------------------------------------------------
 Added 'Find [name] in all groups' to mainForm context menu.
 	Searches by Forum name and codes for easier recving.
