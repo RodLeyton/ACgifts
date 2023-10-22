@@ -4,6 +4,18 @@ Latest version with planned updates can be found at https://rodleyton.github.io/
 
 
 
+Upcoming with next release
+-------------------------------------------------------------------------------
+Added Oldest Send/Recv, Reliability and date added to sort order.
+Added special sort order 'Recv Special' based on last time and game name designed for rapid recv.
+	1st group last recv more than 48hrs ago
+	2nd group last recv less than 48hrs ago, but not in last 12hrs (slight background color)
+	3rd group recv in last 12hrs, or since app was started.
+Added All to group selection.
+Added detail form (left click to display) with ability to view/edit data on a single neighbor.
+Added 'Stats' button to main form. This show reliability by group overall with drill down to member.
+
+
 
 --> Latest release v1.0.0.25  -  2023-10-14
 -------------------------------------------------------------------------------

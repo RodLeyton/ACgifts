@@ -7,6 +7,9 @@ namespace ACgifts;
 [Serializable]
 internal class Neighbor
 {
+	private const int TODAY_HOURS = 12;
+
+
 	public string Name { get; set; } = "";
 	public string Group { get; set; } = "";
 	public DateTime Added { get; set; } = DateTime.Now;
@@ -49,6 +52,27 @@ internal class Neighbor
 	[Browsable(false)]
 	public DateTime? PrevRecv { get; set; } = null;
 
+
+	[JsonIgnore]
+	[Browsable(false)]
+	public bool HasSendToday
+	{
+		get {
+			if(LastSend is null) return false;
+			return SendThisSess || (DateTime.Now - (DateTime)LastSend).TotalHours < TODAY_HOURS; 
+		}
+	}
+
+	[JsonIgnore]
+	[Browsable(false)]
+	public bool HasRecvToday
+	{
+		get
+		{
+			if(LastRecv is null) return false;
+			return RecvThisSess || (DateTime.Now - (DateTime)LastRecv).TotalHours < TODAY_HOURS; 
+		}
+	}
 
 
 	public Neighbor() { }
@@ -109,4 +133,6 @@ internal class Neighbor
 		return true;
 	}
 
+
+	public override string ToString() => $"ACgifts.Neighbor; {Name}";
 }

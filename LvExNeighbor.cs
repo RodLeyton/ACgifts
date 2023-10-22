@@ -11,7 +11,6 @@ public class LvExNeighbor:ListView
 	private readonly Brush doneButColor = Brushes.LightGreen;
 	private readonly Brush todoButColor = Brushes.NavajoWhite;
 	private readonly Brush disabledButColor = Brushes.Gray;
-	public const int TODAY_HOURS = 12;
 	public const int BUT_DISABLE_MILLIS = 600;
 
 
@@ -46,6 +45,7 @@ public class LvExNeighbor:ListView
 	const int WM_LBUTTONDOWN = 0x0201;
 	const int WM_RBUTTONDOWN = 0x0204;
 
+	const int WM_CONTEXTMENU = 0x7b;
 
 
 	#endregion
@@ -69,6 +69,17 @@ public class LvExNeighbor:ListView
 			ms32_RowHeight = value;
 		}
 	}
+
+
+
+	[Category("Column Context Menu")]
+	[Description("Shows a context menu for column headers.")]
+	public ContextMenuStrip? HeaderContextMenu { get; set; } = null;
+
+
+
+
+
 
 	public bool IsSend = false;
 
@@ -119,6 +130,11 @@ public class LvExNeighbor:ListView
 
 		switch(k_Msg.Msg)
 		{
+			case WM_CONTEXTMENU:
+			{
+				if(k_Msg.WParam != this.Handle) HeaderContextMenu?.Show(Control.MousePosition);
+				break;
+			}
 			case WM_SHOWWINDOW:
 			{ // called when the ListView becomes visible
 				View = View.Details;
@@ -156,6 +172,14 @@ public class LvExNeighbor:ListView
 				double daysSinceAdded = (DateTime.Now - n.Added).TotalDays;
 				double giftRate = (IsSend ? n.CntSend : n.CntRecv) / Math.Max(1, daysSinceAdded);
 
+
+				if(ListViewItemSorter is LVsort lvSort && !lvSort.IsSend && lvSort.SortType == SortOrderTypes.RECV_SPECIAL)
+				{
+					if(!n.HasRecvToday && n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalDays < 2)
+						gfx.FillRectangle(Brushes.AntiqueWhite, lvi.SubItems[0].Bounds);
+				}
+
+
 				int subitem = 0; // Name Send/Recv
 
 				Color fontCol = Color.Black;
@@ -171,14 +195,12 @@ public class LvExNeighbor:ListView
 				if(IsSend)
 				{
 					if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalMilliseconds < BUT_DISABLE_MILLIS) colBut = disabledButColor;
-					else if(n.SendThisSess) colBut = doneButColor;
-					else if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalHours < TODAY_HOURS) colBut = doneButColor;
+					else if(n.HasSendToday) colBut = doneButColor;
 				}
 				else
 				{
 					if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalMilliseconds < BUT_DISABLE_MILLIS) colBut = disabledButColor;
-					else if(n.RecvThisSess) colBut = doneButColor;
-					else if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalHours < TODAY_HOURS) colBut = doneButColor;
+					else if(n.HasRecvToday) colBut = doneButColor;
 				}
 
 				Rectangle rct = new(lvi.SubItems[subitem].Bounds.X + 1, lvi.SubItems[subitem].Bounds.Y + 1, lvi.SubItems[subitem].Bounds.Width - 2, lvi.SubItems[subitem].Bounds.Height - 2);
