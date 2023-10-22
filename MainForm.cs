@@ -8,32 +8,34 @@ public partial class MainForm:Form
 {
 	private readonly Data data;
 	private readonly LVsort lvSendSort, lvRecvSort;
+	private readonly DetailForm detailForm;
 	private int sentGroup = 0, recvGroup = 0, sentToday = 0, recvToday = 0, cntGroup = 0;
-
 
 	public MainForm()
 	{
 		InitializeComponent();
 		data = new();
+		detailForm = new();
 
 		lvRecv.IsSend = false;
 		lvRecv.ShowItemToolTips = true;
 		lvRecvSort = new LVsort(false);
 		lvRecv.ListViewItemSorter = lvRecvSort;
-		lvRecvSort.SortType = Program.appConfig.SortOrder;
+		lvRecvSort.SortType = (SortOrderTypes)Program.appConfig.SortOrder;
 
 		lvRecv.Columns.Add("Recv Name", Program.appConfig.Col0width);
-		lvRecv.Columns.Add("", Program.appConfig.Col1width);
+		lvRecv.Columns.Add("Button", Program.appConfig.Col1width);
 		lvRecv.Columns.Add("Last", Program.appConfig.Col2width);
 		lvRecv.Columns.Add("Cnt", Program.appConfig.Col3width);
 		lvRecv.Columns.Add("Rate", Program.appConfig.Col4width);
 		lvRecv.Columns.Add("Added", Program.appConfig.Col5width);
 
+
 		lvSend.IsSend = true;
 		lvSend.ShowItemToolTips = true;
 		lvSendSort = new LVsort(true);
 		lvSend.ListViewItemSorter = lvSendSort;
-		lvSendSort.SortType = Program.appConfig.SortOrder;
+		lvSendSort.SortType = (SortOrderTypes)Program.appConfig.SortOrder;
 
 		lvSend.Columns.Add("Send Name", Program.appConfig.Col0width);
 		lvSend.Columns.Add("", Program.appConfig.Col1width);
@@ -42,6 +44,9 @@ public partial class MainForm:Form
 		lvSend.Columns.Add("Rate", Program.appConfig.Col4width);
 		lvSend.Columns.Add("Added", Program.appConfig.Col5width);
 	}
+
+
+
 	private void MainForm_Load(object sender, EventArgs e)
 	{
 		string geo = Program.appConfig.MainFormGeo;
@@ -53,9 +58,9 @@ public partial class MainForm:Form
 		else WindowRestore.GeometryFromString(geo, this);
 		MainForm_Resize(null, null);
 
-		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.AC_GAME_NAME, "Game name"));
-		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.FORUM_NAME, "Forum name"));
-		cbSortOrder.Items.Add(new KeyValuePair<int, string>(LVsort.LIST_ORDER, "List Order"));
+		foreach(SortOrderTypes val in Enum.GetValues(typeof(SortOrderTypes)))
+			cbSortOrder.Items.Add(Utils.GetEnumDescription(val));
+
 		cbSortOrder.SelectedIndex = Program.appConfig.SortOrder;
 
 		data.Load();
@@ -66,8 +71,8 @@ public partial class MainForm:Form
 		if(Program.IsDebug)
 		{
 			Text = "*** Debug ***";
-			//BackColor = Color.PaleGoldenrod;
-		} 
+			BackColor = Color.PaleGoldenrod;
+		}
 		else
 		{
 			Text = $"ACgifts  {Program.Version}";
@@ -80,16 +85,18 @@ public partial class MainForm:Form
 		}
 
 
-		if(data.neighbors.Count == 0 && MessageBox.Show("No datafile exists.\r\nWould you like to create demo data?", 
+		if(data.neighbors.Count == 0 && MessageBox.Show("No datafile exists.\r\nWould you like to create demo data?",
 			 "ACgifts - Create demo data?", MessageBoxButtons.YesNo) == DialogResult.Yes)
-			{
-				data.CreateDemoData();
-				UpdateGroupsLV();
-			}
+		{
+			data.CreateDemoData();
+			UpdateGroupsLV();
 		}
+	}
 	private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
 	{
+		detailForm.CloseForm();
 		data.Save();
+
 		Program.appConfig.SortOrder = cbSortOrder.SelectedIndex;
 		Program.appConfig.Col0width = lvSend.Columns[0].Width;
 		Program.appConfig.Col1width = lvSend.Columns[1].Width;
@@ -173,6 +180,7 @@ No => Send a gift to everyone";
 	private void UpdateGroupsLV()
 	{
 		lbGroups.Items.Clear();
+		lbGroups.Items.Add("All");
 		cbSortOrder.Enabled = true;
 
 		foreach(Neighbor n in data.neighbors)
@@ -186,9 +194,9 @@ No => Send a gift to everyone";
 				lbGroups.Items.Add(n.Group);
 		}
 		lbGroups.Sorted = false;
-		if(lbGroups.Items.Count > 0) lbGroups.SelectedIndex = 0;
+		if(lbGroups.Items.Count > 0) lbGroups.SelectedIndex = 1;
 	}
-	private void LbGroups_SelectedIndexChanged(object sender, EventArgs e)
+	private void LbGroups_SelectedIndexChanged(object? sender, EventArgs? e)
 	{
 		if(lbGroups.SelectedItem is null) return;
 		cbSortOrder.Enabled = true;
@@ -202,35 +210,27 @@ No => Send a gift to everyone";
 
 		lvRecv.BeginUpdate();
 		lvRecv.Items.Clear();
-		lvRecv.Sorting = SortOrder.Ascending;
 
 		lvSend.BeginUpdate();
 		lvSend.Items.Clear();
-		lvSend.Sorting = SortOrder.Ascending;
 
 
 		foreach(Neighbor n in data.neighbors)
 		{
-			bool sent = false, recv = false;
+			if(n.HasRecvToday) recvToday++;
+			if(n.HasSendToday) sentToday++;
 
-			if(n.SendThisSess) sent = true;
-			else if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalHours < LvExNeighbor.TODAY_HOURS) sent = true;
-
-			if(n.RecvThisSess) recv = true;
-			else if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalHours < LvExNeighbor.TODAY_HOURS) recv = true;
-
-			if(sent) sentToday++;
-			if(recv) recvToday++;
-
-			if("" + lbGroups.SelectedItem == "unassigned")
+			string selGroup = (string)lbGroups.SelectedItem;
+			if(selGroup == "unassigned")
 			{
-				if(n.Group?.Trim() != "") continue;
+				if(n.Group.Trim() != "") continue;
 			}
-			else if("" + lbGroups.SelectedItem != n.Group) continue;
+			else if(selGroup != "All" && selGroup != n.Group) continue;
 
 			cntGroup++;
-			if(sent) sentGroup++;
-			if(recv) recvGroup++;
+			if(n.HasRecvToday) recvGroup++;
+			if(n.HasSendToday) sentGroup++;
+
 
 			ListViewItem lvi = new(n.NameRecv)
 			{
@@ -260,12 +260,10 @@ No => Send a gift to everyone";
 			lvi2.SubItems.Add("");
 			lvSend.Items.Add(lvi2);
 		}
-
-		lvRecv.Sort();
-		lvSend.Sort();
-
 		lvRecv.EndUpdate();
 		lvSend.EndUpdate();
+
+		SortLvs();
 		UpdateTotals();
 	}
 
@@ -283,6 +281,7 @@ No => Send a gift to everyone";
 			ContextMenuStrip cm = new();
 
 			cm.Items.Add(new ToolStripMenuItem($"Find '{n.Name}' in all groups", null, CtxFindSimalar) { Tag = n });
+			//cm.Items.Add(new ToolStripMenuItem($"Show not yet Recv", null, CtxNotYet));
 			cm.Items.Add(new ToolStripSeparator());
 
 			if(n.RecvThisSess)
@@ -309,11 +308,24 @@ No => Send a gift to everyone";
 			{
 				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
 				if(IsDisposed || !IsHandleCreated || Disposing) return;
-				if(lvRecv.InvokeRequired) lvRecv.Invoke(() => lvRecv.Refresh());
-				else lvRecv.Refresh();
+				if(lvRecv.InvokeRequired)
+				{
+					lvRecv.Invoke(() =>
+					{
+						lvRecv.Refresh();
+						lvRecv.Sort();
+					});
+					return;
+				}
+				lvRecv.Refresh();
+				lvRecv.Sort();
 			});
 			return;
 		}
+
+		if(detailForm.IsDisposed) return;
+		if(detailForm.Visible) detailForm.Visible = false;
+		else detailForm.UpdateData(n, lvRecv.PointToScreen(e.Location), RefreshForm);
 	}
 	private void LvSend_MouseClick(object sender, MouseEventArgs e)
 	{
@@ -325,6 +337,7 @@ No => Send a gift to everyone";
 		{
 			ContextMenuStrip cm = new();
 			cm.Items.Add(new ToolStripMenuItem($"Find '{n.Name}' in all groups", null, CtxFindSimalar) { Tag = n });
+			//cm.Items.Add(new ToolStripMenuItem($"Show not yet Sent", null, CtxNotYet));
 			cm.Items.Add(new ToolStripSeparator());
 			cm.Items.Add(new ToolStripMenuItem($"Send to all but '{n.NameSend}'", null, CtxSendAllBut) { Tag = n });
 			cm.Items.Add(new ToolStripSeparator());
@@ -352,11 +365,24 @@ No => Send a gift to everyone";
 			{
 				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
 				if(IsDisposed || !IsHandleCreated || Disposing) return;
-				if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
-				else lvSend.Refresh();
+				if(lvSend.InvokeRequired)
+				{
+					lvSend.Invoke(() =>
+					{
+						lvSend.Refresh();
+						lvSend.Sort();
+					});
+					return;
+				}
+				lvSend.Refresh();
+				lvSend.Sort();
 			});
 			return;
 		}
+
+		if(detailForm.IsDisposed) return;
+		if(detailForm.Visible) detailForm.Visible = false;
+		else detailForm.UpdateData(n, lvSend.PointToScreen(e.Location), RefreshForm);
 	}
 	private void CtxSendAllBut(object? sender, EventArgs? e)
 	{
@@ -436,13 +462,7 @@ No => Send a gift to everyone";
 		if(sender is not ToolStripMenuItem tsmi) return;
 		if(tsmi.Tag is not Neighbor nFind) return;
 
-
 		gbGroup.Text = "";
-		cbSortOrder.Enabled = false;
-		lvRecv.Sorting = SortOrder.None;
-		lvSend.Sorting = SortOrder.None;
-
-
 		lbGroups.ClearSelected();
 		sentGroup = 0;
 		recvGroup = 0;
@@ -459,40 +479,18 @@ No => Send a gift to everyone";
 
 		foreach(Neighbor n in data.neighbors)
 		{
-			bool sent = false, recv = false;
+			if(n.HasSendToday) sentToday++;
+			if(n.HasRecvToday) recvToday++;
 
-			if(n.SendThisSess) sent = true;
-			else if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalHours < LvExNeighbor.TODAY_HOURS) sent = true;
+			bool include = false;
+			if(nFind.IdRecv == n.IdRecv) include = true;
+			else if(nFind.IdSend == n.IdSend) include = true;
+			else if(nFind.Name == n.Name) include = true;
+			else if(nFind.NameSend == n.NameSend) include = true;
+			else if(nFind.NameRecv == n.NameRecv) include = true;
+			if(!include) continue;
 
-			if(n.RecvThisSess) recv = true;
-			else if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalHours < LvExNeighbor.TODAY_HOURS) recv = true;
 
-			if(sent) sentToday++;
-			if(recv) recvToday++;
-
-			//bool include = false;
-			if(nFind.IdRecv == n.IdRecv)
-			{
-				Debug.WriteLine($"{n.NameRecv}  IdRecv match");
-			}
-			else if(nFind.IdSend == n.IdSend)
-			{
-				Debug.WriteLine($"{n.NameRecv}  IdSend match");
-			}
-			else if(nFind.Name == n.Name)
-			{
-				Debug.WriteLine($"{n.NameRecv}  Name match");
-			}
-			else if(nFind.NameSend == n.NameSend)
-			{
-				Debug.WriteLine($"{n.NameRecv}  NameSend match");
-			}
-			else if(nFind.NameRecv == n.NameRecv)
-			{
-				Debug.WriteLine($"{n.NameRecv}  NameRecv match");
-			}
-
-			else continue;
 			ListViewItem lvi = new(n.NameRecv)
 			{
 				Tag = n,
@@ -525,8 +523,8 @@ No => Send a gift to everyone";
 		lvRecv.EndUpdate();
 		lvSend.EndUpdate();
 		UpdateTotals();
+		SortLvs();
 	}
-
 
 
 	private void LvRecv_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
@@ -541,14 +539,33 @@ No => Send a gift to everyone";
 
 	private void CbSortOrder_SelectedIndexChanged(object sender, EventArgs e)
 	{
-		lvSendSort.SortType = cbSortOrder.SelectedIndex;
-		lvSend.Sorting = SortOrder.Ascending;
+		SortLvs();
+	}
+
+	private void SortLvs()
+	{
+		lvSendSort.SortType = (SortOrderTypes)cbSortOrder.SelectedIndex;
+		lvRecvSort.SortType = (SortOrderTypes)cbSortOrder.SelectedIndex;
+
 		lvSend.Sort();
-
-
-		lvRecvSort.SortType = cbSortOrder.SelectedIndex;
-		lvRecv.Sorting = SortOrder.Ascending;
 		lvRecv.Sort();
 	}
 
+	private void RefreshForm()
+	{
+		lvSend.Refresh();
+		lvRecv.Refresh();
+		lvSend.Sort();
+		lvRecv.Sort();
+	}
+
+	private void ButAnalysis_Click(object sender, EventArgs e)
+	{
+		new StatsForm(data).ShowDialog();
+	}
+
+	private void LvRecv_ColumnReordered(object sender, ColumnReorderedEventArgs e)
+	{
+		Debug.WriteLine($"{e.OldDisplayIndex} -> {e.NewDisplayIndex}");
+	}
 }

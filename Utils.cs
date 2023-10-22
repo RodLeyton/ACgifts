@@ -1,5 +1,8 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.InteropServices;
+
+
 
 namespace ACgifts;
 internal class Utils
@@ -97,4 +100,19 @@ internal class Utils
 		if(ts.Duration().TotalMinutes > 0) return $" {ts.TotalMinutes} mins";
 		return " just now";
 	}
+
+
+	public static string GetEnumDescription(Enum value)
+	{
+		FieldInfo? fi = value.GetType().GetField(value.ToString());
+
+		if(fi?.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Any()) 
+			return attributes.First().Description;
+
+		return value.ToString();
+	}
+
+
+
+
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Text.Json;
@@ -444,8 +445,13 @@ internal class Data
 	public void ReOrder()
 	{
 		int ord = 0;
+		DateTime dtCutoff = new(100, 1, 1);
 		foreach(Neighbor n in neighbors)
+		{
 			n.Order = ord++;
+			if(n.LastSend < dtCutoff) n.LastSend = null;	// correct leftover data from before it could be null
+			if(n.LastRecv < dtCutoff) n.LastRecv = null;
+		}
 	}
 
 	public void CreateDemoData()

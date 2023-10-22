@@ -49,6 +49,7 @@ partial class MainForm
 		label6 = new Label();
 		label1 = new Label();
 		label5 = new Label();
+		butAnalysis = new Button();
 		groupBox1.SuspendLayout();
 		gbGroup.SuspendLayout();
 		SuspendLayout();
@@ -77,10 +78,11 @@ partial class MainForm
 		// 
 		lvRecv.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
 		lvRecv.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
+		lvRecv.HeaderContextMenu = null;
 		lvRecv.Location = new Point(129, 44);
 		lvRecv.Name = "lvRecv";
 		lvRecv.RowHeight = 32;
-		lvRecv.Size = new Size(156, 332);
+		lvRecv.Size = new Size(156, 571);
 		lvRecv.TabIndex = 7;
 		lvRecv.UseCompatibleStateImageBehavior = false;
 		lvRecv.View = View.Details;
@@ -91,10 +93,11 @@ partial class MainForm
 		// 
 		lvSend.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
 		lvSend.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
+		lvSend.HeaderContextMenu = null;
 		lvSend.Location = new Point(336, 44);
 		lvSend.Name = "lvSend";
 		lvSend.RowHeight = 32;
-		lvSend.Size = new Size(150, 332);
+		lvSend.Size = new Size(150, 571);
 		lvSend.TabIndex = 8;
 		lvSend.UseCompatibleStateImageBehavior = false;
 		lvSend.View = View.Details;
@@ -267,11 +270,22 @@ partial class MainForm
 		label5.TabIndex = 13;
 		label5.Text = "label5";
 		// 
+		// butAnalysis
+		// 
+		butAnalysis.Location = new Point(10, 392);
+		butAnalysis.Name = "butAnalysis";
+		butAnalysis.Size = new Size(97, 26);
+		butAnalysis.TabIndex = 16;
+		butAnalysis.Text = "Statistics";
+		butAnalysis.UseVisualStyleBackColor = true;
+		butAnalysis.Click += ButAnalysis_Click;
+		// 
 		// MainForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(534, 388);
+		ClientSize = new Size(534, 627);
+		Controls.Add(butAnalysis);
 		Controls.Add(gbGroup);
 		Controls.Add(groupBox1);
 		Controls.Add(cbSortOrder);
@@ -316,4 +330,5 @@ partial class MainForm
 	private Label label3;
 	private Label label4;
 	private Label label6;
+	private Button butAnalysis;
 }
