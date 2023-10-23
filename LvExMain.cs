@@ -5,19 +5,48 @@ using System.Runtime.InteropServices;
 
 namespace ACgifts;
 
+public enum LvExMainColumns:int
+{
+	None = 0,
+	[Description("Forum Name")]
+	ForumName = 1,
+	[Description("Game Name")]
+	GameName = 2,
+	[Description("Button")]
+	Button = 3,
+	[Description("Last")]
+	Last = 4,
+	[Description("Last Days")]
+	LastDays = 5,
+	[Description("Last Hours")]
+	LastHours = 6,
+	[Description("Count")]
+	Count = 7,
+	[Description("Rate")]
+	Rate = 8,
+	[Description("Added")]
+	Added = 9,
+}
 
-public class LvExNeighbor:ListView
+
+public class LvExMain:ListView
 {
 	private readonly Brush doneButColor = Brushes.LightGreen;
 	private readonly Brush todoButColor = Brushes.NavajoWhite;
 	private readonly Brush disabledButColor = Brushes.Gray;
+
+
+	public static readonly string[] COLUMNS = { "", "Name", "Game Name", "Button", "Last", "Last Days", "Last Hours", "Cnt", "Rate", "Added" };
 	public const int BUT_DISABLE_MILLIS = 600;
 
 
-	bool mb_Measured = false;
-	int ms32_RowHeight = 20;
+
+	private readonly int cntColumns;
+	private bool mb_Measured = false;
+	private int ms32_RowHeight = 20;
 
 	#region Windows API
+
 	[StructLayout(LayoutKind.Sequential)]
 	struct DRAWITEMSTRUCT
 	{
@@ -48,17 +77,24 @@ public class LvExNeighbor:ListView
 	const int WM_CONTEXTMENU = 0x7b;
 
 
-	#endregion
-
-
-	public LvExNeighbor()
+	protected override CreateParams CreateParams
 	{
-		SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+		get
+		{
+			CreateParams k_Params = base.CreateParams;
+			k_Params.Style |= LVS_OWNERDRAWFIXED;
+			return k_Params;
+		}
 	}
 
 
+	#endregion
+
+
+	#region Properties
+
 	[Category("Appearance")]
-	[Description("Sets the height of the ListView rows in Details view in pixels.")]
+	[Description("Sets the height of the ListView rows in pixels.")]
 	public int RowHeight
 	{
 		get { return ms32_RowHeight; }
@@ -70,28 +106,26 @@ public class LvExNeighbor:ListView
 		}
 	}
 
-
-
-	[Category("Column Context Menu")]
+	[Category("Context Menu")]
 	[Description("Shows a context menu for column headers.")]
 	public ContextMenuStrip? HeaderContextMenu { get; set; } = null;
 
-
-
-
-
-
+	[Category("Appearance")]
+	[Description("Selects either Send or Recv data for display. Used for most columns.")]
 	public bool IsSend = false;
 
-	protected override CreateParams CreateParams
+
+	#endregion
+
+
+
+
+	public LvExMain()
 	{
-		get
-		{
-			CreateParams k_Params = base.CreateParams;
-			k_Params.Style |= LVS_OWNERDRAWFIXED;
-			return k_Params;
-		}
+		SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+		cntColumns = Enum.GetNames(typeof(LvExMainColumns)).Length;
 	}
+
 
 	/// <summary>
 	/// The messages WM_MEASUREITEM and WM_DRAWITEM are sent to the parent control rather than to the ListView itself.
@@ -100,7 +134,6 @@ public class LvExNeighbor:ListView
 	/// </summary>
 	protected override void WndProc(ref Message k_Msg)
 	{
-
 		// Fix for ArgOutOfRangeEx when a click is performed to the right of any subitem (empty space)
 		if(k_Msg.Msg == WM_LBUTTONDOWN || k_Msg.Msg == WM_RBUTTONDOWN)
 		{
@@ -117,32 +150,23 @@ public class LvExNeighbor:ListView
 				k_Msg.LParam = MakeLparam(width, y_click);
 		}
 
-
-		//try
-		//{
-		base.WndProc(ref k_Msg); // This throws a ArgOutOfRangeEx when a click is performed to the right of any subitem (empty space)
-							//}
-							//catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "index" && (int?)ex.ActualValue == -1 && ex.TargetSite?.DeclaringType?.Name == "ListViewSubItemCollection")
-							//{
-							//	Program.Log(LogLevel.Normal, "ListViewExWatch.WndProc()", "ArgumentOutOfRangeException: A click has been perfored outside of a valid subitem. This has been handled and indicates column witdth calcs were wrong.");
-							//	return;
-							//}
+		base.WndProc(ref k_Msg); 
 
 		switch(k_Msg.Msg)
 		{
-			case WM_CONTEXTMENU:
+			case WM_CONTEXTMENU:		// Show header context if set
 			{
 				if(k_Msg.WParam != this.Handle) HeaderContextMenu?.Show(Control.MousePosition);
 				break;
 			}
-			case WM_SHOWWINDOW:
-			{ // called when the ListView becomes visible
+			case WM_SHOWWINDOW:			// called when the ListView becomes visible
+			{ 
 				View = View.Details;
 				OwnerDraw = false;
 				break;
 			}
-			case WM_REFLECT + WM_MEASUREITEM:
-			{ // called once when the ListView is created, but only in Details view
+			case WM_REFLECT + WM_MEASUREITEM:       // called once when the ListView is created, but only in Details view
+			{ 
 				mb_Measured = true;
 
 				// Overwrite itemHeight, which is the fifth integer in MEASUREITEMSTRUCT 
@@ -150,8 +174,10 @@ public class LvExNeighbor:ListView
 				k_Msg.Result = (IntPtr)1;
 				break;
 			}
-			case WM_REFLECT + WM_DRAWITEM:
-			{ // called for each ListViewItem to be drawn
+			case WM_REFLECT + WM_DRAWITEM:          // called for each ListViewItem to be drawn
+			{
+				#region Prep and preCalcs
+
 				object? lParam = k_Msg.GetLParam(typeof(DRAWITEMSTRUCT)) ?? throw new Exception("lParam shouldn't be null");
 				DRAWITEMSTRUCT k_Draw = (DRAWITEMSTRUCT)lParam;
 
@@ -165,32 +191,40 @@ public class LvExNeighbor:ListView
 					Debug.WriteLine("LvNeighbor.WndProc() Error:   *** Index: " + k_Draw.itemID + " out of range (0 - " + (Items.Count - 1) + ")");
 					return;
 				}
-				ListViewItem lvi = Items[k_Draw.itemID];
-				Neighbor n = (Neighbor)lvi.Tag;
 
 
+				if(Items[k_Draw.itemID] is not LviNeighbor lvi)
+				{
+					if(Items[k_Draw.itemID] is ListViewItem lvi2)
+						TextRenderer.DrawText(gfx, Items[k_Draw.itemID].ToString(), boldFont, lvi2.SubItems[0].Bounds, Color.Red);
+					else throw new Exception($"Invalid object recieved in LvExMain: {Items[k_Draw.itemID]}");
+					return;
+				}
+
+				while(lvi.SubItems.Count < cntColumns)
+					lvi.SubItems.Add("");
+
+				Neighbor n = lvi.Neighbor;
 				double daysSinceAdded = (DateTime.Now - n.Added).TotalDays;
 				double giftRate = (IsSend ? n.CntSend : n.CntRecv) / Math.Max(1, daysSinceAdded);
 
 
-				if(ListViewItemSorter is LVsort lvSort && !lvSort.IsSend && lvSort.SortType == SortOrderTypes.RECV_SPECIAL)
+				if(ListViewItemSorter is LvExMainSort lvSort && !lvSort.IsSend && lvSort.SortType == LvExMainSortTypes.RECV_SPECIAL)
 				{
 					if(!n.HasRecvToday && n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalDays < 2)
 						gfx.FillRectangle(Brushes.AntiqueWhite, lvi.SubItems[0].Bounds);
 				}
 
 
-				int subitem = 0; // Name Send/Recv
 
 				Color fontCol = Color.Black;
 				// If was added over 14days ago warn of low gift rate
 				if(daysSinceAdded > 14 && giftRate < 0.5) fontCol = Color.Red;
 				// If last gift was over 5days ago, or never gifts and added over 5 days ago warn.
 				if((DateTime.Now - ((IsSend ? n.LastSend : n.LastRecv) ?? n.Added)).TotalDays > 5) fontCol = Color.Red;
-				TextRenderer.DrawText(gfx, IsSend ? n.NameSend : n.NameRecv, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
-				subitem++;  // Send/Recv button
+				// Send/Recv button color
 				Brush colBut = todoButColor;
 				if(IsSend)
 				{
@@ -203,25 +237,63 @@ public class LvExNeighbor:ListView
 					else if(n.HasRecvToday) colBut = doneButColor;
 				}
 
+				#endregion
+
+				// COLUMNS = { "", "Name", "Game Name", "Button", "Last", "Last Days", "Last Hours", "Cnt", "Rate", "Added" };
+				
+				int subitem = 0;	// Lvi Text (subitem[0]) is ignored due to Bounds bug, and will always be empty.
+
+
+
+				subitem++;     // Forum Name
+				TextRenderer.DrawText(gfx, n.Name, Font, 
+					lvi.SubItems[(int)LvExMainColumns.ForumName].Bounds, fontCol, 
+					TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+
+				subitem++;	// Game Name
+				TextRenderer.DrawText(gfx, IsSend ? n.NameSend : n.NameRecv, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+
+				subitem++;	// Button
 				Rectangle rct = new(lvi.SubItems[subitem].Bounds.X + 1, lvi.SubItems[subitem].Bounds.Y + 1, lvi.SubItems[subitem].Bounds.Width - 2, lvi.SubItems[subitem].Bounds.Height - 2);
 				gfx.FillRectangle(colBut, rct);
-
 				Pen pen = new(Color.Gray, 3) { Alignment = PenAlignment.Inset };
 				gfx.DrawRectangle(pen, rct);
-				TextRenderer.DrawText(gfx, lvi.SubItems[subitem].Text, Font, rct, Color.Black, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				TextRenderer.DrawText(gfx, IsSend ? "Send" : "Recv", Font, rct, Color.Black, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
-				subitem++;  // Age
+				subitem++;      // Last
 				TextRenderer.DrawText(gfx, Utils.GetAgeStr(IsSend ? n.LastSend : n.LastRecv), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
-				
-				subitem++;  // Count
+
+
+				DateTime? last = IsSend ? n.LastSend : n.LastRecv;
+
+
+				subitem++;      // Last Days
+				string lastDaysStr = last is null ? "" : $"{(DateTime.Now - (DateTime)last).TotalDays:N1}";
+				TextRenderer.DrawText(gfx, lastDaysStr, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+
+				subitem++;      // Last Hours
+				string lastHrsStr = last is null ? "" : $"{(DateTime.Now - (DateTime)last).TotalHours:N1}";
+				TextRenderer.DrawText(gfx, lastHrsStr, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+
+				subitem++;	// Count
 				TextRenderer.DrawText(gfx, IsSend ? n.CntSend+" " : n.CntRecv+" ", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
-				subitem++;  // Rate
+
+				subitem++;	// Rate
 				TextRenderer.DrawText(gfx, $"{giftRate:P0}", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
-				subitem++;  // Added
+
+				subitem++;     // Added
 				TextRenderer.DrawText(gfx, Utils.GetAgeStr(n.Added), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+
+
+
+
 				break;
 			}
 

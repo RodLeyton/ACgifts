@@ -1,15 +1,15 @@
-﻿using System;
-using System.Diagnostics;
-using System.Windows.Forms;
+﻿using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace ACgifts;
 
 public partial class MainForm:Form
 {
 	private readonly Data data;
-	private readonly LVsort lvSendSort, lvRecvSort;
+	private readonly LvExMainSort lvSendSort, lvRecvSort;
 	private readonly DetailForm detailForm;
 	private int sentGroup = 0, recvGroup = 0, sentToday = 0, recvToday = 0, cntGroup = 0;
+
 
 	public MainForm()
 	{
@@ -17,57 +17,84 @@ public partial class MainForm:Form
 		data = new();
 		detailForm = new();
 
-		lvRecv.IsSend = false;
-		lvRecv.ShowItemToolTips = true;
-		lvRecvSort = new LVsort(false);
-		lvRecv.ListViewItemSorter = lvRecvSort;
-		lvRecvSort.SortType = (SortOrderTypes)Program.appConfig.SortOrder;
 
-		lvRecv.Columns.Add("Recv Name", Program.appConfig.Col0width);
-		lvRecv.Columns.Add("Button", Program.appConfig.Col1width);
-		lvRecv.Columns.Add("Last", Program.appConfig.Col2width);
-		lvRecv.Columns.Add("Cnt", Program.appConfig.Col3width);
-		lvRecv.Columns.Add("Rate", Program.appConfig.Col4width);
-		lvRecv.Columns.Add("Added", Program.appConfig.Col5width);
+		lvRecv.IsSend = false;
+		lvRecvSort = new LvExMainSort(false);
+		lvRecv.ListViewItemSorter = lvRecvSort;
+		lvRecvSort.SortType = (LvExMainSortTypes)Program.appConfig.SortOrder;
+
+		lvRecv.HeaderContextMenu = new() { Tag = lvRecv };
+		lvRecv.HeaderContextMenu.Opening += LvEx_HeadCtxMenu_Opening;
+		lvRecv.HeaderContextMenu.Closing += LvEx_HeadCtxMenu_Closing;
 
 
 		lvSend.IsSend = true;
-		lvSend.ShowItemToolTips = true;
-		lvSendSort = new LVsort(true);
+		lvSendSort = new LvExMainSort(true);
 		lvSend.ListViewItemSorter = lvSendSort;
-		lvSendSort.SortType = (SortOrderTypes)Program.appConfig.SortOrder;
+		lvSendSort.SortType = (LvExMainSortTypes)Program.appConfig.SortOrder;
 
-		lvSend.Columns.Add("Send Name", Program.appConfig.Col0width);
-		lvSend.Columns.Add("", Program.appConfig.Col1width);
-		lvSend.Columns.Add("Last", Program.appConfig.Col2width);
-		lvSend.Columns.Add("Cnt", Program.appConfig.Col3width);
-		lvSend.Columns.Add("Rate", Program.appConfig.Col4width);
-		lvSend.Columns.Add("Added", Program.appConfig.Col5width);
+		lvSend.HeaderContextMenu = new() { Tag = lvSend };
+		lvSend.HeaderContextMenu.Opening += LvEx_HeadCtxMenu_Opening;
+		lvSend.HeaderContextMenu.Closing += LvEx_HeadCtxMenu_Closing;
+
+
+		// Configure columns for listviews
+		int cntCols = 0;
+		foreach(LvExMainColumns val in Enum.GetValues(typeof(LvExMainColumns)))
+		{
+			string desc = Utils.GetEnumDescription(val);
+			lvRecv.Columns.Add(desc, 50);
+			lvSend.Columns.Add(desc, 50);
+			cntCols++;
+		}
+
+
+		List<KeyValuePair<LvExMainColumns, ColumnConfig>> ordRecvCols = Program.appConfig.RecvCols.OrderBy(col => col.Value.Order).ToList();
+		foreach(var kvp in ordRecvCols)
+		{
+			lvRecv.Columns[(int)kvp.Key].Width = kvp.Value.Width;
+			lvRecv.Columns[(int)kvp.Key].DisplayIndex = kvp.Value.Order;
+		}
+
+		List<KeyValuePair<LvExMainColumns, ColumnConfig>> ordSendCols = Program.appConfig.SendCols.OrderBy(col => col.Value.Order).ToList();
+		foreach(var kvp in ordSendCols)
+		{
+			lvSend.Columns[(int)kvp.Key].Width = kvp.Value.Width;
+			lvSend.Columns[(int)kvp.Key].DisplayIndex = kvp.Value.Order;
+		}
 	}
-
 
 
 	private void MainForm_Load(object sender, EventArgs e)
 	{
+		// Restore saved form size/position
 		string geo = Program.appConfig.MainFormGeo;
 		if(geo == null || geo == "")
 		{
-			Width = MaximumSize.Width;
-			Height = MinimumSize.Height;
+			Width = MinimumSize.Width;
+			Height = MinimumSize.Height + 200;
 		}
 		else WindowRestore.GeometryFromString(geo, this);
 		MainForm_Resize(null, null);
 
-		foreach(SortOrderTypes val in Enum.GetValues(typeof(SortOrderTypes)))
-			cbSortOrder.Items.Add(Utils.GetEnumDescription(val));
 
+		if(Program.appConfig.SplitDistance > Math.Max(50, spliter.Panel1MinSize))
+			spliter.SplitterDistance = Program.appConfig.SplitDistance;
+		else spliter.SplitterDistance = (spliter.Width - spliter.SplitterWidth) / 2;
+
+
+		// Load avaliable sort orders
+		foreach(LvExMainSortTypes val in Enum.GetValues(typeof(LvExMainSortTypes)))
+			cbSortOrder.Items.Add(Utils.GetEnumDescription(val));
 		cbSortOrder.SelectedIndex = Program.appConfig.SortOrder;
 
+		// Load data
 		data.Load();
 		UpdateGroupsLV();
 	}
 	private void MainForm_Shown(object sender, EventArgs e)
 	{
+		// Just for convience and to reduce accidents while debugging
 		if(Program.IsDebug)
 		{
 			Text = "*** Debug ***";
@@ -84,7 +111,7 @@ public partial class MainForm:Form
 			}
 		}
 
-
+		// Offer to create demo data if none exists
 		if(data.neighbors.Count == 0 && MessageBox.Show("No datafile exists.\r\nWould you like to create demo data?",
 			 "ACgifts - Create demo data?", MessageBoxButtons.YesNo) == DialogResult.Yes)
 		{
@@ -97,30 +124,28 @@ public partial class MainForm:Form
 		detailForm.CloseForm();
 		data.Save();
 
+		// Save form config
+		Program.appConfig.SplitDistance = spliter.SplitterDistance;
 		Program.appConfig.SortOrder = cbSortOrder.SelectedIndex;
-		Program.appConfig.Col0width = lvSend.Columns[0].Width;
-		Program.appConfig.Col1width = lvSend.Columns[1].Width;
-		Program.appConfig.Col2width = lvSend.Columns[2].Width;
-		Program.appConfig.Col3width = lvSend.Columns[3].Width;
-		Program.appConfig.Col4width = lvSend.Columns[4].Width;
-		Program.appConfig.Col5width = lvSend.Columns[5].Width;
 		Program.appConfig.MainFormGeo = WindowRestore.GeometryToString(this);
 		Program.SaveConfig();
 	}
 	private void MainForm_Resize(object? sender, EventArgs? e)
 	{
-		lvRecv.Left = lbGroups.Right + 10;
-		cbSortOrder.Left = lvRecv.Left;
-		lvRecv.Width = (this.ClientSize.Width - lvRecv.Left - 20) / 2;
-		lvSend.Width = lvRecv.Width;
-		lvSend.Left = lvRecv.Left + lvRecv.Width + 10;
-		butSendAll.Left = lvSend.Left;
+		butSendAll.Left = Math.Max(spliter.Left + spliter.Panel2.Left, cbSortOrder.Right + 20);
+	}
+	private void MainForm_ResizeEnd(object sender, EventArgs e)
+	{
+		Invalidate();  // Required to remove border artifacts while resizing
+		spliter.Invalidate();
 	}
 	private void Timer1_Tick(object sender, EventArgs e)
 	{
+		// Periodic update for age string in listviews
 		lvSend.Refresh();
 		lvRecv.Refresh();
 	}
+
 
 
 	private void ButSendAll_Click(object sender, EventArgs e)
@@ -128,11 +153,12 @@ public partial class MainForm:Form
 		bool skipSentAlready = false, skipAsked = false;
 		timer1.Enabled = false;
 
-		foreach(Neighbor n in data.neighbors)
-		{
-			if(lbGroups.SelectedItem?.ToString() != n.Group) continue;
 
-			if(n.SendThisSess && !skipAsked)
+		foreach(object obj in lvSend.Items)
+		{
+			if(obj is not LviNeighbor lvi) throw new Exception($"lvSend contains an invalid item. {obj}");
+
+			if(lvi.SendThisSess && !skipAsked)
 			{
 				string msg = @"Some gifts have already been sent to these neighbors during this session.
 Do you want to skip these and not send again?
@@ -142,12 +168,13 @@ No => Send a gift to everyone";
 				if(MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNo) == DialogResult.Yes) skipSentAlready = true;
 				skipAsked = true;
 			}
-			if(n.SendThisSess && skipSentAlready) continue;
+			if(lvi.SendThisSess && skipSentAlready) continue;
 
-			n.AddSend();
+			lvi.AddSend();
 			sentGroup++;
 			sentToday++;
 		}
+
 		lvSend.Refresh();
 		UpdateTotals();
 		timer1.Enabled = true;
@@ -155,7 +182,7 @@ No => Send a gift to everyone";
 
 		Task.Run(async delegate
 		{
-			await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+			await Task.Delay(LvExMain.BUT_DISABLE_MILLIS + 10);
 			if(IsDisposed || !IsHandleCreated || Disposing) return;
 			if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
 			else lvSend.Refresh();
@@ -166,7 +193,10 @@ No => Send a gift to everyone";
 		new EditForm(data).ShowDialog(this);
 		UpdateGroupsLV();
 	}
-
+	private void ButAnalysis_Click(object sender, EventArgs e)
+	{
+		new StatsForm(data).ShowDialog();
+	}
 
 
 
@@ -187,7 +217,7 @@ No => Send a gift to everyone";
 		{
 			if(n.Group is null || n.Group.Trim() == "")
 			{
-				if(!lbGroups.Items.Contains("unassigned")) lbGroups.Items.Add("unassigned");
+				if(!lbGroups.Items.Contains("Unassigned")) lbGroups.Items.Add("Unassigned");
 				continue;
 			}
 			if(!lbGroups.Items.Contains(n.Group))
@@ -196,6 +226,59 @@ No => Send a gift to everyone";
 		lbGroups.Sorted = false;
 		if(lbGroups.Items.Count > 0) lbGroups.SelectedIndex = 1;
 	}
+	private void SortLvs()
+	{
+		lvSendSort.SortType = (LvExMainSortTypes)cbSortOrder.SelectedIndex;
+		lvRecvSort.SortType = (LvExMainSortTypes)cbSortOrder.SelectedIndex;
+
+		lvSend.Sort();
+		lvRecv.Sort();
+	}
+	private void RefreshForm()
+	{
+		lvSend.Refresh();
+		lvRecv.Refresh();
+		lvSend.Sort();
+		lvRecv.Sort();
+	}
+	private static void SaveLvColConfig(LvExMain lv)
+	{
+		lv.Columns[0].DisplayIndex = 0;
+
+		Dictionary<LvExMainColumns, ColumnConfig> colConfig = lv.IsSend ? Program.appConfig.SendCols : Program.appConfig.RecvCols;
+
+		for(int i = 1; i < lv.Columns.Count; i++)
+		{
+			if(!colConfig.TryGetValue((LvExMainColumns)i, out ColumnConfig? cc))
+				colConfig.Add((LvExMainColumns)i, new(lv.Columns[i].DisplayIndex, lv.Columns[i].Width));
+			else
+			{
+				cc.Order = lv.Columns[i].DisplayIndex;
+				cc.Width = lv.Columns[i].Width;
+			}
+		}
+	}
+
+
+
+	private void Spliter_SplitterMoved(object sender, SplitterEventArgs e)
+	{
+		butSendAll.Left = Math.Max(spliter.Left + spliter.Panel2.Left, cbSortOrder.Right + 20);
+		spliter.Invalidate();
+	}
+	private void Spliter_MouseUp(object sender, MouseEventArgs e)
+	{
+		ContextMenuStrip cm = new();
+		cm.Items.Add(new ToolStripMenuItem("Make widths equal", null, CtxSpliterMid));
+		Utils.ShowContextOnScreen(this, cm, lvRecv.PointToScreen(e.Location));
+	}
+	private void CtxSpliterMid(object? sender, EventArgs? e)
+	{
+		spliter.SplitterDistance = (spliter.ClientSize.Width - spliter.SplitterWidth) / 2;
+	}
+
+
+
 	private void LbGroups_SelectedIndexChanged(object? sender, EventArgs? e)
 	{
 		if(lbGroups.SelectedItem is null) return;
@@ -221,7 +304,7 @@ No => Send a gift to everyone";
 			if(n.HasSendToday) sentToday++;
 
 			string selGroup = (string)lbGroups.SelectedItem;
-			if(selGroup == "unassigned")
+			if(selGroup == "Unassigned")
 			{
 				if(n.Group.Trim() != "") continue;
 			}
@@ -231,34 +314,8 @@ No => Send a gift to everyone";
 			if(n.HasRecvToday) recvGroup++;
 			if(n.HasSendToday) sentGroup++;
 
-
-			ListViewItem lvi = new(n.NameRecv)
-			{
-				Tag = n,
-				UseItemStyleForSubItems = false,
-				ToolTipText = $"{n.Name}"
-			};
-
-			lvi.SubItems.Add("Recv");
-			lvi.SubItems.Add("");
-			lvi.SubItems.Add("");
-			lvi.SubItems.Add("");
-			lvi.SubItems.Add("");
-			lvi.ToolTipText = $"{n.Name}";
-			lvRecv.Items.Add(lvi);
-
-			ListViewItem lvi2 = new(n.NameSend)
-			{
-				Tag = n,
-				UseItemStyleForSubItems = false,
-				ToolTipText = $"{n.Name}"
-			};
-			lvi2.SubItems.Add("Send");
-			lvi2.SubItems.Add("");
-			lvi2.SubItems.Add("");
-			lvi2.SubItems.Add("");
-			lvi2.SubItems.Add("");
-			lvSend.Items.Add(lvi2);
+			lvRecv.Items.Add(new LviNeighbor(n));
+			lvSend.Items.Add(new LviNeighbor(n));
 		}
 		lvRecv.EndUpdate();
 		lvSend.EndUpdate();
@@ -266,7 +323,10 @@ No => Send a gift to everyone";
 		SortLvs();
 		UpdateTotals();
 	}
-
+	private void CbSortOrder_SelectedIndexChanged(object sender, EventArgs e)
+	{
+		SortLvs();
+	}
 
 
 
@@ -274,31 +334,30 @@ No => Send a gift to everyone";
 	{
 		Point mousePos = lvRecv.PointToClient(Control.MousePosition);
 		ListViewHitTestInfo hitTest = lvRecv.HitTest(mousePos);
-		if(hitTest.Item?.Tag is not Neighbor n) return;
+		if(hitTest.Item is not LviNeighbor lvi) throw new Exception($"LvRecv contained an invalid item. {hitTest.Item}");
 
 		if(e.Button == MouseButtons.Right)
 		{
 			ContextMenuStrip cm = new();
 
-			cm.Items.Add(new ToolStripMenuItem($"Find '{n.Name}' in all groups", null, CtxFindSimalar) { Tag = n });
-			//cm.Items.Add(new ToolStripMenuItem($"Show not yet Recv", null, CtxNotYet));
+			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.Name}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
 
-			if(n.RecvThisSess)
-				cm.Items.Add(new ToolStripMenuItem($"Undo Recv from '{n.NameRecv}'", null, CtxUndoRecv) { Tag = n });
-			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Recv from '{n.NameRecv}'", null) { Enabled = false });
+			if(lvi.RecvThisSess)
+				cm.Items.Add(new ToolStripMenuItem($"Undo Recv from '{lvi.NameRecv}'", null, CtxUndoRecv) { Tag = lvi.Neighbor });
+			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Recv from '{lvi.NameRecv}'", null) { Enabled = false });
 
 			Utils.ShowContextOnScreen(this, cm, lvRecv.PointToScreen(e.Location));
 			return;
 		}
 
 
-		if(hitTest.SubItem?.Text == "Recv")
+		if(hitTest.Item.SubItems.IndexOf(hitTest.SubItem) == (int)LvExMainColumns.Button)
 		{
 			// Reject double accidental clicks
-			if(n.LastRecv != null && (DateTime.Now - (DateTime)n.LastRecv).TotalMilliseconds < LvExNeighbor.BUT_DISABLE_MILLIS) return;
+			if(lvi.LastRecv != null && (DateTime.Now - (DateTime)lvi.LastRecv).TotalMilliseconds < LvExMain.BUT_DISABLE_MILLIS) return;
 
-			n.AddRecv();
+			lvi.AddRecv();
 			lvRecv.Refresh();
 			recvGroup++;
 			recvToday++;
@@ -306,7 +365,7 @@ No => Send a gift to everyone";
 
 			Task.Run(async delegate
 			{
-				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+				await Task.Delay(LvExMain.BUT_DISABLE_MILLIS + 10);
 				if(IsDisposed || !IsHandleCreated || Disposing) return;
 				if(lvRecv.InvokeRequired)
 				{
@@ -325,37 +384,36 @@ No => Send a gift to everyone";
 
 		if(detailForm.IsDisposed) return;
 		if(detailForm.Visible) detailForm.Visible = false;
-		else detailForm.UpdateData(n, lvRecv.PointToScreen(e.Location), RefreshForm);
+		else detailForm.UpdateData(lvi.Neighbor, lvRecv.PointToScreen(e.Location), RefreshForm);
 	}
 	private void LvSend_MouseClick(object sender, MouseEventArgs e)
 	{
 		Point mousePos = lvSend.PointToClient(Control.MousePosition);
 		ListViewHitTestInfo hitTest = lvSend.HitTest(mousePos);
-		if(hitTest.Item?.Tag is not Neighbor n) return;
+		if(hitTest.Item is not LviNeighbor lvi) throw new Exception($"LvSend contained an invalid item. {hitTest.Item}");
 
 		if(e.Button == MouseButtons.Right)
 		{
 			ContextMenuStrip cm = new();
-			cm.Items.Add(new ToolStripMenuItem($"Find '{n.Name}' in all groups", null, CtxFindSimalar) { Tag = n });
-			//cm.Items.Add(new ToolStripMenuItem($"Show not yet Sent", null, CtxNotYet));
+			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.Name}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
-			cm.Items.Add(new ToolStripMenuItem($"Send to all but '{n.NameSend}'", null, CtxSendAllBut) { Tag = n });
+			cm.Items.Add(new ToolStripMenuItem($"Send to all but '{lvi.NameSend}'", null, CtxSendAllBut) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
 
-			if(n.SendThisSess)
-				cm.Items.Add(new ToolStripMenuItem($"Undo Send to '{n.NameSend}'", null, CtxUndoSend) { Tag = n });
-			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Send to '{n.NameSend}'", null) { Enabled = false });
+			if(lvi.SendThisSess)
+				cm.Items.Add(new ToolStripMenuItem($"Undo Send to '{lvi.NameSend}'", null, CtxUndoSend) { Tag = lvi.Neighbor });
+			else cm.Items.Add(new ToolStripMenuItem($"Cannot Undo Send to '{lvi.NameSend}'", null) { Enabled = false });
 
 			Utils.ShowContextOnScreen(this, cm, lvSend.PointToScreen(e.Location));
 			return;
 		}
 
-		if(hitTest.SubItem?.Text == "Send")
+		if(hitTest.Item.SubItems.IndexOf(hitTest.SubItem) == (int)LvExMainColumns.Button)
 		{
 			// Reject double accidental clicks
-			if(n.LastSend != null && (DateTime.Now - (DateTime)n.LastSend).TotalMilliseconds < LvExNeighbor.BUT_DISABLE_MILLIS) return;
+			if(lvi.LastSend != null && (DateTime.Now - (DateTime)lvi.LastSend).TotalMilliseconds < LvExMain.BUT_DISABLE_MILLIS) return;
 
-			n.AddSend();
+			lvi.AddSend();
 			lvSend.Refresh();
 			sentGroup++;
 			sentToday++;
@@ -363,7 +421,7 @@ No => Send a gift to everyone";
 
 			Task.Run(async delegate
 			{
-				await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+				await Task.Delay(LvExMain.BUT_DISABLE_MILLIS + 10);
 				if(IsDisposed || !IsHandleCreated || Disposing) return;
 				if(lvSend.InvokeRequired)
 				{
@@ -382,8 +440,37 @@ No => Send a gift to everyone";
 
 		if(detailForm.IsDisposed) return;
 		if(detailForm.Visible) detailForm.Visible = false;
-		else detailForm.UpdateData(n, lvSend.PointToScreen(e.Location), RefreshForm);
+		else detailForm.UpdateData(lvi.Neighbor, lvSend.PointToScreen(e.Location), RefreshForm);
 	}
+	private void LvEx_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+	{
+		if(e.ColumnIndex == 0) e.Cancel = true;
+	}
+	private void LvEx_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+	{
+		if(sender is LvExMain lv) SaveLvColConfig(lv);
+	}
+	private void LvEx_ColumnReordered(object sender, ColumnReorderedEventArgs e)
+	{
+		if(e.OldDisplayIndex == 0) e.Cancel = true;
+		else
+		{
+			if(sender is not LvExMain lv) return;
+			Task.Run(async delegate
+			{
+				await Task.Delay(100);
+				if(IsDisposed || !IsHandleCreated || Disposing) return;
+
+				if(lv.InvokeRequired) lv.Invoke(() => SaveLvColConfig(lv));
+				else SaveLvColConfig(lv);
+			});
+		}
+	}
+
+
+
+
+
 	private void CtxSendAllBut(object? sender, EventArgs? e)
 	{
 		if(sender is not ToolStripMenuItem tsmi) return;
@@ -393,12 +480,13 @@ No => Send a gift to everyone";
 		timer1.Enabled = false;
 
 
-		foreach(Neighbor n in data.neighbors)
+		foreach(object obj in lvSend.Items)
 		{
-			if(n.Equals(nNoSend)) continue;
-			if(lbGroups.SelectedItem?.ToString() != n.Group) continue;
+			if(obj is not LviNeighbor lvi) throw new Exception($"lvSend contains an invalid item. {obj}");
 
-			if(n.SendThisSess && !skipAsked)
+			if(lvi.Neighbor.Equals(nNoSend)) continue;
+
+			if(lvi.SendThisSess && !skipAsked)
 			{
 				string msg = @"Some gifts have already been sent to these neighbors during this session.
 Do you want to skip these and not send again?
@@ -408,12 +496,13 @@ No => Send a gift to everyone";
 				if(MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNo) == DialogResult.Yes) skipSentAlready = true;
 				skipAsked = true;
 			}
-			if(n.SendThisSess && skipSentAlready) continue;
+			if(lvi.SendThisSess && skipSentAlready) continue;
 
-			n.AddSend();
+			lvi.AddSend();
 			sentGroup++;
 			sentToday++;
 		}
+
 		lvSend.Refresh();
 		UpdateTotals();
 		timer1.Enabled = true;
@@ -421,7 +510,7 @@ No => Send a gift to everyone";
 
 		Task.Run(async delegate
 		{
-			await Task.Delay(LvExNeighbor.BUT_DISABLE_MILLIS + 10);
+			await Task.Delay(LvExMain.BUT_DISABLE_MILLIS + 10);
 			if(IsDisposed || !IsHandleCreated || Disposing) return;
 			if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
 			else lvSend.Refresh();
@@ -490,34 +579,8 @@ No => Send a gift to everyone";
 			else if(nFind.NameRecv == n.NameRecv) include = true;
 			if(!include) continue;
 
-
-			ListViewItem lvi = new(n.NameRecv)
-			{
-				Tag = n,
-				UseItemStyleForSubItems = false,
-				ToolTipText = $"{n.Name}"
-			};
-
-			lvi.SubItems.Add("Recv");
-			lvi.SubItems.Add("");
-			lvi.SubItems.Add("");
-			lvi.SubItems.Add("");
-			lvi.SubItems.Add("");
-			lvi.ToolTipText = $"{n.Name}";
-			lvRecv.Items.Add(lvi);
-
-			ListViewItem lvi2 = new(n.NameSend)
-			{
-				Tag = n,
-				UseItemStyleForSubItems = false,
-				ToolTipText = $"{n.Name}"
-			};
-			lvi2.SubItems.Add("Send");
-			lvi2.SubItems.Add("");
-			lvi2.SubItems.Add("");
-			lvi2.SubItems.Add("");
-			lvi2.SubItems.Add("");
-			lvSend.Items.Add(lvi2);
+			lvRecv.Items.Add(new LviNeighbor(n));
+			lvSend.Items.Add(new LviNeighbor(n));
 		}
 
 		lvRecv.EndUpdate();
@@ -527,45 +590,56 @@ No => Send a gift to everyone";
 	}
 
 
-	private void LvRecv_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+
+	private void LvEx_HeadCtxMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
 	{
-		lvSend.Columns[e.ColumnIndex].Width = e.NewWidth;
+		if(sender is not ContextMenuStrip cms) return;
+
+		cms.Items.Clear();
+		if(cms.Tag is not LvExMain lv) throw new Exception("Head Context Menu had incorrect Tag");
+
+		for(int i = 1; i < lv.Columns.Count; i++)
+		{
+			cms.Items.Add(new ToolStripMenuItem(lv.Columns[i].Text)
+			{
+				Checked = lv.Columns[i].Width > 0,
+				CheckOnClick = true,
+				Tag = i
+			});
+		}
+
+		ToolStripButton tsBut = new("Apply")
+		{
+			AutoSize = true,
+			BackColor = SystemColors.ButtonFace,
+			Margin = new(0, 8, 0, 3),
+			Padding = new(15, 0, 15, 0)
+		};
+		tsBut.Click += ((object? sender, EventArgs e) => cms.Close());
+		cms.Items.Add(tsBut);
+		e.Cancel = false;
 	}
-	private void LvSend_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+	private void LvEx_HeadCtxMenu_Closing(object? sender, ToolStripDropDownClosingEventArgs e)
 	{
-		lvRecv.Columns[e.ColumnIndex].Width = e.NewWidth;
+		if(e.CloseReason == ToolStripDropDownCloseReason.ItemClicked)
+		{
+			e.Cancel = true;
+			return;
+		}
+
+		if(sender is not ContextMenuStrip cms) return;
+		if(cms.Tag is not LvExMain lv) throw new Exception("Head Context Menu had incorrect Tag");
+
+
+		foreach(object obj in cms.Items)
+		{
+			if(obj is not ToolStripMenuItem tsmi) continue;
+			if(tsmi.Tag is not int inx || inx <= 0 || inx >= lv.Columns.Count) continue;
+
+			if(lv.Columns[inx].Width <= 0 && tsmi.Checked) lv.Columns[inx].Width = 100;
+			else if(lv.Columns[inx].Width > 0 && !tsmi.Checked) lv.Columns[inx].Width = 0;
+		}
 	}
 
 
-	private void CbSortOrder_SelectedIndexChanged(object sender, EventArgs e)
-	{
-		SortLvs();
-	}
-
-	private void SortLvs()
-	{
-		lvSendSort.SortType = (SortOrderTypes)cbSortOrder.SelectedIndex;
-		lvRecvSort.SortType = (SortOrderTypes)cbSortOrder.SelectedIndex;
-
-		lvSend.Sort();
-		lvRecv.Sort();
-	}
-
-	private void RefreshForm()
-	{
-		lvSend.Refresh();
-		lvRecv.Refresh();
-		lvSend.Sort();
-		lvRecv.Sort();
-	}
-
-	private void ButAnalysis_Click(object sender, EventArgs e)
-	{
-		new StatsForm(data).ShowDialog();
-	}
-
-	private void LvRecv_ColumnReordered(object sender, ColumnReorderedEventArgs e)
-	{
-		Debug.WriteLine($"{e.OldDisplayIndex} -> {e.NewDisplayIndex}");
-	}
 }

@@ -32,8 +32,8 @@ partial class MainForm
 		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 		butSendAll = new Button();
 		butEdit = new Button();
-		lvRecv = new LvExNeighbor();
-		lvSend = new LvExNeighbor();
+		lvRecv = new LvExMain();
+		lvSend = new LvExMain();
 		timer1 = new System.Windows.Forms.Timer(components);
 		lbGroups = new ListBox();
 		cbSortOrder = new ComboBox();
@@ -50,13 +50,18 @@ partial class MainForm
 		label1 = new Label();
 		label5 = new Label();
 		butAnalysis = new Button();
+		spliter = new SplitContainer();
 		groupBox1.SuspendLayout();
 		gbGroup.SuspendLayout();
+		((System.ComponentModel.ISupportInitialize)spliter).BeginInit();
+		spliter.Panel1.SuspendLayout();
+		spliter.Panel2.SuspendLayout();
+		spliter.SuspendLayout();
 		SuspendLayout();
 		// 
 		// butSendAll
 		// 
-		butSendAll.Location = new Point(336, 9);
+		butSendAll.Location = new Point(323, 9);
 		butSendAll.Name = "butSendAll";
 		butSendAll.Size = new Size(80, 26);
 		butSendAll.TabIndex = 1;
@@ -76,32 +81,40 @@ partial class MainForm
 		// 
 		// lvRecv
 		// 
-		lvRecv.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+		lvRecv.AllowColumnReorder = true;
+		lvRecv.Dock = DockStyle.Fill;
 		lvRecv.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
+		lvRecv.FullRowSelect = true;
 		lvRecv.HeaderContextMenu = null;
-		lvRecv.Location = new Point(129, 44);
+		lvRecv.Location = new Point(0, 0);
+		lvRecv.MultiSelect = false;
 		lvRecv.Name = "lvRecv";
+		lvRecv.OwnerDraw = true;
 		lvRecv.RowHeight = 32;
-		lvRecv.Size = new Size(156, 571);
+		lvRecv.Size = new Size(193, 332);
 		lvRecv.TabIndex = 7;
 		lvRecv.UseCompatibleStateImageBehavior = false;
 		lvRecv.View = View.Details;
-		lvRecv.ColumnWidthChanging += LvRecv_ColumnWidthChanging;
+		lvRecv.ColumnReordered += LvEx_ColumnReordered;
+		lvRecv.ColumnWidthChanged += LvEx_ColumnWidthChanged;
+		lvRecv.ColumnWidthChanging += LvEx_ColumnWidthChanging;
 		lvRecv.MouseClick += LvRecv_MouseClick;
 		// 
 		// lvSend
 		// 
-		lvSend.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+		lvSend.Dock = DockStyle.Fill;
 		lvSend.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
 		lvSend.HeaderContextMenu = null;
-		lvSend.Location = new Point(336, 44);
+		lvSend.Location = new Point(0, 0);
 		lvSend.Name = "lvSend";
 		lvSend.RowHeight = 32;
-		lvSend.Size = new Size(150, 571);
+		lvSend.Size = new Size(199, 332);
 		lvSend.TabIndex = 8;
 		lvSend.UseCompatibleStateImageBehavior = false;
 		lvSend.View = View.Details;
-		lvSend.ColumnWidthChanging += LvSend_ColumnWidthChanging;
+		lvSend.ColumnReordered += LvEx_ColumnReordered;
+		lvSend.ColumnWidthChanged += LvEx_ColumnWidthChanged;
+		lvSend.ColumnWidthChanging += LvEx_ColumnWidthChanging;
 		lvSend.MouseClick += LvSend_MouseClick;
 		// 
 		// timer1
@@ -126,7 +139,7 @@ partial class MainForm
 		cbSortOrder.DisplayMember = "Value";
 		cbSortOrder.DropDownStyle = ComboBoxStyle.DropDownList;
 		cbSortOrder.FormattingEnabled = true;
-		cbSortOrder.Location = new Point(129, 12);
+		cbSortOrder.Location = new Point(118, 10);
 		cbSortOrder.Name = "cbSortOrder";
 		cbSortOrder.Size = new Size(127, 23);
 		cbSortOrder.TabIndex = 9;
@@ -280,41 +293,68 @@ partial class MainForm
 		butAnalysis.UseVisualStyleBackColor = true;
 		butAnalysis.Click += ButAnalysis_Click;
 		// 
+		// spliter
+		// 
+		spliter.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+		spliter.Location = new Point(118, 44);
+		spliter.Name = "spliter";
+		// 
+		// spliter.Panel1
+		// 
+		spliter.Panel1.Controls.Add(lvRecv);
+		spliter.Panel1MinSize = 100;
+		// 
+		// spliter.Panel2
+		// 
+		spliter.Panel2.Controls.Add(lvSend);
+		spliter.Panel2MinSize = 100;
+		spliter.Size = new Size(404, 332);
+		spliter.SplitterDistance = 193;
+		spliter.SplitterWidth = 12;
+		spliter.TabIndex = 17;
+		spliter.SplitterMoved += Spliter_SplitterMoved;
+		spliter.MouseUp += Spliter_MouseUp;
+		// 
 		// MainForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(534, 627);
+		ClientSize = new Size(534, 388);
+		Controls.Add(spliter);
 		Controls.Add(butAnalysis);
 		Controls.Add(gbGroup);
 		Controls.Add(groupBox1);
 		Controls.Add(cbSortOrder);
-		Controls.Add(lvSend);
-		Controls.Add(lvRecv);
 		Controls.Add(lbGroups);
 		Controls.Add(butEdit);
 		Controls.Add(butSendAll);
+		DoubleBuffered = true;
 		Icon = (Icon)resources.GetObject("$this.Icon");
-		MaximumSize = new Size(1110, 1800);
+		MaximumSize = new Size(1600, 1800);
 		MinimumSize = new Size(550, 427);
 		Name = "MainForm";
 		Text = "ACgifts";
 		FormClosing += MainForm_FormClosing;
 		Load += MainForm_Load;
 		Shown += MainForm_Shown;
+		ResizeEnd += MainForm_ResizeEnd;
 		Resize += MainForm_Resize;
 		groupBox1.ResumeLayout(false);
 		groupBox1.PerformLayout();
 		gbGroup.ResumeLayout(false);
 		gbGroup.PerformLayout();
+		spliter.Panel1.ResumeLayout(false);
+		spliter.Panel2.ResumeLayout(false);
+		((System.ComponentModel.ISupportInitialize)spliter).EndInit();
+		spliter.ResumeLayout(false);
 		ResumeLayout(false);
 	}
 
 	#endregion
 	private Button butSendAll;
 	private Button butEdit;
-	private LvExNeighbor lvRecv;
-	private LvExNeighbor lvSend;
+	private LvExMain lvRecv;
+	private LvExMain lvSend;
 	private System.Windows.Forms.Timer timer1;
 	private ListBox lbGroups;
 	private ComboBox cbSortOrder;
@@ -331,4 +371,5 @@ partial class MainForm
 	private Label label4;
 	private Label label6;
 	private Button butAnalysis;
+	private SplitContainer spliter;
 }

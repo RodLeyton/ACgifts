@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 
 namespace ACgifts;
 
 
-public enum SortOrderTypes:int
+public enum LvExMainSortTypes:int
 {
 	[Description("Game Name")]
 	GAME_NAME = 0,
@@ -26,15 +23,15 @@ public enum SortOrderTypes:int
 }
 
 
-class LVsort:IComparer
+class LvExMainSort:IComparer
 {
 	public bool IsSend { get; set; }
-	public SortOrderTypes SortType { get; set; }
+	public LvExMainSortTypes SortType { get; set; }
 
-	public LVsort(bool isSend)
+	public LvExMainSort(bool isSend)
 	{
 		IsSend = isSend;
-		SortType = SortOrderTypes.GAME_NAME;
+		SortType = LvExMainSortTypes.GAME_NAME;
 	}
 
 
@@ -46,9 +43,8 @@ class LVsort:IComparer
 	/// <returns>The result of the comparison. "0" if equal, negative if 'x' is less than 'y' and positive if 'x' is greater than 'y'</returns>
 	public int Compare(object? x, object? y)
 	{
-		if(x is ListViewItem lviX && y is ListViewItem lviY)
-			if(lviX.Tag is Neighbor xn && lviY.Tag is Neighbor yn)
-				return SortNeighbor(xn, yn);
+		if(x is LviNeighbor lviX && y is LviNeighbor lviY)
+				return SortNeighbor(lviX.Neighbor, lviY.Neighbor);
 
 		return Comparer.Default.Compare(x, y);
 	}
@@ -59,21 +55,21 @@ class LVsort:IComparer
 	{
 		switch(SortType)
 		{
-			case SortOrderTypes.GAME_NAME:
+			case LvExMainSortTypes.GAME_NAME:
 				if(IsSend) return Comparer.Default.Compare(x.NameSend, y.NameSend);
 				return Comparer.Default.Compare(x.NameRecv, y.NameRecv);
 
-			case SortOrderTypes.FORUM_NAME:
+			case LvExMainSortTypes.FORUM_NAME:
 				return Comparer.Default.Compare(x.Name, y.Name);
 
-			case SortOrderTypes.LIST_ORDER:
+			case LvExMainSortTypes.LIST_ORDER:
 				return Comparer.Default.Compare(x.Order, y.Order);
 
-			case SortOrderTypes.LAST_TIME:
+			case LvExMainSortTypes.LAST_TIME:
 				if(IsSend) return Comparer.Default.Compare(x.LastSend, y.LastSend);
 				return Comparer.Default.Compare(x.LastRecv, y.LastRecv);
 
-			case SortOrderTypes.RECV_SPECIAL:
+			case LvExMainSortTypes.RECV_SPECIAL:
 				// Send is simply sorted by time
 				if(IsSend) return Comparer.Default.Compare(x.LastSend, y.LastSend);
 
@@ -92,10 +88,10 @@ class LVsort:IComparer
 
 				return Comparer.Default.Compare(x.NameRecv, y.NameRecv);
 
-			case SortOrderTypes.RELIABILITY:
+			case LvExMainSortTypes.RELIABILITY:
 				return Comparer.Default.Compare(GetRate(x), GetRate(y));
 
-			case SortOrderTypes.ADDED:
+			case LvExMainSortTypes.ADDED:
 				return Comparer.Default.Compare(x.Added, y.Added);
 		}
 		throw new NotImplementedException($"Sort order type {SortType} => '{Utils.GetEnumDescription(SortType)}' was not handled!!!");

@@ -25,7 +25,7 @@ internal class Utils
 		ctxMenu.Show(ptScrn);
 	}
 
-	public static void SetDoubleBuffered(DataGridView dgv, bool setting)
+	public static void SetDoubleBuffered(Control dgv, bool setting)
 	{
 		try
 		{
@@ -106,13 +106,11 @@ internal class Utils
 	{
 		FieldInfo? fi = value.GetType().GetField(value.ToString());
 
-		if(fi?.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Any()) 
+		if(fi?.GetCustomAttributes(typeof(DescriptionAttribute), false) is DescriptionAttribute[] attributes && attributes.Any())
 			return attributes.First().Description;
 
 		return value.ToString();
 	}
-
-
 
 
 }
