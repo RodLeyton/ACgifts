@@ -29,6 +29,10 @@ partial class MainForm
 	private void InitializeComponent()
 	{
 		components = new System.ComponentModel.Container();
+		ToolStripSeparator toolStripSeparator1;
+		ToolStripSeparator toolStripSeparator2;
+		ToolStripSeparator toolStripSeparator3;
+		ToolStripSeparator toolStripSeparator4;
 		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 		menuFile = new ToolStripMenuItem();
 		menuBackup = new ToolStripMenuItem();
@@ -39,8 +43,11 @@ partial class MainForm
 		menuExit = new ToolStripMenuItem();
 		menuEdit = new ToolStripMenuItem();
 		menuDisplay = new ToolStripMenuItem();
-		menuAutoFormWidth = new ToolStripMenuItem();
 		menuSaveLayout = new ToolStripMenuItem();
+		menuResetLayout = new ToolStripMenuItem();
+		menuAutoWidthColumns = new ToolStripMenuItem();
+		menuAutoWidthForm = new ToolStripMenuItem();
+		menuAutoWidthAll = new ToolStripMenuItem();
 		menuStats = new ToolStripMenuItem();
 		menuHelp = new ToolStripMenuItem();
 		menuHelpHeader = new ToolStripMenuItem();
@@ -48,6 +55,9 @@ partial class MainForm
 		menuFAQ = new ToolStripMenuItem();
 		menuGitHub = new ToolStripMenuItem();
 		menuForum = new ToolStripMenuItem();
+		menuViewLog = new ToolStripMenuItem();
+		menuDataDir = new ToolStripMenuItem();
+		menuAppDir = new ToolStripMenuItem();
 		butSendAll = new Button();
 		lvRecv = new LvExMain();
 		lvSend = new LvExMain();
@@ -68,6 +78,10 @@ partial class MainForm
 		label5 = new Label();
 		spliter = new SplitContainer();
 		menuStrip = new MenuStrip();
+		toolStripSeparator1 = new ToolStripSeparator();
+		toolStripSeparator2 = new ToolStripSeparator();
+		toolStripSeparator3 = new ToolStripSeparator();
+		toolStripSeparator4 = new ToolStripSeparator();
 		groupBox1.SuspendLayout();
 		gbGroup.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)spliter).BeginInit();
@@ -77,9 +91,29 @@ partial class MainForm
 		menuStrip.SuspendLayout();
 		SuspendLayout();
 		// 
+		// toolStripSeparator1
+		// 
+		toolStripSeparator1.Name = "toolStripSeparator1";
+		toolStripSeparator1.Size = new Size(183, 6);
+		// 
+		// toolStripSeparator2
+		// 
+		toolStripSeparator2.Name = "toolStripSeparator2";
+		toolStripSeparator2.Size = new Size(152, 6);
+		// 
+		// toolStripSeparator3
+		// 
+		toolStripSeparator3.Name = "toolStripSeparator3";
+		toolStripSeparator3.Size = new Size(152, 6);
+		// 
+		// toolStripSeparator4
+		// 
+		toolStripSeparator4.Name = "toolStripSeparator4";
+		toolStripSeparator4.Size = new Size(163, 6);
+		// 
 		// menuFile
 		// 
-		menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuBackup, menuRestore, menuImport, menuExport, menuSave, menuExit });
+		menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuBackup, menuRestore, toolStripSeparator2, menuImport, menuExport, toolStripSeparator3, menuSave, menuExit });
 		menuFile.Name = "menuFile";
 		menuFile.Size = new Size(37, 20);
 		menuFile.Text = "File";
@@ -135,24 +169,45 @@ partial class MainForm
 		// 
 		// menuDisplay
 		// 
-		menuDisplay.DropDownItems.AddRange(new ToolStripItem[] { menuAutoFormWidth, menuSaveLayout });
+		menuDisplay.DropDownItems.AddRange(new ToolStripItem[] { menuSaveLayout, menuResetLayout, toolStripSeparator1, menuAutoWidthColumns, menuAutoWidthForm, menuAutoWidthAll });
 		menuDisplay.Name = "menuDisplay";
 		menuDisplay.Size = new Size(57, 20);
 		menuDisplay.Text = "Display";
 		// 
-		// menuAutoFormWidth
-		// 
-		menuAutoFormWidth.Name = "menuAutoFormWidth";
-		menuAutoFormWidth.Size = new Size(166, 22);
-		menuAutoFormWidth.Text = "Auto Form Width";
-		menuAutoFormWidth.Click += MenuAutoFormWidth_Click;
-		// 
 		// menuSaveLayout
 		// 
 		menuSaveLayout.Name = "menuSaveLayout";
-		menuSaveLayout.Size = new Size(166, 22);
+		menuSaveLayout.Size = new Size(186, 22);
 		menuSaveLayout.Text = "Save layout";
 		menuSaveLayout.Click += MenuSaveLayout_Click;
+		// 
+		// menuResetLayout
+		// 
+		menuResetLayout.Name = "menuResetLayout";
+		menuResetLayout.Size = new Size(186, 22);
+		menuResetLayout.Text = "Reset layout";
+		menuResetLayout.Click += MenuResetLayout_Click;
+		// 
+		// menuAutoWidthColumns
+		// 
+		menuAutoWidthColumns.Name = "menuAutoWidthColumns";
+		menuAutoWidthColumns.Size = new Size(186, 22);
+		menuAutoWidthColumns.Text = "Auto Width Columns";
+		menuAutoWidthColumns.Click += MenuAutoWidthColumns_Click;
+		// 
+		// menuAutoWidthForm
+		// 
+		menuAutoWidthForm.Name = "menuAutoWidthForm";
+		menuAutoWidthForm.Size = new Size(186, 22);
+		menuAutoWidthForm.Text = "Auto Width Form";
+		menuAutoWidthForm.Click += MenuAutoWidthForm_Click;
+		// 
+		// menuAutoWidthAll
+		// 
+		menuAutoWidthAll.Name = "menuAutoWidthAll";
+		menuAutoWidthAll.Size = new Size(186, 22);
+		menuAutoWidthAll.Text = "Auto Width All";
+		menuAutoWidthAll.Click += MenuAutoWidthAll_Click;
 		// 
 		// menuStats
 		// 
@@ -163,7 +218,7 @@ partial class MainForm
 		// 
 		// menuHelp
 		// 
-		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuGitHub, menuForum });
+		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuGitHub, menuForum, toolStripSeparator4, menuViewLog, menuDataDir, menuAppDir });
 		menuHelp.Name = "menuHelp";
 		menuHelp.Size = new Size(44, 20);
 		menuHelp.Text = "Help";
@@ -203,6 +258,27 @@ partial class MainForm
 		menuForum.Text = "Forum";
 		menuForum.Click += Menu_Forum_Click;
 		// 
+		// menuViewLog
+		// 
+		menuViewLog.Name = "menuViewLog";
+		menuViewLog.Size = new Size(166, 22);
+		menuViewLog.Text = "View logfile";
+		menuViewLog.Click += MenuViewLog_Click;
+		// 
+		// menuDataDir
+		// 
+		menuDataDir.Name = "menuDataDir";
+		menuDataDir.Size = new Size(166, 22);
+		menuDataDir.Text = "Open Data Dir";
+		menuDataDir.Click += MenuDataDir_Click;
+		// 
+		// menuAppDir
+		// 
+		menuAppDir.Name = "menuAppDir";
+		menuAppDir.Size = new Size(166, 22);
+		menuAppDir.Text = "Open App Dir";
+		menuAppDir.Click += MenuAppDir_Click;
+		// 
 		// butSendAll
 		// 
 		butSendAll.Location = new Point(324, 30);
@@ -236,6 +312,7 @@ partial class MainForm
 		// 
 		// lvSend
 		// 
+		lvSend.AllowColumnReorder = true;
 		lvSend.Dock = DockStyle.Fill;
 		lvSend.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
 		lvSend.HeaderContextMenu = null;
@@ -523,6 +600,12 @@ partial class MainForm
 	private ToolStripMenuItem menuExport;
 	private ToolStripMenuItem menuSave;
 	private ToolStripMenuItem menuExit;
-	private ToolStripMenuItem menuAutoFormWidth;
+	private ToolStripMenuItem menuAutoWidthForm;
 	private ToolStripMenuItem menuSaveLayout;
+	private ToolStripMenuItem menuAutoWidthColumns;
+	private ToolStripMenuItem menuAutoWidthAll;
+	private ToolStripMenuItem menuViewLog;
+	private ToolStripMenuItem menuDataDir;
+	private ToolStripMenuItem menuAppDir;
+	private ToolStripMenuItem menuResetLayout;
 }

@@ -1,11 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using System.Security.Policy;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
-namespace ACgifts;
+﻿namespace ACgifts;
 
 public partial class MainForm:Form
 {
@@ -13,7 +6,7 @@ public partial class MainForm:Form
 	private readonly LvExMainSort lvSendSort, lvRecvSort;
 	private readonly DetailForm detailForm;
 	private int sentGroup = 0, recvGroup = 0, sentToday = 0, recvToday = 0, cntGroup = 0;
-
+	private bool ignoreColumnChanges = false;
 
 	public MainForm()
 	{
@@ -43,29 +36,13 @@ public partial class MainForm:Form
 
 
 		// Configure columns for listviews
-		int cntCols = 0;
 		foreach(LvExMainColumns val in Enum.GetValues(typeof(LvExMainColumns)))
 		{
 			string desc = Utils.GetEnumDescription(val);
 			lvRecv.Columns.Add(desc, 50);
 			lvSend.Columns.Add(desc, 50);
-			cntCols++;
 		}
-
-
-		List<KeyValuePair<LvExMainColumns, ColumnConfig>> ordRecvCols = Program.appConfig.RecvCols.OrderBy(col => col.Value.Order).ToList();
-		foreach(var kvp in ordRecvCols)
-		{
-			lvRecv.Columns[(int)kvp.Key].Width = kvp.Value.Width;
-			lvRecv.Columns[(int)kvp.Key].DisplayIndex = kvp.Value.Order;
-		}
-
-		List<KeyValuePair<LvExMainColumns, ColumnConfig>> ordSendCols = Program.appConfig.SendCols.OrderBy(col => col.Value.Order).ToList();
-		foreach(var kvp in ordSendCols)
-		{
-			lvSend.Columns[(int)kvp.Key].Width = kvp.Value.Width;
-			lvSend.Columns[(int)kvp.Key].DisplayIndex = kvp.Value.Order;
-		}
+		LoadColumnConfig();
 	}
 
 
@@ -150,7 +127,30 @@ public partial class MainForm:Form
 		lvRecv.Refresh();
 	}
 
+	private void LoadColumnConfig()
+	{
+		ignoreColumnChanges = true;
+		lvRecv.BeginUpdate();
+		lvSend.BeginUpdate();
 
+		List<KeyValuePair<LvExMainColumns, ColumnConfig>> ordRecvCols = Program.appConfig.RecvCols.OrderBy(col => col.Value.Order).ToList();
+		foreach(KeyValuePair<LvExMainColumns, ColumnConfig> kvp in ordRecvCols)
+		{
+			lvRecv.Columns[(int)kvp.Key].Width = kvp.Value.Width;
+			lvRecv.Columns[(int)kvp.Key].DisplayIndex = kvp.Value.Order;
+		}
+
+		List<KeyValuePair<LvExMainColumns, ColumnConfig>> ordSendCols = Program.appConfig.SendCols.OrderBy(col => col.Value.Order).ToList();
+		foreach(KeyValuePair<LvExMainColumns, ColumnConfig> kvp in ordSendCols)
+		{
+			lvSend.Columns[(int)kvp.Key].Width = kvp.Value.Width;
+			lvSend.Columns[(int)kvp.Key].DisplayIndex = kvp.Value.Order;
+		}
+
+		ignoreColumnChanges = false;
+		lvRecv.EndUpdate();
+		lvSend.EndUpdate();
+	}
 
 
 
@@ -205,12 +205,8 @@ public partial class MainForm:Form
 	{
 		Close();
 	}
-	private void MenuAutoFormWidth_Click(object sender, EventArgs e)
+	private void MenuAutoWidthForm_Click(object? sender, EventArgs? e)
 	{
-		lvRecv.AutoResizeColumns();
-		lvSend.AutoResizeColumns();
-
-
 		int wA = 0, wB = 0;
 		foreach(ColumnHeader c in lvRecv.Columns) wA += c.Width;
 		foreach(ColumnHeader c in lvSend.Columns) wB += c.Width;
@@ -220,13 +216,62 @@ public partial class MainForm:Form
 		Width = spliter.Left + wA + spliter.SplitterWidth + wB + Width - spliter.Right;
 		spliter.SplitterDistance = wA;
 	}
+	private void MenuAutoWidthColumns_Click(object? sender, EventArgs? e)
+	{
+		lvRecv.AutoResizeColumns();
+		lvSend.AutoResizeColumns();
+	}
+	private void MenuAutoWidthAll_Click(object? sender, EventArgs? e)
+	{
+		MenuAutoWidthColumns_Click(null, null);
+		MenuAutoWidthForm_Click(null, null);
+	}
 	private void MenuSaveLayout_Click(object sender, EventArgs e)
 	{
 		Program.SaveConfig();
 	}
+	private void MenuViewLog_Click(object sender, EventArgs e)
+	{
+		LogViewForm.ShowFile("Application Log", Program.GetLogFile(), Program.GetLogContent(), this, true);
+	}
+	private void MenuDataDir_Click(object sender, EventArgs e)
+	{
+		try
+		{
+			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
+			{
+				FileName = Program.GetAppDir(),
+				UseShellExecute = true,
+				Verb = "open"
+			});
+			return;
+		}
+		catch(Exception ex) { Program.Log("MainForm.MenuDataDir_Click", ex); }
+	}
+	private void MenuAppDir_Click(object sender, EventArgs e)
+	{
+		try
+		{
+			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
+			{
+				FileName = Program.GetExeDir(),
+				UseShellExecute = true,
+				Verb = "open"
+			});
+		}
+		catch(Exception ex) { Program.Log("MainForm.MenuAppDir_Click", ex); }
+	}
+	private void MenuResetLayout_Click(object sender, EventArgs e)
+	{
+		if(MessageBox.Show("This will reset all customisations to this form and cannot be undone,\r\nAre you sure?", "ACgifts - Reset form?",
+			MessageBoxButtons.YesNoCancel) != DialogResult.Yes) return;
 
-
-
+		Program.Log("MainForm.MenuResetLayout","Resetting config and layout");
+		Program.appConfig.Reset();
+		LoadColumnConfig();
+		MenuAutoWidthAll_Click(null, null);
+		cbSortOrder.SelectedIndex = Program.appConfig.SortOrder;
+	}
 
 
 
@@ -306,7 +351,7 @@ No => Send a gift to everyone";
 				lbGroups.Items.Add(n.Group);
 		}
 		lbGroups.Sorted = false;
-		if(lbGroups.Items.Count > 0) lbGroups.SelectedIndex = 1;
+		if(lbGroups.Items.Count > 0) lbGroups.SelectedIndex = 0;
 	}
 	private void SortLvs()
 	{
@@ -423,7 +468,7 @@ No => Send a gift to everyone";
 		{
 			ContextMenuStrip cm = new();
 
-			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.Name}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
+			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.ForumName}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
 
 			if(lvi.RecvThisSess)
@@ -478,7 +523,7 @@ No => Send a gift to everyone";
 		if(e.Button == MouseButtons.Right)
 		{
 			ContextMenuStrip cm = new();
-			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.Name}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
+			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.ForumName}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
 			cm.Items.Add(new ToolStripMenuItem($"Send to all but '{lvi.NameSend}'", null, CtxSendAllBut) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
@@ -525,16 +570,21 @@ No => Send a gift to everyone";
 		if(detailForm.Visible) detailForm.Visible = false;
 		else detailForm.UpdateData(lvi.Neighbor, lvSend.PointToScreen(e.Location), RefreshForm);
 	}
+	
+	
 	private void LvEx_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 	{
+		if(ignoreColumnChanges) return;
 		if(e.ColumnIndex == 0) e.Cancel = true;
 	}
 	private void LvEx_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
 	{
+		if(ignoreColumnChanges) return;
 		if(sender is LvExMain lv) SaveLvColConfig(lv);
 	}
 	private void LvEx_ColumnReordered(object sender, ColumnReorderedEventArgs e)
 	{
+		if(ignoreColumnChanges) return;
 		if(e.OldDisplayIndex == 0) e.Cancel = true;
 		else
 		{
@@ -678,8 +728,11 @@ No => Send a gift to everyone";
 	{
 		if(sender is not ContextMenuStrip cms) return;
 
-		cms.Items.Clear();
+		cms.Items.Clear(); 
+		cms.Items.Add(new ToolStripMenuItem("Avaliable columns") { Enabled = false });
+
 		if(cms.Tag is not LvExMain lv) throw new Exception("Head Context Menu had incorrect Tag");
+
 
 		for(int i = 1; i < lv.Columns.Count; i++)
 		{
@@ -723,8 +776,6 @@ No => Send a gift to everyone";
 			else if(lv.Columns[inx].Width > 0 && !tsmi.Checked) lv.Columns[inx].Width = 0;
 		}
 	}
-
-
 
 
 

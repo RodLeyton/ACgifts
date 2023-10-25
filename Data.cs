@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.VisualBasic.FileIO;

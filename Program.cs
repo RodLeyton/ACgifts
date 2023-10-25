@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.VisualBasic.Devices;
 
 namespace ACgifts;
 
@@ -8,7 +9,7 @@ internal static class Program
 	public static AppConfig appConfig = null!;
 	private static StreamWriter? swLog;
 	private static readonly object _locker = new();
-	private static string APP_DIR = null!, DATA_DIR = null!, LOG_FILE = null!, LOG_FILE_NO_EXT = null!;
+	private static string EXE_DIR = null!, APP_DIR = null!, DATA_DIR = null!, LOG_FILE = null!, LOG_FILE_NO_EXT = null!;
 
 	public static bool IsDeployed = false;
 	public static bool IsDebug = false;
@@ -39,6 +40,7 @@ internal static class Program
 
 			try
 			{
+				EXE_DIR = Environment.CurrentDirectory;
 				APP_DIR = GetAppDir();
 				DATA_DIR = GetDataDir();
 				LOG_FILE = GetLogFile();
@@ -63,6 +65,9 @@ internal static class Program
 			if(hasHandle) mutex.ReleaseMutex();
 		}
 	}
+
+
+
 	private static void DoWork()
 	{
 
@@ -165,8 +170,11 @@ internal static class Program
 			swLog ??= new StreamWriter(LOG_FILE, append: true) { AutoFlush = true };
 
 			Log("Program.Init", $"App startup {DateTime.Now:u}");
+			Log("Program.Init", $"EXE_DIR {EXE_DIR}");
 			Log("Program.Init", $"APP_DIR {APP_DIR}");
 			Log("Program.Init", $"Debug:{IsDebug}  Deployed:{IsDeployed}  Version:{Version}");
+			ComputerInfo? info = new();
+			Log("Program.Init", $"Platform: {info?.OSFullName}   Ram:{Utils.BytesToString(info?.TotalPhysicalMemory)}");
 			CopyAppFiles();
 		}
 		catch(Exception ex)
@@ -242,6 +250,11 @@ internal static class Program
 	}
 
 
+
+	public static string GetExeDir()
+	{
+		return EXE_DIR;
+	}
 
 	public static string GetAppDir()
 	{

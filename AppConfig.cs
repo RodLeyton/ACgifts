@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ACgifts;
+﻿namespace ACgifts;
 
 public class ColumnConfig
 {
@@ -19,6 +17,7 @@ public class ColumnConfig
 [Serializable]
 internal class AppConfig
 {
+	public bool IsDefaults { get; set; }
 	public string InstalledVersion { get; set; }
 	public string MainFormGeo { get; set; }
 	public int SplitDistance { get; set; }
@@ -30,50 +29,49 @@ internal class AppConfig
 
 
 
-	[JsonIgnore]
-	public bool IsDefaults { get; set; }
-
 
 
 	public AppConfig() 
 	{
-		// Setup defaults
-		IsDefaults = true;
 		InstalledVersion = "";
 		MainFormGeo = "";
+		RecvCols = new();
+		SendCols = new();
+		Reset();
+	}
+
+
+	public void Reset()
+	{
+		// Setup defaults
+		IsDefaults = true;
 		SplitDistance = -1;
 		SortOrder = (int)LvExMainSortTypes.GAME_NAME;
 
-
-		RecvCols = new()
-		{
-			{ LvExMainColumns.None, new(0, 0) },
-			{ LvExMainColumns.ForumName, new(1, 0) },
-			{ LvExMainColumns.GameName, new(2, 130) },
-			{ LvExMainColumns.Button, new(3, 60) },
-			{ LvExMainColumns.Last, new(4, 80) },
-			{ LvExMainColumns.LastDays, new(5, 0) },
-			{ LvExMainColumns.LastHours, new(6, 0) },
-			{ LvExMainColumns.Count, new(7, 60) },
-			{ LvExMainColumns.Rate, new(8, 60) },
-			{ LvExMainColumns.Added, new(9, 0) }
-		};
+		RecvCols.Clear();
+		RecvCols.Add(LvExMainColumns.None, new(0, 0));
+		RecvCols.Add(LvExMainColumns.ForumName, new(1, 0));
+		RecvCols.Add(LvExMainColumns.GameName, new(2, 130));
+		RecvCols.Add(LvExMainColumns.Button, new(3, 60));
+		RecvCols.Add(LvExMainColumns.Last, new(4, 80));
+		RecvCols.Add(LvExMainColumns.LastDays, new(5, 0));
+		RecvCols.Add(LvExMainColumns.LastHours, new(6, 0));
+		RecvCols.Add(LvExMainColumns.Count, new(7, 60));
+		RecvCols.Add(LvExMainColumns.Rate, new(8, 60));
+		RecvCols.Add(LvExMainColumns.Added, new(9, 0));
 
 
-		SendCols = new()
-		{
-			{ LvExMainColumns.None, new(0, 0) },
-			{ LvExMainColumns.ForumName, new(1, 0) },
-			{ LvExMainColumns.GameName, new(2, 130) },
-			{ LvExMainColumns.Button, new(3, 60) },
-			{ LvExMainColumns.Last, new(4, 80) },
-			{ LvExMainColumns.LastDays, new(5, 0) },
-			{ LvExMainColumns.LastHours, new(6, 0) },
-			{ LvExMainColumns.Count, new(7, 60) },
-			{ LvExMainColumns.Rate, new(8, 60) },
-			{ LvExMainColumns.Added, new(9, 0) }
-		};
-
+		SendCols.Clear();
+		SendCols.Add(LvExMainColumns.None, new(0, 0));
+		SendCols.Add(LvExMainColumns.ForumName, new(1, 0));
+		SendCols.Add(LvExMainColumns.GameName, new(2, 130));
+		SendCols.Add(LvExMainColumns.Button, new(3, 60));
+		SendCols.Add(LvExMainColumns.Last, new(4, 80));
+		SendCols.Add(LvExMainColumns.LastDays, new(5, 0));
+		SendCols.Add(LvExMainColumns.LastHours, new(6, 0));
+		SendCols.Add(LvExMainColumns.Count, new(7, 0));
+		SendCols.Add(LvExMainColumns.Rate, new(8, 0));
+		SendCols.Add(LvExMainColumns.Added, new(9, 0));
 
 	}
 }

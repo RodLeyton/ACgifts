@@ -122,7 +122,18 @@ internal class Utils
 		if(ts.Duration().TotalMinutes > 0) return $" {ts.TotalMinutes} mins";
 		return " just now";
 	}
+	
+	public static string BytesToString(ulong? byteCount)
+	{
+		string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+		if(byteCount is null || byteCount == 0) return "0" + suf[0];
 
+
+		int place = Convert.ToInt32(Math.Floor(Math.Log((ulong)byteCount, 1024)));
+		double num = Math.Round((ulong)byteCount / Math.Pow(1024, place), 1);
+
+		return num.ToString() + suf[place];
+	}
 
 	public static string GetEnumDescription(Enum value)
 	{

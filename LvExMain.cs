@@ -337,7 +337,14 @@ public class LvExMain:ListView
 
 	public void AutoResizeColumns()
 	{
-		for(int i = 0; i < cntColumns; i++) Columns[i].Width = colAutoWidth[i];
+		// Double check we havn't just cleaared the auto widths
+		int sum = 0;
+		for(int i = 0; i < cntColumns; i++) sum += colAutoWidth[i];
+
+		if(sum == 0) return;
+
+		for(int i = 0; i < cntColumns; i++) 
+			if(Columns[i].Width > 0) Columns[i].Width = colAutoWidth[i];
 	}
 
 
