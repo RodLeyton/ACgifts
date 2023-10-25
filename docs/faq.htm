@@ -22,15 +22,32 @@
 	<div class="content">
 		<h1>ACgifts FAQ</h1>
 		<ul>
+			<li><a href="#columns">How can I show or hide columns?</a></li>
 			<li><a href="#import">How can I import csv files</a></li>
 			<li><a href="#datetime">I'm getting errors with dates in csv files</a></li>
 			<li><a href="#errorLog">Where can I find the error logs?</a></li>
 			<li><a href="#warnings">What are there all these warnings when installing?</a></li>
 			<li><a href="#refund">What if I don't like it, can I get a refund?</a></li>
 			<li><a href="#data">Why are there so many .dat files?</a></li>
+			<li><a href="#bugs">I having problems, or have a suggestion. How can I contact you?</a></li>
 			
 		</ul>
 
+		<hr>
+		<h2 id="columns">How can I show or hide columns?</h2>
+		<div class="imgLeft">
+			<img src="avaliable_columns.png">
+			<span>Right click on the column headers, and click to add or remove check marks on list pop-up list.<br>
+				You can also reorder columns by left clicking on the header and dragging it to the position you wish to have it displayed.<br>
+				The layout is saved automatically, and can be reset via the 'Display' menu.<br>
+				Also note the 'Display' menu contains shortcuts to automatically size both the columns and entire form.
+			</span>
+		</div>
+		<p>&nbsp;</p>
+		<p><a href="faq.htm">back to top</a></p>
+		
+		
+		
 		<hr>
 		<h2 id="import">Importing neighbors via CSV file</h2>
 		<p>A template file for the csv format can be found <a href="import template.csv">here</a>. It is also in the application directory (you can find that with the Dir button on the edit form).<br>
@@ -62,6 +79,7 @@
 		<h5>Added</h5>
 		<p>The date and time this neighbor was added to your list. This may be left blank, or be a <a href="#datetime">valid format</a><br>
 		If left blank it will default to the current date. This value to used to calculate the gifting rate (or reliability).<p>
+		<p><a href="faq.htm">back to top</a></p>
 		
 		
 		<hr>
@@ -102,7 +120,8 @@
 			<li>'1 mar 2023 6am' - works as expected in any locale.</li>
 			<li class="bad">'1st march 2023 9pm' - fails to parse! (Don't use st,nd,rd,th after the day)</li>
 			<li class="bad">'half past a sparrows fart' - I believe this only works in the Australian outback.</li>
-		</ul></p>
+		</ul>
+		</p>
 		<p><a href="faq.htm">back to top</a></p>
 
 
@@ -110,11 +129,12 @@
 		<h2 id="errorLog">Where can I find the logfile?</h2>
 		<div class="imgLeft">
 			<img src="log_button.png">
-			<span>Logs are located in your local application directory, under CrashnBurn subfolder.<br>
+			<span>Logs are located in your local application directory, under the CrashnBurn subfolder.<br>
 			Usually this is 'C:\Users\[name]\AppData\Local\CrashnBurn\ACgifts_Release\log-release.txt'<br>
-			The exact location will depend on your OS, but the easiest way to find it is to click the Dir or Log buttons on the Edit form.<br>
+			The exact location will depend on your OS, but the easiest way to find it is under the Help menu.<br>
 			When the primary log reaches 250kB it is moved to 'log-release.bak.txt' and a new file is started.</span>
 		</div>
+		<p>&nbsp;</p>
 		<p>If you have any issues, please copy this file at the time and provide a description of what you were doing when asking for help.</p>
 		<p><a href="faq.htm">back to top</a></p>
 		
@@ -165,14 +185,28 @@
 		<p><a href="faq.htm">back to top</a></p>
 		
 		
+		
+		<hr>
+		<h3 id="bugs">I found a bug, am having problems, or have a feature suggestion?</h3>
+		<p>Often the hardest part of tracking down bugs is understanding the problem, so please try to be clear and give me as much detail as possible including;</p>
+		<ul>
+			<li>A copy of the end of the <a href="#logfile">logfile</a> (including everything after the last "Program.Init  App startup")</li>
+			<li>What you were doing at the time</li>
+			<li>What you expected to happen, and what actually happened</li>
+			<li>A screenshot of the problem if appropiate</li>
+		</ul>
+		<p><a href="https://www.airportcitygame.com/members/crash-and-burn.29038/#about" target="_blank">Send the above</a> as a pm</p>
+		<p>&nbsp;</p>
+		<p><a href="faq.htm">back to top</a></p>
+		
+		
 		<hr>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
-		
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
-		<p><a href="faq.htm">back to top</a></p>
+		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 	</div>
