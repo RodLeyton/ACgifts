@@ -1,5 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Drawing2D;
+using System.Security.Policy;
+using System.Windows.Forms;
 using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ACgifts;
 
@@ -148,6 +152,84 @@ public partial class MainForm:Form
 
 
 
+
+
+	// Menu clicks
+	private void Menu_Website_Click(object sender, EventArgs e)
+	{
+		Utils.OpenUrl("https://rodleyton.github.io/ACgifts/");
+	}
+	private void Menu_FAQ_Click(object sender, EventArgs e)
+	{
+		Utils.OpenUrl("https://rodleyton.github.io/ACgifts/faq.htm");
+	}
+	private void Menu_GitHub_Click(object sender, EventArgs e)
+	{
+		Utils.OpenUrl("https://github.com/RodLeyton/ACgifts");
+	}
+	private void Menu_Forum_Click(object sender, EventArgs e)
+	{
+		Utils.OpenUrl("https://www.airportcitygame.com/members/crash-and-burn.29038/#about");
+	}
+	private void Menu_Stats_Click(object sender, EventArgs e)
+	{
+		new StatsForm(data).ShowDialog();
+	}
+	private void Menu_Edit_Click(object sender, EventArgs e)
+	{
+		new EditForm(data).ShowDialog();
+	}
+	private void MenuBackup_Click(object sender, EventArgs e)
+	{
+		data.Backup();
+	}
+	private void MenuRestore_Click(object sender, EventArgs e)
+	{
+		data.Restore();
+	}
+	private void MenuImport_Click(object sender, EventArgs e)
+	{
+		OpenFileDialog ofd = new() { Filter = "csv|*.csv" };
+		if(ofd.ShowDialog() == DialogResult.OK)
+			data.Import(ofd.FileName);
+	}
+	private void MenuExport_Click(object sender, EventArgs e)
+	{
+		data.Export();
+	}
+	private void MenuSave_Click(object sender, EventArgs e)
+	{
+		data.Save();
+	}
+	private void MenuExit_Click(object sender, EventArgs e)
+	{
+		Close();
+	}
+	private void MenuAutoFormWidth_Click(object sender, EventArgs e)
+	{
+		lvRecv.AutoResizeColumns();
+		lvSend.AutoResizeColumns();
+
+
+		int wA = 0, wB = 0;
+		foreach(ColumnHeader c in lvRecv.Columns) wA += c.Width;
+		foreach(ColumnHeader c in lvSend.Columns) wB += c.Width;
+		wA += Utils.GetVertScrollbarWidth(lvRecv) + 5;
+		wB += Utils.GetVertScrollbarWidth(lvSend) + 5;
+
+		Width = spliter.Left + wA + spliter.SplitterWidth + wB + Width - spliter.Right;
+		spliter.SplitterDistance = wA;
+	}
+	private void MenuSaveLayout_Click(object sender, EventArgs e)
+	{
+		Program.SaveConfig();
+	}
+
+
+
+
+
+
 	private void ButSendAll_Click(object sender, EventArgs e)
 	{
 		bool skipSentAlready = false, skipAsked = false;
@@ -243,7 +325,8 @@ No => Send a gift to everyone";
 	}
 	private static void SaveLvColConfig(LvExMain lv)
 	{
-		lv.Columns[0].DisplayIndex = 0;
+		if(lv.Columns[0].DisplayIndex != 0) lv.Columns[0].DisplayIndex = 0;
+		if(lv.Columns[0].Width > 0) lv.Columns[0].Width = 0;
 
 		Dictionary<LvExMainColumns, ColumnConfig> colConfig = lv.IsSend ? Program.appConfig.SendCols : Program.appConfig.RecvCols;
 
@@ -640,6 +723,9 @@ No => Send a gift to everyone";
 			else if(lv.Columns[inx].Width > 0 && !tsmi.Checked) lv.Columns[inx].Width = 0;
 		}
 	}
+
+
+
 
 
 }

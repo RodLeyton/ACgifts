@@ -30,8 +30,25 @@ partial class MainForm
 	{
 		components = new System.ComponentModel.Container();
 		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+		menuFile = new ToolStripMenuItem();
+		menuBackup = new ToolStripMenuItem();
+		menuRestore = new ToolStripMenuItem();
+		menuImport = new ToolStripMenuItem();
+		menuExport = new ToolStripMenuItem();
+		menuSave = new ToolStripMenuItem();
+		menuExit = new ToolStripMenuItem();
+		menuEdit = new ToolStripMenuItem();
+		menuDisplay = new ToolStripMenuItem();
+		menuAutoFormWidth = new ToolStripMenuItem();
+		menuSaveLayout = new ToolStripMenuItem();
+		menuStats = new ToolStripMenuItem();
+		menuHelp = new ToolStripMenuItem();
+		menuHelpHeader = new ToolStripMenuItem();
+		menuWebsite = new ToolStripMenuItem();
+		menuFAQ = new ToolStripMenuItem();
+		menuGitHub = new ToolStripMenuItem();
+		menuForum = new ToolStripMenuItem();
 		butSendAll = new Button();
-		butEdit = new Button();
 		lvRecv = new LvExMain();
 		lvSend = new LvExMain();
 		timer1 = new System.Windows.Forms.Timer(components);
@@ -49,35 +66,152 @@ partial class MainForm
 		label6 = new Label();
 		label1 = new Label();
 		label5 = new Label();
-		butAnalysis = new Button();
 		spliter = new SplitContainer();
+		menuStrip = new MenuStrip();
 		groupBox1.SuspendLayout();
 		gbGroup.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)spliter).BeginInit();
 		spliter.Panel1.SuspendLayout();
 		spliter.Panel2.SuspendLayout();
 		spliter.SuspendLayout();
+		menuStrip.SuspendLayout();
 		SuspendLayout();
+		// 
+		// menuFile
+		// 
+		menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuBackup, menuRestore, menuImport, menuExport, menuSave, menuExit });
+		menuFile.Name = "menuFile";
+		menuFile.Size = new Size(37, 20);
+		menuFile.Text = "File";
+		// 
+		// menuBackup
+		// 
+		menuBackup.Name = "menuBackup";
+		menuBackup.Size = new Size(155, 22);
+		menuBackup.Text = "Backup data";
+		menuBackup.Click += MenuBackup_Click;
+		// 
+		// menuRestore
+		// 
+		menuRestore.Name = "menuRestore";
+		menuRestore.Size = new Size(155, 22);
+		menuRestore.Text = "Restore backup";
+		menuRestore.Click += MenuRestore_Click;
+		// 
+		// menuImport
+		// 
+		menuImport.Name = "menuImport";
+		menuImport.Size = new Size(155, 22);
+		menuImport.Text = "Import CSV";
+		menuImport.Click += MenuImport_Click;
+		// 
+		// menuExport
+		// 
+		menuExport.Name = "menuExport";
+		menuExport.Size = new Size(155, 22);
+		menuExport.Text = "Export CSV";
+		menuExport.Click += MenuExport_Click;
+		// 
+		// menuSave
+		// 
+		menuSave.Name = "menuSave";
+		menuSave.Size = new Size(155, 22);
+		menuSave.Text = "Save";
+		menuSave.Click += MenuSave_Click;
+		// 
+		// menuExit
+		// 
+		menuExit.Name = "menuExit";
+		menuExit.Size = new Size(155, 22);
+		menuExit.Text = "Exit";
+		menuExit.Click += MenuExit_Click;
+		// 
+		// menuEdit
+		// 
+		menuEdit.Name = "menuEdit";
+		menuEdit.Size = new Size(39, 20);
+		menuEdit.Text = "Edit";
+		menuEdit.Click += Menu_Edit_Click;
+		// 
+		// menuDisplay
+		// 
+		menuDisplay.DropDownItems.AddRange(new ToolStripItem[] { menuAutoFormWidth, menuSaveLayout });
+		menuDisplay.Name = "menuDisplay";
+		menuDisplay.Size = new Size(57, 20);
+		menuDisplay.Text = "Display";
+		// 
+		// menuAutoFormWidth
+		// 
+		menuAutoFormWidth.Name = "menuAutoFormWidth";
+		menuAutoFormWidth.Size = new Size(166, 22);
+		menuAutoFormWidth.Text = "Auto Form Width";
+		menuAutoFormWidth.Click += MenuAutoFormWidth_Click;
+		// 
+		// menuSaveLayout
+		// 
+		menuSaveLayout.Name = "menuSaveLayout";
+		menuSaveLayout.Size = new Size(166, 22);
+		menuSaveLayout.Text = "Save layout";
+		menuSaveLayout.Click += MenuSaveLayout_Click;
+		// 
+		// menuStats
+		// 
+		menuStats.Name = "menuStats";
+		menuStats.Size = new Size(65, 20);
+		menuStats.Text = "Statistics";
+		menuStats.Click += Menu_Stats_Click;
+		// 
+		// menuHelp
+		// 
+		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuGitHub, menuForum });
+		menuHelp.Name = "menuHelp";
+		menuHelp.Size = new Size(44, 20);
+		menuHelp.Text = "Help";
+		// 
+		// menuHelpHeader
+		// 
+		menuHelpHeader.Enabled = false;
+		menuHelpHeader.Name = "menuHelpHeader";
+		menuHelpHeader.Size = new Size(166, 22);
+		menuHelpHeader.Text = "Opens in browser";
+		// 
+		// menuWebsite
+		// 
+		menuWebsite.Name = "menuWebsite";
+		menuWebsite.Size = new Size(166, 22);
+		menuWebsite.Text = "Website";
+		menuWebsite.Click += Menu_Website_Click;
+		// 
+		// menuFAQ
+		// 
+		menuFAQ.Name = "menuFAQ";
+		menuFAQ.Size = new Size(166, 22);
+		menuFAQ.Text = "FAQ";
+		menuFAQ.Click += Menu_FAQ_Click;
+		// 
+		// menuGitHub
+		// 
+		menuGitHub.Name = "menuGitHub";
+		menuGitHub.Size = new Size(166, 22);
+		menuGitHub.Text = "Github";
+		menuGitHub.Click += Menu_GitHub_Click;
+		// 
+		// menuForum
+		// 
+		menuForum.Name = "menuForum";
+		menuForum.Size = new Size(166, 22);
+		menuForum.Text = "Forum";
+		menuForum.Click += Menu_Forum_Click;
 		// 
 		// butSendAll
 		// 
-		butSendAll.Location = new Point(323, 9);
+		butSendAll.Location = new Point(324, 30);
 		butSendAll.Name = "butSendAll";
 		butSendAll.Size = new Size(80, 26);
 		butSendAll.TabIndex = 1;
 		butSendAll.Text = "Send All";
 		butSendAll.UseVisualStyleBackColor = true;
 		butSendAll.Click += ButSendAll_Click;
-		// 
-		// butEdit
-		// 
-		butEdit.Location = new Point(10, 9);
-		butEdit.Name = "butEdit";
-		butEdit.Size = new Size(97, 26);
-		butEdit.TabIndex = 5;
-		butEdit.Text = "Edit";
-		butEdit.UseVisualStyleBackColor = true;
-		butEdit.Click += ButEdit_Click;
 		// 
 		// lvRecv
 		// 
@@ -91,7 +225,7 @@ partial class MainForm
 		lvRecv.Name = "lvRecv";
 		lvRecv.OwnerDraw = true;
 		lvRecv.RowHeight = 32;
-		lvRecv.Size = new Size(193, 332);
+		lvRecv.Size = new Size(106, 312);
 		lvRecv.TabIndex = 7;
 		lvRecv.UseCompatibleStateImageBehavior = false;
 		lvRecv.View = View.Details;
@@ -108,7 +242,7 @@ partial class MainForm
 		lvSend.Location = new Point(0, 0);
 		lvSend.Name = "lvSend";
 		lvSend.RowHeight = 32;
-		lvSend.Size = new Size(199, 332);
+		lvSend.Size = new Size(283, 312);
 		lvSend.TabIndex = 8;
 		lvSend.UseCompatibleStateImageBehavior = false;
 		lvSend.View = View.Details;
@@ -128,7 +262,7 @@ partial class MainForm
 		lbGroups.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
 		lbGroups.FormattingEnabled = true;
 		lbGroups.ItemHeight = 20;
-		lbGroups.Location = new Point(10, 44);
+		lbGroups.Location = new Point(12, 33);
 		lbGroups.Name = "lbGroups";
 		lbGroups.Size = new Size(97, 204);
 		lbGroups.TabIndex = 6;
@@ -139,7 +273,7 @@ partial class MainForm
 		cbSortOrder.DisplayMember = "Value";
 		cbSortOrder.DropDownStyle = ComboBoxStyle.DropDownList;
 		cbSortOrder.FormattingEnabled = true;
-		cbSortOrder.Location = new Point(118, 10);
+		cbSortOrder.Location = new Point(121, 33);
 		cbSortOrder.Name = "cbSortOrder";
 		cbSortOrder.Size = new Size(127, 23);
 		cbSortOrder.TabIndex = 9;
@@ -176,7 +310,7 @@ partial class MainForm
 		labSentToday.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
 		labSentToday.Location = new Point(1, 17);
 		labSentToday.Name = "labSentToday";
-		labSentToday.Size = new Size(95, 17);
+		labSentToday.Size = new Size(94, 17);
 		labSentToday.TabIndex = 12;
 		labSentToday.Text = "0/0";
 		labSentToday.TextAlign = ContentAlignment.MiddleRight;
@@ -188,7 +322,7 @@ partial class MainForm
 		labRecvToday.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
 		labRecvToday.Location = new Point(1, 36);
 		labRecvToday.Name = "labRecvToday";
-		labRecvToday.Size = new Size(95, 17);
+		labRecvToday.Size = new Size(94, 17);
 		labRecvToday.TabIndex = 13;
 		labRecvToday.Text = "0/0";
 		labRecvToday.TextAlign = ContentAlignment.MiddleRight;
@@ -199,9 +333,9 @@ partial class MainForm
 		groupBox1.Controls.Add(label2);
 		groupBox1.Controls.Add(labRecvToday);
 		groupBox1.Controls.Add(labSentToday);
-		groupBox1.Location = new Point(10, 318);
+		groupBox1.Location = new Point(12, 315);
 		groupBox1.Name = "groupBox1";
-		groupBox1.Size = new Size(97, 58);
+		groupBox1.Size = new Size(96, 58);
 		groupBox1.TabIndex = 14;
 		groupBox1.TabStop = false;
 		groupBox1.Text = "Today";
@@ -236,7 +370,7 @@ partial class MainForm
 		gbGroup.Controls.Add(label5);
 		gbGroup.Controls.Add(labSent);
 		gbGroup.Controls.Add(labRecv);
-		gbGroup.Location = new Point(10, 254);
+		gbGroup.Location = new Point(12, 248);
 		gbGroup.Name = "gbGroup";
 		gbGroup.Size = new Size(97, 58);
 		gbGroup.TabIndex = 15;
@@ -283,20 +417,10 @@ partial class MainForm
 		label5.TabIndex = 13;
 		label5.Text = "label5";
 		// 
-		// butAnalysis
-		// 
-		butAnalysis.Location = new Point(10, 392);
-		butAnalysis.Name = "butAnalysis";
-		butAnalysis.Size = new Size(97, 26);
-		butAnalysis.TabIndex = 16;
-		butAnalysis.Text = "Statistics";
-		butAnalysis.UseVisualStyleBackColor = true;
-		butAnalysis.Click += ButAnalysis_Click;
-		// 
 		// spliter
 		// 
 		spliter.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-		spliter.Location = new Point(118, 44);
+		spliter.Location = new Point(121, 64);
 		spliter.Name = "spliter";
 		// 
 		// spliter.Panel1
@@ -308,12 +432,21 @@ partial class MainForm
 		// 
 		spliter.Panel2.Controls.Add(lvSend);
 		spliter.Panel2MinSize = 100;
-		spliter.Size = new Size(404, 332);
-		spliter.SplitterDistance = 193;
+		spliter.Size = new Size(401, 312);
+		spliter.SplitterDistance = 106;
 		spliter.SplitterWidth = 12;
 		spliter.TabIndex = 17;
 		spliter.SplitterMoved += Spliter_SplitterMoved;
 		spliter.MouseUp += Spliter_MouseUp;
+		// 
+		// menuStrip
+		// 
+		menuStrip.Items.AddRange(new ToolStripItem[] { menuFile, menuEdit, menuDisplay, menuStats, menuHelp });
+		menuStrip.Location = new Point(0, 0);
+		menuStrip.Name = "menuStrip";
+		menuStrip.Size = new Size(534, 24);
+		menuStrip.TabIndex = 18;
+		menuStrip.Text = "Main Menu";
 		// 
 		// MainForm
 		// 
@@ -321,15 +454,15 @@ partial class MainForm
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(534, 388);
 		Controls.Add(spliter);
-		Controls.Add(butAnalysis);
 		Controls.Add(gbGroup);
 		Controls.Add(groupBox1);
 		Controls.Add(cbSortOrder);
 		Controls.Add(lbGroups);
-		Controls.Add(butEdit);
 		Controls.Add(butSendAll);
+		Controls.Add(menuStrip);
 		DoubleBuffered = true;
 		Icon = (Icon)resources.GetObject("$this.Icon");
+		MainMenuStrip = menuStrip;
 		MaximumSize = new Size(1600, 1800);
 		MinimumSize = new Size(550, 427);
 		Name = "MainForm";
@@ -347,12 +480,14 @@ partial class MainForm
 		spliter.Panel2.ResumeLayout(false);
 		((System.ComponentModel.ISupportInitialize)spliter).EndInit();
 		spliter.ResumeLayout(false);
+		menuStrip.ResumeLayout(false);
+		menuStrip.PerformLayout();
 		ResumeLayout(false);
+		PerformLayout();
 	}
 
 	#endregion
 	private Button butSendAll;
-	private Button butEdit;
 	private LvExMain lvRecv;
 	private LvExMain lvSend;
 	private System.Windows.Forms.Timer timer1;
@@ -370,6 +505,24 @@ partial class MainForm
 	private Label label3;
 	private Label label4;
 	private Label label6;
-	private Button butAnalysis;
 	private SplitContainer spliter;
+	private MenuStrip menuStrip;
+	private ToolStripMenuItem menuFile;
+	private ToolStripMenuItem menuEdit;
+	private ToolStripMenuItem menuDisplay;
+	private ToolStripMenuItem menuStats;
+	private ToolStripMenuItem menuHelp;
+	private ToolStripMenuItem menuHelpHeader;
+	private ToolStripMenuItem menuFAQ;
+	private ToolStripMenuItem menuGitHub;
+	private ToolStripMenuItem menuForum;
+	private ToolStripMenuItem menuWebsite;
+	private ToolStripMenuItem menuBackup;
+	private ToolStripMenuItem menuRestore;
+	private ToolStripMenuItem menuImport;
+	private ToolStripMenuItem menuExport;
+	private ToolStripMenuItem menuSave;
+	private ToolStripMenuItem menuExit;
+	private ToolStripMenuItem menuAutoFormWidth;
+	private ToolStripMenuItem menuSaveLayout;
 }

@@ -42,6 +42,7 @@ public class LvExMain:ListView
 
 
 	private readonly int cntColumns;
+	private readonly int[] colAutoWidth;
 	private bool mb_Measured = false;
 	private int ms32_RowHeight = 20;
 
@@ -73,9 +74,10 @@ public class LvExMain:ListView
 	const int WM_REFLECT = 0x2000;
 	const int WM_LBUTTONDOWN = 0x0201;
 	const int WM_RBUTTONDOWN = 0x0204;
-
 	const int WM_CONTEXTMENU = 0x7b;
-
+	const int LVM_FIRST = 0x1000;
+	const int LVM_DELETEITEM = LVM_FIRST + 8;
+	const int LVM_DELETEALLITEMS = LVM_FIRST + 9;
 
 	protected override CreateParams CreateParams
 	{
@@ -124,6 +126,8 @@ public class LvExMain:ListView
 	{
 		SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
 		cntColumns = Enum.GetNames(typeof(LvExMainColumns)).Length;
+		colAutoWidth = new int[cntColumns];
+		for(int i= 0; i<cntColumns; i++) colAutoWidth[i] = 0;
 	}
 
 
@@ -166,12 +170,18 @@ public class LvExMain:ListView
 				break;
 			}
 			case WM_REFLECT + WM_MEASUREITEM:       // called once when the ListView is created, but only in Details view
-			{ 
+			{
 				mb_Measured = true;
-
-				// Overwrite itemHeight, which is the fifth integer in MEASUREITEMSTRUCT 
+				//Overwrite itemHeight, which is the fifth integer in MEASUREITEMSTRUCT
 				Marshal.WriteInt32(k_Msg.LParam + 4 * sizeof(int), ms32_RowHeight);
 				k_Msg.Result = (IntPtr)1;
+				break;
+			}
+			case LVM_DELETEITEM:
+			case LVM_DELETEALLITEMS:
+			{
+				// Clear existing column width for autosize.
+				for(int i = 0; i < cntColumns; i++) colAutoWidth[i] = 0;
 				break;
 			}
 			case WM_REFLECT + WM_DRAWITEM:          // called for each ListViewItem to be drawn
@@ -184,6 +194,7 @@ public class LvExMain:ListView
 				using Font boldFont = new(Font, FontStyle.Bold);
 				using Graphics gfx = Graphics.FromHdc(k_Draw.hDC);
 				gfx.SmoothingMode = SmoothingMode.HighQuality;
+				//gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
 				if(k_Draw.itemID >= Items.Count || k_Draw.itemID < 0)
 				{
@@ -239,57 +250,79 @@ public class LvExMain:ListView
 
 				#endregion
 
-				// COLUMNS = { "", "Name", "Game Name", "Button", "Last", "Last Days", "Last Hours", "Cnt", "Rate", "Added" };
-				
-				int subitem = 0;	// Lvi Text (subitem[0]) is ignored due to Bounds bug, and will always be empty.
-
-
+				string txt = "";
+				int subitem = 0;	// Lvi Text/subitem[0] is ignored due to Bounds bug, therefor will always be empty.
 
 				subitem++;     // Forum Name
-				TextRenderer.DrawText(gfx, n.Name, Font, 
+				txt = n.Name;
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font, 
 					lvi.SubItems[(int)LvExMainColumns.ForumName].Bounds, fontCol, 
 					TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
+				
 
-				subitem++;	// Game Name
-				TextRenderer.DrawText(gfx, IsSend ? n.NameSend : n.NameRecv, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				subitem++;     // Game Name
+				txt = IsSend ? n.NameSend : n.NameRecv;
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.GameName].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
-				subitem++;	// Button
-				Rectangle rct = new(lvi.SubItems[subitem].Bounds.X + 1, lvi.SubItems[subitem].Bounds.Y + 1, lvi.SubItems[subitem].Bounds.Width - 2, lvi.SubItems[subitem].Bounds.Height - 2);
+				subitem++;     // Button
+				txt = IsSend ? "Send" : "Recv";
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width + 25);
+				Rectangle rctBut = lvi.SubItems[(int)LvExMainColumns.Button].Bounds;
+				Rectangle rct = new(rctBut.X + 1, rctBut.Y + 1, rctBut.Width - 2, rctBut.Height - 2);
 				gfx.FillRectangle(colBut, rct);
 				Pen pen = new(Color.Gray, 3) { Alignment = PenAlignment.Inset };
 				gfx.DrawRectangle(pen, rct);
-				TextRenderer.DrawText(gfx, IsSend ? "Send" : "Recv", Font, rct, Color.Black, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				TextRenderer.DrawText(gfx, txt, Font, rct, Color.Black, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 				subitem++;      // Last
-				TextRenderer.DrawText(gfx, Utils.GetAgeStr(IsSend ? n.LastSend : n.LastRecv), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				txt = Utils.GetAgeStr(IsSend ? n.LastSend : n.LastRecv);
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.Last].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 				DateTime? last = IsSend ? n.LastSend : n.LastRecv;
 
 
 				subitem++;      // Last Days
-				string lastDaysStr = last is null ? "" : $"{(DateTime.Now - (DateTime)last).TotalDays:N1}";
-				TextRenderer.DrawText(gfx, lastDaysStr, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				txt = last is null ? "" : $"{(DateTime.Now - (DateTime)last).TotalDays:N1}";
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.LastDays].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 				subitem++;      // Last Hours
-				string lastHrsStr = last is null ? "" : $"{(DateTime.Now - (DateTime)last).TotalHours:N1}";
-				TextRenderer.DrawText(gfx, lastHrsStr, Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				txt = last is null ? "" : $"{(DateTime.Now - (DateTime)last).TotalHours:N1}";
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.LastHours].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
-				subitem++;	// Count
-				TextRenderer.DrawText(gfx, IsSend ? n.CntSend+" " : n.CntRecv+" ", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				subitem++;     // Count
+				txt = IsSend ? n.CntSend + " " : n.CntRecv + " ";
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.Count].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
-				subitem++;	// Rate
-				TextRenderer.DrawText(gfx, $"{giftRate:P0}", Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				subitem++;     // Rate
+				txt = $"{giftRate:P0}";
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.Rate].Bounds, fontCol, TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 				subitem++;     // Added
-				TextRenderer.DrawText(gfx, Utils.GetAgeStr(n.Added), Font, lvi.SubItems[subitem].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+				txt = Utils.GetAgeStr(n.Added);
+				colAutoWidth[subitem] = Math.Max(colAutoWidth[subitem], TextRenderer.MeasureText(txt, Font).Width);// + 25;
+				TextRenderer.DrawText(gfx, txt, Font,
+					lvi.SubItems[(int)LvExMainColumns.Added].Bounds, fontCol, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
 
 
 
@@ -299,6 +332,16 @@ public class LvExMain:ListView
 
 		}
 	}
+
+
+
+	public void AutoResizeColumns()
+	{
+		for(int i = 0; i < cntColumns; i++) Columns[i].Width = colAutoWidth[i];
+	}
+
+
+	
 
 
 

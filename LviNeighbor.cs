@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
-
-namespace ACgifts;
+﻿namespace ACgifts;
 
 
 internal class LviNeighbor:ListViewItem

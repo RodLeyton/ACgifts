@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -7,6 +8,32 @@ using System.Runtime.InteropServices;
 namespace ACgifts;
 internal class Utils
 {
+	private const int WM_VSCROLL = 0x115;
+	private const int SB_BOTTOM = 7;
+	private const int WS_VSCROLL = 0x00200000;
+	//private const int WS_HSCROLL = 0x00100000;
+	private const int GWL_STYLE = -16;
+
+
+
+	[DllImport("user32.dll", CharSet = CharSet.Auto)]
+	private static extern int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
+
+	[DllImport("user32.dll", SetLastError = true)]
+	static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+
+
+
+	public static int GetVertScrollbarWidth(ListView lv)
+	{
+		int wndStyle = GetWindowLong(lv.Handle, GWL_STYLE);
+		if((wndStyle & WS_VSCROLL) != 0) return SystemInformation.VerticalScrollBarWidth;
+		return 0;
+	}
+
+
+
 	public static void ShowContextOnScreen(Form frm, ContextMenuStrip ctxMenu, Point ptScrn)
 	{
 		Rectangle rcScrn = Screen.FromControl(frm).Bounds;
@@ -44,11 +71,6 @@ internal class Utils
 		}
 	}
 
-	[DllImport("user32.dll", CharSet = CharSet.Auto)]
-	private static extern int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
-
-	private const int WM_VSCROLL = 0x115;
-	private const int SB_BOTTOM = 7;
 
 	public static void ScrollToBottom(TextBox tb)
 	{
@@ -113,4 +135,33 @@ internal class Utils
 	}
 
 
+
+	public static void OpenUrl(string url)
+	{
+		try
+		{
+			Process.Start(url);
+		}
+		catch
+		{
+			// hack because of this: https://github.com/dotnet/corefx/issues/10361
+			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				url = url.Replace("&", "^&");
+				Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+			}
+			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				Process.Start("xdg-open", url);
+			}
+			else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+			{
+				Process.Start("open", url);
+			}
+			else
+			{
+				throw;
+			}
+		}
+	}
 }
