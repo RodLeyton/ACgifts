@@ -91,35 +91,6 @@ internal partial class EditForm:Form
 		data.Restore();
 		this.Enabled = true;
 	}
-	private void ButDir_MouseUp(object sender, MouseEventArgs e)
-	{
-		try
-		{
-			if(e.Button == MouseButtons.Left)
-			{
-				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
-				{
-					FileName = Program.GetAppDir(),
-					UseShellExecute = true,
-					Verb = "open"
-				});
-				return;
-			}
-
-			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
-			{
-				FileName = Environment.CurrentDirectory,
-				UseShellExecute = true,
-				Verb = "open"
-			});
-			return;
-		}
-		catch(Exception ex) { Program.Log("EditForm.ButDir_MouseUp", ex); }
-	}
-	private void ButLog_Click(object sender, EventArgs e)
-	{
-		LogViewForm.ShowFile("Application Log", Program.GetLogFile(), Program.GetLogContent(), this, true);
-	}
 	private void ButMoveUp_Click(object sender, EventArgs e)
 	{
 		if(dgvData.SelectedRows.Count == 0) return;

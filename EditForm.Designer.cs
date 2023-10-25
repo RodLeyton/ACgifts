@@ -35,10 +35,8 @@ partial class EditForm
 		label1 = new Label();
 		butBackup = new Button();
 		butRestore = new Button();
-		butDir = new Button();
 		butMoveUp = new Button();
 		butMoveDown = new Button();
-		butLog = new Button();
 		butExport = new Button();
 		butSave = new Button();
 		((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
@@ -108,16 +106,6 @@ partial class EditForm
 		butRestore.UseVisualStyleBackColor = true;
 		butRestore.Click += ButRestore_Click;
 		// 
-		// butDir
-		// 
-		butDir.Location = new Point(692, 12);
-		butDir.Name = "butDir";
-		butDir.Size = new Size(36, 23);
-		butDir.TabIndex = 7;
-		butDir.Text = "Dir";
-		butDir.UseVisualStyleBackColor = true;
-		butDir.MouseUp += ButDir_MouseUp;
-		// 
 		// butMoveUp
 		// 
 		butMoveUp.Location = new Point(226, 12);
@@ -137,16 +125,6 @@ partial class EditForm
 		butMoveDown.Text = "Dn";
 		butMoveDown.UseVisualStyleBackColor = true;
 		butMoveDown.Click += ButMoveDown_Click;
-		// 
-		// butLog
-		// 
-		butLog.Location = new Point(734, 12);
-		butLog.Name = "butLog";
-		butLog.Size = new Size(36, 23);
-		butLog.TabIndex = 10;
-		butLog.Text = "Log";
-		butLog.UseVisualStyleBackColor = true;
-		butLog.Click += ButLog_Click;
 		// 
 		// butExport
 		// 
@@ -175,10 +153,8 @@ partial class EditForm
 		ClientSize = new Size(784, 461);
 		Controls.Add(butSave);
 		Controls.Add(butExport);
-		Controls.Add(butLog);
 		Controls.Add(butMoveDown);
 		Controls.Add(butMoveUp);
-		Controls.Add(butDir);
 		Controls.Add(butRestore);
 		Controls.Add(butBackup);
 		Controls.Add(label1);
@@ -203,10 +179,8 @@ partial class EditForm
 	private Label label1;
 	private Button butBackup;
 	private Button butRestore;
-	private Button butDir;
 	private Button butMoveUp;
 	private Button butMoveDown;
-	private Button butLog;
 	private Button butExport;
 	private Button butSave;
 }

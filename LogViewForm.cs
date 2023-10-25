@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.VisualBasic;
-
-namespace ACgifts;
+﻿namespace ACgifts;
 
 
 

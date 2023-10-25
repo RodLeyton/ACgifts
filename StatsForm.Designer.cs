@@ -38,7 +38,7 @@ partial class StatsForm
 		lvGroups.FullRowSelect = true;
 		lvGroups.Location = new Point(12, 12);
 		lvGroups.Name = "lvGroups";
-		lvGroups.Size = new Size(460, 228);
+		lvGroups.Size = new Size(706, 228);
 		lvGroups.TabIndex = 0;
 		lvGroups.UseCompatibleStateImageBehavior = false;
 		lvGroups.View = View.Details;
@@ -49,7 +49,7 @@ partial class StatsForm
 		lvNeighbors.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 		lvNeighbors.Location = new Point(12, 258);
 		lvNeighbors.Name = "lvNeighbors";
-		lvNeighbors.Size = new Size(460, 191);
+		lvNeighbors.Size = new Size(706, 191);
 		lvNeighbors.TabIndex = 1;
 		lvNeighbors.UseCompatibleStateImageBehavior = false;
 		lvNeighbors.View = View.Details;
@@ -58,7 +58,7 @@ partial class StatsForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
-		ClientSize = new Size(484, 461);
+		ClientSize = new Size(730, 461);
 		Controls.Add(lvNeighbors);
 		Controls.Add(lvGroups);
 		MinimumSize = new Size(500, 500);
