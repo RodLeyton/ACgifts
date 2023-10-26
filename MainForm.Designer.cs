@@ -33,6 +33,7 @@ partial class MainForm
 		ToolStripSeparator toolStripSeparator2;
 		ToolStripSeparator toolStripSeparator3;
 		ToolStripSeparator toolStripSeparator4;
+		ToolStripSeparator toolStripSeparator5;
 		System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 		menuFile = new ToolStripMenuItem();
 		menuBackup = new ToolStripMenuItem();
@@ -78,10 +79,12 @@ partial class MainForm
 		label5 = new Label();
 		spliter = new SplitContainer();
 		menuStrip = new MenuStrip();
+		menuChangelog = new ToolStripMenuItem();
 		toolStripSeparator1 = new ToolStripSeparator();
 		toolStripSeparator2 = new ToolStripSeparator();
 		toolStripSeparator3 = new ToolStripSeparator();
 		toolStripSeparator4 = new ToolStripSeparator();
+		toolStripSeparator5 = new ToolStripSeparator();
 		groupBox1.SuspendLayout();
 		gbGroup.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)spliter).BeginInit();
@@ -109,7 +112,7 @@ partial class MainForm
 		// toolStripSeparator4
 		// 
 		toolStripSeparator4.Name = "toolStripSeparator4";
-		toolStripSeparator4.Size = new Size(163, 6);
+		toolStripSeparator4.Size = new Size(177, 6);
 		// 
 		// menuFile
 		// 
@@ -218,7 +221,7 @@ partial class MainForm
 		// 
 		// menuHelp
 		// 
-		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuGitHub, menuForum, toolStripSeparator4, menuViewLog, menuDataDir, menuAppDir });
+		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuGitHub, menuForum, toolStripSeparator4, menuViewLog, menuChangelog, toolStripSeparator5, menuDataDir, menuAppDir });
 		menuHelp.Name = "menuHelp";
 		menuHelp.Size = new Size(44, 20);
 		menuHelp.Text = "Help";
@@ -227,55 +230,55 @@ partial class MainForm
 		// 
 		menuHelpHeader.Enabled = false;
 		menuHelpHeader.Name = "menuHelpHeader";
-		menuHelpHeader.Size = new Size(166, 22);
+		menuHelpHeader.Size = new Size(180, 22);
 		menuHelpHeader.Text = "Opens in browser";
 		// 
 		// menuWebsite
 		// 
 		menuWebsite.Name = "menuWebsite";
-		menuWebsite.Size = new Size(166, 22);
+		menuWebsite.Size = new Size(180, 22);
 		menuWebsite.Text = "Website";
 		menuWebsite.Click += Menu_Website_Click;
 		// 
 		// menuFAQ
 		// 
 		menuFAQ.Name = "menuFAQ";
-		menuFAQ.Size = new Size(166, 22);
+		menuFAQ.Size = new Size(180, 22);
 		menuFAQ.Text = "FAQ";
 		menuFAQ.Click += Menu_FAQ_Click;
 		// 
 		// menuGitHub
 		// 
 		menuGitHub.Name = "menuGitHub";
-		menuGitHub.Size = new Size(166, 22);
+		menuGitHub.Size = new Size(180, 22);
 		menuGitHub.Text = "Github";
 		menuGitHub.Click += Menu_GitHub_Click;
 		// 
 		// menuForum
 		// 
 		menuForum.Name = "menuForum";
-		menuForum.Size = new Size(166, 22);
+		menuForum.Size = new Size(180, 22);
 		menuForum.Text = "Forum";
 		menuForum.Click += Menu_Forum_Click;
 		// 
 		// menuViewLog
 		// 
 		menuViewLog.Name = "menuViewLog";
-		menuViewLog.Size = new Size(166, 22);
+		menuViewLog.Size = new Size(180, 22);
 		menuViewLog.Text = "View logfile";
 		menuViewLog.Click += MenuViewLog_Click;
 		// 
 		// menuDataDir
 		// 
 		menuDataDir.Name = "menuDataDir";
-		menuDataDir.Size = new Size(166, 22);
+		menuDataDir.Size = new Size(180, 22);
 		menuDataDir.Text = "Open Data Dir";
 		menuDataDir.Click += MenuDataDir_Click;
 		// 
 		// menuAppDir
 		// 
 		menuAppDir.Name = "menuAppDir";
-		menuAppDir.Size = new Size(166, 22);
+		menuAppDir.Size = new Size(180, 22);
 		menuAppDir.Text = "Open App Dir";
 		menuAppDir.Click += MenuAppDir_Click;
 		// 
@@ -525,6 +528,18 @@ partial class MainForm
 		menuStrip.TabIndex = 18;
 		menuStrip.Text = "Main Menu";
 		// 
+		// menuChangelog
+		// 
+		menuChangelog.Name = "menuChangelog";
+		menuChangelog.Size = new Size(180, 22);
+		menuChangelog.Text = "View Changelog";
+		menuChangelog.Click += MenuChangelog_Click;
+		// 
+		// toolStripSeparator5
+		// 
+		toolStripSeparator5.Name = "toolStripSeparator5";
+		toolStripSeparator5.Size = new Size(177, 6);
+		// 
 		// MainForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
@@ -608,4 +623,5 @@ partial class MainForm
 	private ToolStripMenuItem menuDataDir;
 	private ToolStripMenuItem menuAppDir;
 	private ToolStripMenuItem menuResetLayout;
+	private ToolStripMenuItem menuChangelog;
 }

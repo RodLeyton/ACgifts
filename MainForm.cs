@@ -88,7 +88,10 @@ public partial class MainForm:Form
 			if(Program.Version != Program.appConfig.InstalledVersion)
 			{
 				Program.appConfig.InstalledVersion = Program.Version;
-				LogViewForm.ShowFile($"Updated to {Program.Version}, showing change log", Path.Combine(Program.GetAppDir(), "Changelog.txt"), this);
+				new LogViewForm($"Updated to {Program.Version}, showing change log",
+					new Uri("https://rodleyton.github.io/ACgifts/changelog.txt"),
+					Path.Combine(Program.GetAppDir(), "Changelog.txt")
+				).ShowDialog();
 			}
 		}
 
@@ -186,12 +189,15 @@ public partial class MainForm:Form
 	private void MenuRestore_Click(object sender, EventArgs e)
 	{
 		data.Restore();
+		UpdateGroupsLV();
 	}
 	private void MenuImport_Click(object sender, EventArgs e)
 	{
 		OpenFileDialog ofd = new() { Filter = "csv|*.csv" };
 		if(ofd.ShowDialog() == DialogResult.OK)
 			data.Import(ofd.FileName);
+
+		UpdateGroupsLV();
 	}
 	private void MenuExport_Click(object sender, EventArgs e)
 	{
@@ -232,7 +238,7 @@ public partial class MainForm:Form
 	}
 	private void MenuViewLog_Click(object sender, EventArgs e)
 	{
-		LogViewForm.ShowFile("Application Log", Program.GetLogFile(), Program.GetLogContent(), this, true);
+		new LogViewForm("Application Log", Program.GetLogFile(), Program.GetLogContent()).ShowDialog();
 	}
 	private void MenuDataDir_Click(object sender, EventArgs e)
 	{
@@ -266,13 +272,19 @@ public partial class MainForm:Form
 		if(MessageBox.Show("This will reset all customisations to this form and cannot be undone,\r\nAre you sure?", "ACgifts - Reset form?",
 			MessageBoxButtons.YesNoCancel) != DialogResult.Yes) return;
 
-		Program.Log("MainForm.MenuResetLayout","Resetting config and layout");
+		Program.Log("MainForm.MenuResetLayout", "Resetting config and layout");
 		Program.appConfig.Reset();
 		LoadColumnConfig();
 		MenuAutoWidthAll_Click(null, null);
 		cbSortOrder.SelectedIndex = Program.appConfig.SortOrder;
 	}
-
+	private void MenuChangelog_Click(object sender, EventArgs e)
+	{
+		new LogViewForm($"Changelog - Current version: {Program.Version}",
+			new Uri("https://rodleyton.github.io/ACgifts/changelog.txt"),
+			Path.Combine(Program.GetAppDir(), "Changelog.txt")
+		).ShowDialog();
+	}
 
 
 	private void ButSendAll_Click(object sender, EventArgs e)
@@ -570,8 +582,8 @@ No => Send a gift to everyone";
 		if(detailForm.Visible) detailForm.Visible = false;
 		else detailForm.UpdateData(lvi.Neighbor, lvSend.PointToScreen(e.Location), RefreshForm);
 	}
-	
-	
+
+
 	private void LvEx_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 	{
 		if(ignoreColumnChanges) return;
@@ -728,7 +740,7 @@ No => Send a gift to everyone";
 	{
 		if(sender is not ContextMenuStrip cms) return;
 
-		cms.Items.Clear(); 
+		cms.Items.Clear();
 		cms.Items.Add(new ToolStripMenuItem("Avaliable columns") { Enabled = false });
 
 		if(cms.Tag is not LvExMain lv) throw new Exception("Head Context Menu had incorrect Tag");

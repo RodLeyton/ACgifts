@@ -35,6 +35,8 @@ partial class LogViewForm
 		// 
 		// tbLog
 		// 
+		tbLog.AcceptsReturn = true;
+		tbLog.AcceptsTab = true;
 		tbLog.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
 		tbLog.Font = new Font("Cascadia Mono", 9F, FontStyle.Regular, GraphicsUnit.Point);
 		tbLog.Location = new Point(12, 12);
@@ -43,6 +45,7 @@ partial class LogViewForm
 		tbLog.ScrollBars = ScrollBars.Both;
 		tbLog.Size = new Size(760, 447);
 		tbLog.TabIndex = 0;
+		tbLog.WordWrap = false;
 		// 
 		// labLocation
 		// 
@@ -68,6 +71,8 @@ partial class LogViewForm
 		Name = "LogViewForm";
 		StartPosition = FormStartPosition.CenterParent;
 		Text = "ACgifts - Logs";
+		FormClosing += LogViewForm_FormClosing;
+		Shown += LogViewForm_Shown;
 		ResumeLayout(false);
 		PerformLayout();
 	}

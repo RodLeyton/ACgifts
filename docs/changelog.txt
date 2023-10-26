@@ -4,6 +4,13 @@ Latest version with planned updates can be found at https://rodleyton.github.io/
 
 
 
+Planned in next release
+-------------------------------------------------------------------------------
+
+
+
+
+
 --> Latest release v1.0.0.26  -  2023-10-26
 -------------------------------------------------------------------------------
 Added ability to resize Send and Recv panels, along with multiple extra columns.
