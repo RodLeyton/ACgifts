@@ -6,9 +6,11 @@ Latest version with planned updates can be found at https://rodleyton.github.io/
 
 Planned in next release
 -------------------------------------------------------------------------------
-
-
-
+Added keyboard shortcuts to mainForm (space-'search all', b-'send all but')
+Added 'Recv All' button and option in context menu.
+Added ability to cancel '[Send/Recv] [All/All but]' if gifts have been sent or recv'd this session.
+Autoresize Group listbox to show more groups.
+Changelog now downloads changes from website to ensure it is up to date.
 
 
 --> Latest release v1.0.0.26  -  2023-10-26
