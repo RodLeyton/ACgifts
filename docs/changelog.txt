@@ -4,7 +4,7 @@ Latest version with planned updates can be found at https://rodleyton.github.io/
 
 
 
-Planned in next release
+Latest release v1.0.1.0  -  2023-12-07
 -------------------------------------------------------------------------------
 Added keyboard shortcuts to mainForm (space-'search all', b-'send all but')
 Added 'Recv All' button and option in context menu.
@@ -15,7 +15,8 @@ Fixed game name sort order to match AC (which is strange to say the least)
 Added search for neighbor feature
 
 
---> Latest release v1.0.0.26  -  2023-10-26
+
+v1.0.0.26  -  2023-10-26
 -------------------------------------------------------------------------------
 Added ability to resize Send and Recv panels, along with multiple extra columns.
 Added support for resizing, hiding and reordering columns. All saved to config file.
@@ -27,6 +28,7 @@ Added All to group selection.
 Added detail form (left click to display) with ability to view/edit data on a single neighbor.
 Added 'Stats' button to show reliability by group overall with drill down to member.
 Added Menu to main form.
+
 
 
 v1.0.0.25  -  2023-10-14
