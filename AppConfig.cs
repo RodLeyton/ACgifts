@@ -49,7 +49,7 @@ internal class AppConfig
 		SortOrder = (int)LvExMainSortTypes.GAME_NAME;
 
 		RecvCols.Clear();
-		RecvCols.Add(LvExMainColumns.None, new(0, 0));
+		RecvCols.Add(LvExMainColumns.FindAll, new(0, 20));
 		RecvCols.Add(LvExMainColumns.ForumName, new(1, 0));
 		RecvCols.Add(LvExMainColumns.GameName, new(2, 130));
 		RecvCols.Add(LvExMainColumns.Button, new(3, 60));
@@ -62,7 +62,7 @@ internal class AppConfig
 
 
 		SendCols.Clear();
-		SendCols.Add(LvExMainColumns.None, new(0, 0));
+		SendCols.Add(LvExMainColumns.FindAll, new(0, 0));
 		SendCols.Add(LvExMainColumns.ForumName, new(1, 0));
 		SendCols.Add(LvExMainColumns.GameName, new(2, 130));
 		SendCols.Add(LvExMainColumns.Button, new(3, 60));

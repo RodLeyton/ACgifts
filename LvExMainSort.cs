@@ -28,10 +28,13 @@ class LvExMainSort:IComparer
 	public bool IsSend { get; set; }
 	public LvExMainSortTypes SortType { get; set; }
 
+
+
 	public LvExMainSort(bool isSend)
 	{
 		IsSend = isSend;
 		SortType = LvExMainSortTypes.GAME_NAME;
+	
 	}
 
 
@@ -56,8 +59,8 @@ class LvExMainSort:IComparer
 		switch(SortType)
 		{
 			case LvExMainSortTypes.GAME_NAME:
-				if(IsSend) return Comparer.Default.Compare(x.NameSend, y.NameSend);
-				return Comparer.Default.Compare(x.NameRecv, y.NameRecv);
+				if(IsSend) return AC_Sort(x.NameSend, y.NameSend);
+				return AC_Sort(x.NameRecv, y.NameRecv);
 
 			case LvExMainSortTypes.FORUM_NAME:
 				return Comparer.Default.Compare(x.Name, y.Name);
@@ -101,6 +104,23 @@ class LvExMainSort:IComparer
 	{
 		double daysSinceAdded = (DateTime.Now - n.Added).TotalDays;
 		return (IsSend ? n.CntSend : n.CntRecv) / Math.Max(1, daysSinceAdded);
+	}
+
+
+	private int AC_Sort(string a, string b)
+	{
+		int pos = 0;
+
+		while(true)
+		{
+			if(a.Length <= pos) return 1;
+			if(b.Length <= pos) return -1;
+
+			int ia = (int)(char)a[pos];
+			int ib = (int)(char)b[pos];
+			if(ia != ib) return ia < ib ? -1 : 1;
+			pos++;
+		}
 	}
 
 

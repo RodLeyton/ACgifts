@@ -11,6 +11,8 @@ Added 'Recv All' button and option in context menu.
 Added ability to cancel '[Send/Recv] [All/All but]' if gifts have been sent or recv'd this session.
 Autoresize Group listbox to show more groups.
 Changelog now downloads changes from website to ensure it is up to date.
+Fixed game name sort order to match AC (which is strange to say the least)
+Added search for neighbor feature
 
 
 --> Latest release v1.0.0.26  -  2023-10-26

@@ -2,12 +2,14 @@
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using ACgifts.Properties;
 
 namespace ACgifts;
 
 public enum LvExMainColumns:int
 {
-	None = 0,
+	[Description("")]
+	FindAll = 0,
 	[Description("Forum Name")]
 	ForumName = 1,
 	[Description("Game Name")]
@@ -44,7 +46,7 @@ public class LvExMain:ListView
 	private readonly int cntColumns;
 	private readonly int[] colAutoWidth;
 	private bool mb_Measured = false;
-	private int ms32_RowHeight = 20;
+	private int ms32_RowHeight = 32;
 
 	#region Windows API
 
@@ -107,6 +109,11 @@ public class LvExMain:ListView
 			ms32_RowHeight = value;
 		}
 	}
+
+
+	[Description("Gets the width of the search icon in the first column.")]
+	public int SearchColWidth { get { return (int)(0.6f * ms32_RowHeight); } }
+
 
 	[Category("Context Menu")]
 	[Description("Shows a context menu for column headers.")]
@@ -251,7 +258,17 @@ public class LvExMain:ListView
 				#endregion
 
 				string txt = "";
-				int subitem = 0;	// Lvi Text/subitem[0] is ignored due to Bounds bug, therefor will always be empty.
+				int subitem = 0;    // Lvi Text/subitem[0] is ignored due to Bounds bug, therefor will always be empty.
+				if(!IsSend)
+				{
+					colAutoWidth[subitem] = SearchColWidth;
+					int padH = 3;
+					int sz = SearchColWidth - (2 * padH);
+					int padV = (RowHeight - sz) / 2;
+					gfx.DrawImage(Properties.Resources.search, lvi.Bounds.X + padH, lvi.Bounds.Y + padV, sz, sz);
+				}
+				else colAutoWidth[subitem] = 0;
+
 
 				subitem++;     // Forum Name
 				txt = n.Name;

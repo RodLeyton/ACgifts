@@ -116,7 +116,11 @@ public partial class MainForm:Form
 	}
 	private void MainForm_Resize(object? sender, EventArgs? e)
 	{
-		butSendAll.Left = Math.Max(spliter.Left + spliter.Panel2.Left, cbSortOrder.Right + 20);
+		butRecvAll.Left = cbSortOrder.Right + 14;
+		butSearch.Left = butRecvAll.Right + 14;
+		butSendAll.Left = Math.Max(spliter.Left + spliter.Panel2.Left, butSearch.Right + 14);
+		gbGroup.Top = lbGroups.Bottom + 10;
+		gbToday.Top = gbGroup.Bottom + 10;
 	}
 	private void MainForm_ResizeEnd(object sender, EventArgs e)
 	{
@@ -181,6 +185,7 @@ public partial class MainForm:Form
 	private void Menu_Edit_Click(object sender, EventArgs e)
 	{
 		new EditForm(data).ShowDialog();
+		UpdateGroupsLV();
 	}
 	private void MenuBackup_Click(object sender, EventArgs e)
 	{
@@ -289,54 +294,12 @@ public partial class MainForm:Form
 
 	private void ButSendAll_Click(object sender, EventArgs e)
 	{
-		bool skipSentAlready = false, skipAsked = false;
-		timer1.Enabled = false;
-
-
-		foreach(object obj in lvSend.Items)
-		{
-			if(obj is not LviNeighbor lvi) throw new Exception($"lvSend contains an invalid item. {obj}");
-
-			if(lvi.SendThisSess && !skipAsked)
-			{
-				string msg = @"Some gifts have already been sent to these neighbors during this session.
-Do you want to skip these and not send again?
-
-Yes => only send to those you have not sent a gift to already,
-No => Send a gift to everyone";
-				if(MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNo) == DialogResult.Yes) skipSentAlready = true;
-				skipAsked = true;
-			}
-			if(lvi.SendThisSess && skipSentAlready) continue;
-
-			lvi.AddSend();
-			sentGroup++;
-			sentToday++;
-		}
-
-		lvSend.Refresh();
-		UpdateTotals();
-		timer1.Enabled = true;
-
-
-		Task.Run(async delegate
-		{
-			await Task.Delay(LvExMain.BUT_DISABLE_MILLIS + 10);
-			if(IsDisposed || !IsHandleCreated || Disposing) return;
-			if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
-			else lvSend.Refresh();
-		});
+		SendAllBut(null);
 	}
-	private void ButEdit_Click(object sender, EventArgs e)
+	private void ButRecvAll_Click(object sender, EventArgs e)
 	{
-		new EditForm(data).ShowDialog(this);
-		UpdateGroupsLV();
+		RecvAllBut(null);
 	}
-	private void ButAnalysis_Click(object sender, EventArgs e)
-	{
-		new StatsForm(data).ShowDialog();
-	}
-
 
 
 	private void UpdateTotals()
@@ -383,7 +346,8 @@ No => Send a gift to everyone";
 	private static void SaveLvColConfig(LvExMain lv)
 	{
 		if(lv.Columns[0].DisplayIndex != 0) lv.Columns[0].DisplayIndex = 0;
-		if(lv.Columns[0].Width > 0) lv.Columns[0].Width = 0;
+		if(lv.IsSend && lv.Columns[0].Width > 0) lv.Columns[0].Width = 0;
+		if(!lv.IsSend && lv.Columns[0].Width != lv.SearchColWidth) lv.Columns[0].Width = lv.SearchColWidth;
 
 		Dictionary<LvExMainColumns, ColumnConfig> colConfig = lv.IsSend ? Program.appConfig.SendCols : Program.appConfig.RecvCols;
 
@@ -482,6 +446,8 @@ No => Send a gift to everyone";
 
 			cm.Items.Add(new ToolStripMenuItem($"Find '{lvi.ForumName}' in all groups", null, CtxFindSimalar) { Tag = lvi.Neighbor });
 			cm.Items.Add(new ToolStripSeparator());
+			cm.Items.Add(new ToolStripMenuItem($"Recv from all but '{lvi.NameRecv}'", null, CtxRecvAllBut) { Tag = lvi.Neighbor });
+			cm.Items.Add(new ToolStripSeparator());
 
 			if(lvi.RecvThisSess)
 				cm.Items.Add(new ToolStripMenuItem($"Undo Recv from '{lvi.NameRecv}'", null, CtxUndoRecv) { Tag = lvi.Neighbor });
@@ -491,6 +457,11 @@ No => Send a gift to everyone";
 			return;
 		}
 
+		if(hitTest.Item.SubItems.IndexOf(hitTest.SubItem) == (int)LvExMainColumns.FindAll)
+		{
+			LvEx_FindSimalar(lvi.Neighbor);
+			return;
+		}
 
 		if(hitTest.Item.SubItems.IndexOf(hitTest.SubItem) == (int)LvExMainColumns.Button)
 		{
@@ -587,7 +558,15 @@ No => Send a gift to everyone";
 	private void LvEx_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
 	{
 		if(ignoreColumnChanges) return;
-		if(e.ColumnIndex == 0) e.Cancel = true;
+		if(e.ColumnIndex == 0)
+		{
+			e.Cancel = true;
+			if(sender is not LvExMain lv) return;
+
+			if(lv.Columns[0].DisplayIndex != 0) lv.Columns[0].DisplayIndex = 0;
+			if(lv.IsSend && lv.Columns[0].Width > 0) lv.Columns[0].Width = 0;
+			if(!lv.IsSend && lv.Columns[0].Width != lv.SearchColWidth) lv.Columns[0].Width = lv.SearchColWidth;
+		}
 	}
 	private void LvEx_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
 	{
@@ -613,34 +592,38 @@ No => Send a gift to everyone";
 	}
 
 
-
-
-
-	private void CtxSendAllBut(object? sender, EventArgs? e)
+	private void SendAllBut(Neighbor? nNoSend)
 	{
-		if(sender is not ToolStripMenuItem tsmi) return;
-		if(tsmi.Tag is not Neighbor nNoSend) return;
-
-		bool skipSentAlready = false, skipAsked = false;
-		timer1.Enabled = false;
-
+		bool skipSentAlready = true;
+		DialogResult res = DialogResult.No;
 
 		foreach(object obj in lvSend.Items)
 		{
 			if(obj is not LviNeighbor lvi) throw new Exception($"lvSend contains an invalid item. {obj}");
-
 			if(lvi.Neighbor.Equals(nNoSend)) continue;
 
-			if(lvi.SendThisSess && !skipAsked)
+			if(lvi.SendThisSess)
 			{
 				string msg = @"Some gifts have already been sent to these neighbors during this session.
 Do you want to skip these and not send again?
 
 Yes => only send to those you have not sent a gift to already,
-No => Send a gift to everyone";
-				if(MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNo) == DialogResult.Yes) skipSentAlready = true;
-				skipAsked = true;
+No  => Send a gift to everyone";
+
+				res = MessageBox.Show(msg, "ACgifts - Some gifts already sent", MessageBoxButtons.YesNoCancel);
+				if(res == DialogResult.Cancel) return;
+				skipSentAlready = res == DialogResult.Yes;
+				break;
 			}
+		}
+
+
+		timer1.Enabled = false;
+
+		foreach(object obj in lvSend.Items)
+		{
+			if(obj is not LviNeighbor lvi) throw new Exception($"lvSend contains an invalid item. {obj}");
+			if(lvi.Neighbor.Equals(nNoSend)) continue;
 			if(lvi.SendThisSess && skipSentAlready) continue;
 
 			lvi.AddSend();
@@ -660,6 +643,100 @@ No => Send a gift to everyone";
 			if(lvSend.InvokeRequired) lvSend.Invoke(() => lvSend.Refresh());
 			else lvSend.Refresh();
 		});
+	}
+	private void RecvAllBut(Neighbor? nNoRecv)
+	{
+		bool skipRecvAlready = true;
+		DialogResult res = DialogResult.No;
+
+		foreach(object obj in lvSend.Items)
+		{
+			if(obj is not LviNeighbor lvi) throw new Exception($"lvRecv contains an invalid item. {obj}");
+			if(lvi.Neighbor.Equals(nNoRecv)) continue;
+			if(lvi.RecvThisSess)
+			{
+				string msg = @"Some neighbors selected have already sent a gift this session.
+Do you want to skip these and not receive another?
+
+Yes => Only from those you have not received a gift from already,
+No => Receive gifts from everyone";
+
+				res = MessageBox.Show(msg, "ACgifts - Some gifts already received", MessageBoxButtons.YesNoCancel);
+				if(res == DialogResult.Cancel) return;
+				skipRecvAlready = res == DialogResult.Yes;
+				break;
+			}
+		}
+
+		timer1.Enabled = false;
+
+		foreach(object obj in lvRecv.Items)
+		{
+			if(obj is not LviNeighbor lvi) throw new Exception($"lvRecv contains an invalid item. {obj}");
+			if(lvi.Neighbor.Equals(nNoRecv)) continue;
+			if(lvi.RecvThisSess && skipRecvAlready) continue;
+
+			lvi.AddRecv();
+			recvGroup++;
+			recvToday++;
+		}
+
+		lvRecv.Refresh();
+		UpdateTotals();
+		timer1.Enabled = true;
+
+
+		Task.Run(async delegate
+		{
+			await Task.Delay(LvExMain.BUT_DISABLE_MILLIS + 10);
+			if(IsDisposed || !IsHandleCreated || Disposing) return;
+			if(lvRecv.InvokeRequired) lvRecv.Invoke(() => lvRecv.Refresh());
+			else lvRecv.Refresh();
+		});
+	}
+	private void ButSearch_Click(object sender, EventArgs e)
+	{
+		List<Neighbor> nList = SearchForm.DoSearch(data, this);
+		if(nList.Count < 1) return;
+
+		gbGroup.Text = "";
+		lbGroups.ClearSelected();
+		sentGroup = 0;
+		recvGroup = 0;
+		sentToday = 0;
+		recvToday = 0;
+		cntGroup = 0;
+
+		lvRecv.BeginUpdate();
+		lvRecv.Items.Clear();
+
+		lvSend.BeginUpdate();
+		lvSend.Items.Clear();
+
+
+		foreach(Neighbor n in nList)
+		{
+			if(n.HasSendToday) sentToday++;
+			if(n.HasRecvToday) recvToday++;
+			lvRecv.Items.Add(new LviNeighbor(n));
+			lvSend.Items.Add(new LviNeighbor(n));
+		}
+
+		lvRecv.EndUpdate();
+		lvSend.EndUpdate();
+		UpdateTotals();
+		SortLvs();
+	}
+
+	private void CtxSendAllBut(object? sender, EventArgs? e)
+	{
+		if(sender is not ToolStripMenuItem tsmi) return;
+		if(tsmi.Tag is Neighbor nNoSend) SendAllBut(nNoSend);
+	}
+	private void CtxRecvAllBut(object? sender, EventArgs? e)
+	{
+		if(sender is not ToolStripMenuItem tsmi) return;
+		if(tsmi.Tag is Neighbor nNoRecv) RecvAllBut(nNoRecv);
 	}
 	private void CtxUndoSend(object? sender, EventArgs? e)
 	{
@@ -694,8 +771,12 @@ No => Send a gift to everyone";
 	private void CtxFindSimalar(object? sender, EventArgs? e)
 	{
 		if(sender is not ToolStripMenuItem tsmi) return;
-		if(tsmi.Tag is not Neighbor nFind) return;
+		if(tsmi.Tag is Neighbor nFind) LvEx_FindSimalar(nFind);
+	}
 
+
+	private void LvEx_FindSimalar(Neighbor nFind)
+	{
 		gbGroup.Text = "";
 		lbGroups.ClearSelected();
 		sentGroup = 0;
@@ -733,7 +814,6 @@ No => Send a gift to everyone";
 		UpdateTotals();
 		SortLvs();
 	}
-
 
 
 	private void LvEx_HeadCtxMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -790,5 +870,59 @@ No => Send a gift to everyone";
 	}
 
 
+	private void MainForm_KeyUp(object sender, KeyEventArgs e)
+	{
+		e.Handled = false;
+		Point mousePos;
+		ListViewHitTestInfo hitTest;
+
+		switch(e.KeyCode)
+		{
+			case Keys.Space:
+				mousePos = lvRecv.PointToClient(Control.MousePosition);
+				hitTest = lvRecv.HitTest(mousePos);
+				if(hitTest.Item is LviNeighbor lvi)
+				{
+					e.Handled = true;
+					LvEx_FindSimalar(lvi.Neighbor);
+					lvRecv.Focus();
+					return;
+				}
+
+				mousePos = lvSend.PointToClient(Control.MousePosition);
+				hitTest = lvSend.HitTest(mousePos);
+				if(hitTest.Item is LviNeighbor lvi2)
+				{
+					e.Handled = true;
+					LvEx_FindSimalar(lvi2.Neighbor);
+					lvSend.Focus();
+					return;
+				};
+				return;
+
+			case Keys.B:
+				mousePos = lvSend.PointToClient(Control.MousePosition);
+				hitTest = lvSend.HitTest(mousePos);
+				if(hitTest.Item is LviNeighbor lvi3)
+				{
+					e.Handled = true;
+					SendAllBut(lvi3.Neighbor);
+					lvSend.Focus();
+					return;
+				}
+
+
+				mousePos = lvRecv.PointToClient(Control.MousePosition);
+				hitTest = lvRecv.HitTest(mousePos);
+				if(hitTest.Item is LviNeighbor lvi4)
+				{
+					e.Handled = true;
+					RecvAllBut(lvi4.Neighbor);
+					lvRecv.Focus();
+					return;
+				}
+				return;
+		}
+	}
 
 }

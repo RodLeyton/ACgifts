@@ -4,10 +4,10 @@
 
 public partial class LogViewForm:Form
 {
-	HttpClient? httpClient = null;
-	private string? loadFile = null;
-	private Task<string>? stringTask = null;
-	private bool scrollBottom = false;
+	readonly HttpClient? httpClient = null;
+	private readonly string? loadFile = null;
+	private readonly Task<string>? stringTask = null;
+	private readonly bool scrollBottom = false;
 
 
 	/// <summary>

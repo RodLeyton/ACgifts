@@ -54,9 +54,9 @@ partial class MainForm
 		menuHelpHeader = new ToolStripMenuItem();
 		menuWebsite = new ToolStripMenuItem();
 		menuFAQ = new ToolStripMenuItem();
-		menuGitHub = new ToolStripMenuItem();
 		menuForum = new ToolStripMenuItem();
 		menuViewLog = new ToolStripMenuItem();
+		menuChangelog = new ToolStripMenuItem();
 		menuDataDir = new ToolStripMenuItem();
 		menuAppDir = new ToolStripMenuItem();
 		butSendAll = new Button();
@@ -69,7 +69,7 @@ partial class MainForm
 		labRecv = new Label();
 		labSentToday = new Label();
 		labRecvToday = new Label();
-		groupBox1 = new GroupBox();
+		gbToday = new GroupBox();
 		label3 = new Label();
 		label2 = new Label();
 		gbGroup = new GroupBox();
@@ -79,13 +79,14 @@ partial class MainForm
 		label5 = new Label();
 		spliter = new SplitContainer();
 		menuStrip = new MenuStrip();
-		menuChangelog = new ToolStripMenuItem();
+		butRecvAll = new Button();
+		butSearch = new Button();
 		toolStripSeparator1 = new ToolStripSeparator();
 		toolStripSeparator2 = new ToolStripSeparator();
 		toolStripSeparator3 = new ToolStripSeparator();
 		toolStripSeparator4 = new ToolStripSeparator();
 		toolStripSeparator5 = new ToolStripSeparator();
-		groupBox1.SuspendLayout();
+		gbToday.SuspendLayout();
 		gbGroup.SuspendLayout();
 		((System.ComponentModel.ISupportInitialize)spliter).BeginInit();
 		spliter.Panel1.SuspendLayout();
@@ -112,7 +113,12 @@ partial class MainForm
 		// toolStripSeparator4
 		// 
 		toolStripSeparator4.Name = "toolStripSeparator4";
-		toolStripSeparator4.Size = new Size(177, 6);
+		toolStripSeparator4.Size = new Size(163, 6);
+		// 
+		// toolStripSeparator5
+		// 
+		toolStripSeparator5.Name = "toolStripSeparator5";
+		toolStripSeparator5.Size = new Size(163, 6);
 		// 
 		// menuFile
 		// 
@@ -221,7 +227,7 @@ partial class MainForm
 		// 
 		// menuHelp
 		// 
-		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuGitHub, menuForum, toolStripSeparator4, menuViewLog, menuChangelog, toolStripSeparator5, menuDataDir, menuAppDir });
+		menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuHelpHeader, menuWebsite, menuFAQ, menuForum, toolStripSeparator4, menuViewLog, menuChangelog, toolStripSeparator5, menuDataDir, menuAppDir });
 		menuHelp.Name = "menuHelp";
 		menuHelp.Size = new Size(44, 20);
 		menuHelp.Text = "Help";
@@ -230,61 +236,61 @@ partial class MainForm
 		// 
 		menuHelpHeader.Enabled = false;
 		menuHelpHeader.Name = "menuHelpHeader";
-		menuHelpHeader.Size = new Size(180, 22);
+		menuHelpHeader.Size = new Size(166, 22);
 		menuHelpHeader.Text = "Opens in browser";
 		// 
 		// menuWebsite
 		// 
 		menuWebsite.Name = "menuWebsite";
-		menuWebsite.Size = new Size(180, 22);
+		menuWebsite.Size = new Size(166, 22);
 		menuWebsite.Text = "Website";
 		menuWebsite.Click += Menu_Website_Click;
 		// 
 		// menuFAQ
 		// 
 		menuFAQ.Name = "menuFAQ";
-		menuFAQ.Size = new Size(180, 22);
+		menuFAQ.Size = new Size(166, 22);
 		menuFAQ.Text = "FAQ";
 		menuFAQ.Click += Menu_FAQ_Click;
-		// 
-		// menuGitHub
-		// 
-		menuGitHub.Name = "menuGitHub";
-		menuGitHub.Size = new Size(180, 22);
-		menuGitHub.Text = "Github";
-		menuGitHub.Click += Menu_GitHub_Click;
 		// 
 		// menuForum
 		// 
 		menuForum.Name = "menuForum";
-		menuForum.Size = new Size(180, 22);
+		menuForum.Size = new Size(166, 22);
 		menuForum.Text = "Forum";
 		menuForum.Click += Menu_Forum_Click;
 		// 
 		// menuViewLog
 		// 
 		menuViewLog.Name = "menuViewLog";
-		menuViewLog.Size = new Size(180, 22);
+		menuViewLog.Size = new Size(166, 22);
 		menuViewLog.Text = "View logfile";
 		menuViewLog.Click += MenuViewLog_Click;
+		// 
+		// menuChangelog
+		// 
+		menuChangelog.Name = "menuChangelog";
+		menuChangelog.Size = new Size(166, 22);
+		menuChangelog.Text = "View Changelog";
+		menuChangelog.Click += MenuChangelog_Click;
 		// 
 		// menuDataDir
 		// 
 		menuDataDir.Name = "menuDataDir";
-		menuDataDir.Size = new Size(180, 22);
+		menuDataDir.Size = new Size(166, 22);
 		menuDataDir.Text = "Open Data Dir";
 		menuDataDir.Click += MenuDataDir_Click;
 		// 
 		// menuAppDir
 		// 
 		menuAppDir.Name = "menuAppDir";
-		menuAppDir.Size = new Size(180, 22);
+		menuAppDir.Size = new Size(166, 22);
 		menuAppDir.Text = "Open App Dir";
 		menuAppDir.Click += MenuAppDir_Click;
 		// 
 		// butSendAll
 		// 
-		butSendAll.Location = new Point(324, 30);
+		butSendAll.Location = new Point(431, 31);
 		butSendAll.Name = "butSendAll";
 		butSendAll.Size = new Size(80, 26);
 		butSendAll.TabIndex = 1;
@@ -339,10 +345,13 @@ partial class MainForm
 		// 
 		// lbGroups
 		// 
+		lbGroups.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
 		lbGroups.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
 		lbGroups.FormattingEnabled = true;
+		lbGroups.IntegralHeight = false;
 		lbGroups.ItemHeight = 20;
 		lbGroups.Location = new Point(12, 33);
+		lbGroups.MaximumSize = new Size(400, 400);
 		lbGroups.Name = "lbGroups";
 		lbGroups.Size = new Size(97, 204);
 		lbGroups.TabIndex = 6;
@@ -407,18 +416,18 @@ partial class MainForm
 		labRecvToday.Text = "0/0";
 		labRecvToday.TextAlign = ContentAlignment.MiddleRight;
 		// 
-		// groupBox1
+		// gbToday
 		// 
-		groupBox1.Controls.Add(label3);
-		groupBox1.Controls.Add(label2);
-		groupBox1.Controls.Add(labRecvToday);
-		groupBox1.Controls.Add(labSentToday);
-		groupBox1.Location = new Point(12, 315);
-		groupBox1.Name = "groupBox1";
-		groupBox1.Size = new Size(96, 58);
-		groupBox1.TabIndex = 14;
-		groupBox1.TabStop = false;
-		groupBox1.Text = "Today";
+		gbToday.Controls.Add(label3);
+		gbToday.Controls.Add(label2);
+		gbToday.Controls.Add(labRecvToday);
+		gbToday.Controls.Add(labSentToday);
+		gbToday.Location = new Point(12, 315);
+		gbToday.Name = "gbToday";
+		gbToday.Size = new Size(96, 58);
+		gbToday.TabIndex = 14;
+		gbToday.TabStop = false;
+		gbToday.Text = "Today";
 		// 
 		// label3
 		// 
@@ -528,32 +537,44 @@ partial class MainForm
 		menuStrip.TabIndex = 18;
 		menuStrip.Text = "Main Menu";
 		// 
-		// menuChangelog
+		// butRecvAll
 		// 
-		menuChangelog.Name = "menuChangelog";
-		menuChangelog.Size = new Size(180, 22);
-		menuChangelog.Text = "View Changelog";
-		menuChangelog.Click += MenuChangelog_Click;
+		butRecvAll.Location = new Point(287, 31);
+		butRecvAll.Name = "butRecvAll";
+		butRecvAll.Size = new Size(80, 26);
+		butRecvAll.TabIndex = 19;
+		butRecvAll.Text = "Recv All";
+		butRecvAll.UseVisualStyleBackColor = true;
+		butRecvAll.Click += ButRecvAll_Click;
 		// 
-		// toolStripSeparator5
+		// butSearch
 		// 
-		toolStripSeparator5.Name = "toolStripSeparator5";
-		toolStripSeparator5.Size = new Size(177, 6);
+		butSearch.BackgroundImage = Properties.Resources.search;
+		butSearch.BackgroundImageLayout = ImageLayout.Zoom;
+		butSearch.Location = new Point(373, 31);
+		butSearch.Name = "butSearch";
+		butSearch.Size = new Size(29, 26);
+		butSearch.TabIndex = 20;
+		butSearch.UseVisualStyleBackColor = true;
+		butSearch.Click += ButSearch_Click;
 		// 
 		// MainForm
 		// 
 		AutoScaleDimensions = new SizeF(7F, 15F);
 		AutoScaleMode = AutoScaleMode.Font;
 		ClientSize = new Size(534, 388);
+		Controls.Add(butSearch);
+		Controls.Add(butRecvAll);
 		Controls.Add(spliter);
 		Controls.Add(gbGroup);
-		Controls.Add(groupBox1);
+		Controls.Add(gbToday);
 		Controls.Add(cbSortOrder);
 		Controls.Add(lbGroups);
 		Controls.Add(butSendAll);
 		Controls.Add(menuStrip);
 		DoubleBuffered = true;
 		Icon = (Icon)resources.GetObject("$this.Icon");
+		KeyPreview = true;
 		MainMenuStrip = menuStrip;
 		MaximumSize = new Size(1600, 1800);
 		MinimumSize = new Size(550, 427);
@@ -563,9 +584,10 @@ partial class MainForm
 		Load += MainForm_Load;
 		Shown += MainForm_Shown;
 		ResizeEnd += MainForm_ResizeEnd;
+		KeyUp += MainForm_KeyUp;
 		Resize += MainForm_Resize;
-		groupBox1.ResumeLayout(false);
-		groupBox1.PerformLayout();
+		gbToday.ResumeLayout(false);
+		gbToday.PerformLayout();
 		gbGroup.ResumeLayout(false);
 		gbGroup.PerformLayout();
 		spliter.Panel1.ResumeLayout(false);
@@ -589,7 +611,7 @@ partial class MainForm
 	private Label labRecv;
 	private Label labSentToday;
 	private Label labRecvToday;
-	private GroupBox groupBox1;
+	private GroupBox gbToday;
 	private GroupBox gbGroup;
 	private Label label1;
 	private Label label5;
@@ -606,7 +628,6 @@ partial class MainForm
 	private ToolStripMenuItem menuHelp;
 	private ToolStripMenuItem menuHelpHeader;
 	private ToolStripMenuItem menuFAQ;
-	private ToolStripMenuItem menuGitHub;
 	private ToolStripMenuItem menuForum;
 	private ToolStripMenuItem menuWebsite;
 	private ToolStripMenuItem menuBackup;
@@ -624,4 +645,6 @@ partial class MainForm
 	private ToolStripMenuItem menuAppDir;
 	private ToolStripMenuItem menuResetLayout;
 	private ToolStripMenuItem menuChangelog;
+	private Button butRecvAll;
+	private Button butSearch;
 }

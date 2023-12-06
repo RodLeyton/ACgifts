@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.VisualBasic.Devices;
 
@@ -65,7 +66,6 @@ internal static class Program
 			if(hasHandle) mutex.ReleaseMutex();
 		}
 	}
-
 
 
 	private static void DoWork()
@@ -277,7 +277,6 @@ internal static class Program
 
 
 
-
 	public static void Log(string from, string msg)
 	{
 		lock(_locker)
@@ -302,6 +301,8 @@ internal static class Program
 			Debug.WriteLine(ex.StackTrace);
 #endif
 		}
+
+		//var _ = new BugReport(GetLogContent(), ex);
 	}
 
 
@@ -332,4 +333,4 @@ internal static class Program
 
 
 
-}
+	}
